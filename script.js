@@ -68,11 +68,7 @@ function blackAndWhite(){
 	var data = imageData.data;
 	for (var i = 0; i < data.length; i += 4) {
 		var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-		if (settings['invertColors']){
-			avg > settings['threshold'] ? avg = 0 : avg = 255;
-		}else{
-			avg > settings['threshold'] ? avg = 255 : avg = 0;
-		}
+		avg > settings['threshold'] ? avg = 255 : avg = 0;
 		data[i]     = avg; // red
 		data[i + 1] = avg; // green
 		data[i + 2] = avg; // blue
@@ -101,7 +97,7 @@ function place_image(){
 	canvas.width = settings['screenWidth'];
 	canvas.height = settings['screenHeight'];
 
-	// Invert colors if needed
+	// Invert background if needed
 	if (settings['invertColors']){
 		settings['backgroundColor'] == 'white' ? ctx.fillStyle = 'black' : ctx.fillStyle = 'white';
 	}else{
@@ -149,6 +145,9 @@ function place_image(){
 	}
 	// Make sure the image is black and white
 	blackAndWhite();
+	if(settings['invertColors']){
+		invert();
+	}
 }
 
 
