@@ -63,9 +63,10 @@ const unsigned char myBitmap [] PROGMEM = {
 
 };
 void setup()   {                
-  // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
-  // If the screen doesn't update, try using 0x3C instead 
+  // On my display, I had to used 0x3C as the address, something to do with the RESET not being
+  // connected to the Arduino. THe 0x3D address below is the address used in the original
+  // Adafruit OLED example 
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
   
   display.clearDisplay(); // Make sure the display is cleared
   // Draw the bitmap:
