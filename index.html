@@ -1,3 +1,11 @@
+<!--
+	"image2cpp"
+	Original utility by:
+	https://jaspervanloenen.com
+
+	This is a modified version by:
+	https://wiredolphine.net
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,6 +56,10 @@
 			width: 100%;
 		}
 		h1{
+			margin: 0;
+		}
+		#variableNameContainer {
+			display: none;
 			margin: 0;
 		}
 	</style>
@@ -108,8 +120,12 @@
 
 		<p>
 			<h2>4. Output</h2>
-			<label for="addArduinoCode">Add Arduino code</label><input id="addArduinoCode" type="checkbox" onchange="updateBoolean('addArduinoCode')" /><br />
+			<label for="addArduinoCode">Add Arduino code</label><input id="addArduinoCode" type="checkbox" onchange="updateArduinoCode(this)" /><br />
 			<i>Adds some extra Arduino code around the output for easy copy-paste into <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">this example</a>.</i><br />
+			<p id="variableNameContainer">
+				<label>Variable name:</label>
+				<input id="variableName" class="textInput" type="text" name="variableName" onchange="" value="myBitmap"/>
+			</p>
 			<br />
 			<label>Draw mode:</label>
 			<input id="drawModeHorizontal" type="radio" name="drawMode" value="horizontal" checked="checked" onchange="updateRadio('drawMode')"/><label for="drawModeHorizontal" class="smallLabel">Horizontal</label>
@@ -130,7 +146,7 @@
 
 
 		// Filetypes accepted by the file picker
-		var fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif'];
+		var fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
 
 
 		// The canvas we will draw on
@@ -159,6 +175,9 @@
 			invertColors: false
 		};
 
+		// Variable name, when 'arduino code' is required
+		var variableName = 'myBitmap';
+
 
 		// Easy way to update settings controlled by a textfield
 		function updateInteger(fieldName){
@@ -185,6 +204,12 @@
 			place_image();
 		}
 
+		// Updates Arduino code check-box
+		function updateArduinoCode(checkbox) {
+			var c = document.getElementById('variableNameContainer');
+			c && checkbox.checked ? c.style.display = "block" : c.style.display = "none";
+			settings['addArduinoCode'] = checkbox.checked;
+		}
 
 		// Make the canvas black and white
 		function blackAndWhite(){
@@ -406,6 +431,13 @@
 		}
 
 
+		// Get the custom arduino output variable name, if any
+		function getVariableName() {
+			var vn = document.getElementById('variableName'); 
+			return vn && vn.value.length ? vn.value : variableName;
+		}
+
+
 		// Output the image string to the textfield
 		function outputString(){
 			var output_string = "";
@@ -416,7 +448,7 @@
 			}
 
 			if(settings['addArduinoCode']){
-				output_string = "const unsigned char myBitmap [] PROGMEM = {\n" + output_string + "\n};";
+				output_string = "const unsigned char " + getVariableName() + " [] PROGMEM = {\n" + output_string + "\n};";
 			}
 			document.getElementById('outputField').value = output_string;
 		}
@@ -555,4 +587,3 @@
 	</script>
 </body>
 </html>
-
