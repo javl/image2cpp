@@ -4,7 +4,7 @@ image2cpp is a simple tool to change images into byte arrays to use with (monoch
 
 Alternatively you can also enter a byte array as input to turn it back into an image. This might be useful for debugging, or when you want to write the byte array yourself. I don't know.
 
-### running the tool ###
+### Running the tool ###
 You don't need any special dependencies / internet connection; all the necessary parts sit in a single .html file. So just open this index.html page in a (recent) browser to run the tool.
 Or you can use the online version at: http://javl.github.io/image2cpp/
 
