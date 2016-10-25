@@ -62,6 +62,9 @@
 			display: none;
 			margin: 0;
 		}
+		canvas{
+			border: 1px solid black;
+		}
 	</style>
 </head>
 <body>
@@ -113,7 +116,7 @@
 
 		<p>
 			<h2>3. Preview</h2>
-			<canvas id="imageCanvas" style="border: 1px solid black;" width="128" height="64"></canvas>
+			<canvas id="previewCanvas" width="128" height="64"></canvas>
 		</p>
 
 		<hr />
@@ -150,7 +153,7 @@
 
 
 		// The canvas we will draw on
-		var canvas = document.getElementById('imageCanvas');
+		var canvas = document.getElementById('previewCanvas');
 		var ctx = canvas.getContext('2d');
 
 
@@ -433,7 +436,7 @@
 
 		// Get the custom arduino output variable name, if any
 		function getVariableName() {
-			var vn = document.getElementById('variableName'); 
+			var vn = document.getElementById('variableName');
 			return vn && vn.value.length ? vn.value : variableName;
 		}
 
