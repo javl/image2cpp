@@ -13,3 +13,6 @@ You can find a simple Arduino example sketch [over here](https://github.com/javl
 
 ### Screen types ###
 I wrote the code with my 128x64 pixel monochrome OLED display in mind, but it should work with most similar displays. You might need to change some export settings; those are explained in the tool.
+
+### Credit ###
+Initial code by [javl](https://github.com/javl), with aditional code by [wiredolphine](https://github.com/wiredolphin). The example sketch was made by Adafruit.
