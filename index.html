@@ -846,9 +846,8 @@
 								image.glyph : 
 									String.fromCharCode(firstAschiiChar++)) + "'"
 							+ " }"
-							+ " // '" + image.glyph + "'"
 						if(image != images.last()) code += ",";
-						code += "\n";
+						code += " // '" + image.glyph + "'\n";
 						offset += image.canvas.width;
 					});
 					code += "};\n";
