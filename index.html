@@ -42,8 +42,13 @@
 		}
 		.column {
 			float: left;
-			min-width: 100px;
-			margin: 0 20px 0 0;
+		}
+		.column-center {
+			min-width: 160px;
+			text-align: center;
+		}
+		.column-right {
+			float: right;
 		}
 		.sub-section-title {
 			margin: 0 0 10px;
@@ -70,15 +75,15 @@
 			color: #505050;
 		}
 		.byte-input {
-			min-width: 400px;
-			min-height: 200px;
+			min-width: 360px;
+			min-height: 160px;
 		}
 		.code-output {
 			width: 100%;
 			height: 200px;
 		}
 		.note { color: #666666; margin: 3px 0; font-size: .9em; line-height: 1.4em; }
-		button {
+		button, input[type="file"]::-webkit-file-upload-button {
 			margin: 10px 0;
 			background: #00CB99;
 			border: none;
@@ -87,6 +92,10 @@
 			font-weight: 100;
 			font-size: .9em;
 			border-radius: 3px;
+		}
+		input[type="file"]::-webkit-file-upload-button {
+			padding: 6px 20px;
+			font-size: 1.6em;
 		}
 		.generate-button {
 			margin: 40px 0 20px;
@@ -133,10 +142,10 @@
 					<h2 class="sub-section-title">1. Select image</h2>
 					<input type="file" id="file-input" name="file-input" multiple/><br />
 				</div>
-				<div class="column">
+				<div class="column column-center">
 					<h2 class="sub-section-title">or</h2>
 				</div>
-				<div class="column">
+				<div class="column column-right">
 					<h2 class="sub-section-title">1. Paste byte array</h2>
 					<textarea id="byte-input" class="byte-input"></textarea><br />
 					<button onclick="handleTextInput('horizontal')">Read as horizontal</button>
