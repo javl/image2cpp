@@ -822,7 +822,8 @@
 					
 					output_string = output_string.substring(0, output_string.length - 3);
 					output_string = "const unsigned char " 
-						+ getIdentifier() 
+						+ getIdentifier()
+						+ "Bitmap"
 						+ " [] PROGMEM = {" 
 						+ "\n" + output_string + "\n};\n\n"
 						+ "const GFXbitmapGlyph "
@@ -858,7 +859,7 @@
 						+ getIdentifier()
 						+ "Font PROGMEM = {\n"
 						+ "\t(uint8_t *)"
-						+ getIdentifier() + ",\n"
+						+ getIdentifier() + "Bitmap,\n"
 						+ "\t(GFXbitmapGlyph *)"
 						+ getIdentifier()
 						+ "Glyphs,\n"
