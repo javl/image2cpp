@@ -1,158 +1,358 @@
+<!--
+	"image2cpp"
+	Original utility by:
+	https://jaspervanloenen.com
+
+	This is the 2nd revision of the modified version by:
+	https://wiredolphin.net
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<title>image2cpp</title>
+
 	<style type="text/css">
+		* {
+		   margin: 0;
+		   padding: 0;
+		}
 		body{
 			font-family: arial;
 		}
-		.wrapper{
+		.wrapper {
 			width: 800px;
 			margin: auto;
+			display: flex;
+			flex-direction: column;
 		}
-		.numberInput{
-			width: 50px;
+		.section {
+			margin: 10px 0;
 		}
-		label{
-			width: 220px;
-			display: inline-block;
-			font-weight: bold;
+		.bottom-divider {
+			border-bottom: 2px solid #000000;
+			padding-bottom: 20px;
 		}
-		label.smallLabel{
-			width: auto;
+		.sub-section {
+			clear: both;
+			margin-bottom: 1px;
 		}
-		td{
-			text-align: left;
-			vertical-align: top;
-		}
-		td.or{
-			padding: 20px;
-			width: 100px;
-			font-size: 30px;
-			/*vertical-align: center;*/
-		}
-		hr{
-			height: 3px;
-			background-color: black;
-			border: none;
-		}
-		img.inlineImg{
-			display: inline-block;
-		}
-		textarea.fullWidth{
-			width: 100%;
-			height: 100px;
-		}
-		table{
+		.section, .sub-section {
 			width: 100%;
 		}
-		h1{
-			margin: 0;
+		.column {
+			float: left;
 		}
-		#variableNameContainer {
+		.column-center {
+			min-width: 160px;
+			text-align: center;
+		}
+		.column-right {
+			float: right;
+		}
+		.sub-section-title {
+			margin: 0 0 10px;
+		}
+		p {
+			margin: 20px 0;
+		}
+		.table { display: table; width: 100%; margin: 10px 0 0;}
+		.table-row { display: table-row; width: 100%; }
+		.table-cell { display: table-cell; padding: 5px 0;}
+		.table-cell:first-child { width: 30%; }
+		.table-cell:last-child { width: 70%; }
+		.table-cell:first-child label {font-weight: bold; }
+		.table-cell:last-child label { margin-right: 10px; }
+		.nested-table { margin: 0; }
+		.nested-table .table-cell { font-size: .9em; color: #666; width: 200px; }
+		.nested-table .table-cell:first-child {  }
+		#format-caption-container div {
 			display: none;
-			margin: 0;
+			width: 100%;
+			padding: 10px 0 15px;
+			font-size: .9em;
+			line-height: 1.4em;
+			color: #505050;
 		}
+		.byte-input {
+			min-width: 360px;
+			min-height: 160px;
+		}
+		.code-output {
+			width: 100%;
+			height: 200px;
+		}
+		.note { color: #666666; margin: 3px 0; font-size: .9em; line-height: 1.4em; }
+		button, input[type="file"]::-webkit-file-upload-button {
+			margin: 10px 0;
+			background: #00CB99;
+			border: none;
+			padding: 4px 8px;
+			color: #fff;
+			font-weight: 100;
+			font-size: .9em;
+			border-radius: 3px;
+		}
+		input[type="file"]::-webkit-file-upload-button {
+			padding: 6px 20px;
+			font-size: 1.6em;
+		}
+		.generate-button {
+			margin: 40px 0 20px;
+		}
+		.remove-button {
+			margin: 0 0 0 10px;
+			padding: 1px 4px;
+		}
+		.file-info {
+			font-size: .7em;
+			color: #505050;
+			margin-left: 20px;
+			white-space: pre;
+			max-width: 300px;
+		}
+		.size-input{ width: 45px; }
+		.glyph-input { width: 80px; margin-left: 10px; }
+		#image-size-settings { list-style-type: none; }
+		#image-size-settings li { margin: 4px 0; }
+		#images-canvas-container canvas {
+			border: 3px solid #00CB99;
+			margin: 10px 15px;
+		}
+		#images-canvas-container {
+			display: flex;
+   		flex-wrap: wrap;
+   		align-items: flex-start;
+		}
+		#extra-settings-container {  }
+		#arduino-identifier, #adafruit-gfx-settings, #all-same-size { display: none; }
+		.msg { font-size: 1.2em; }
+		.error-msg { color: #ff0000; display: none; }
 	</style>
 </head>
 <body>
 	<div class="wrapper">
-		<h1>image2cpp</h1>
-		<p>
-			<a href="https://github.com/javl/image2cpp" target="_blank">Click here to visit the Github repo for this tool.</a>
-		</p>
-		<p>
-		<table>
-			<tr>
-				<td>
-					<h2>1. Select image</h2>
-					<input type="file" id="fileInput" name="fileinput"/><br />
-					<label>Selected image size:</label> <span id="imageSize">no image selected</span>
-				</h4>
-				<td class="or">or</td>
-				<td>
-					<h2>1. Paste byte array</h2>
-					<textarea id="textInput" class="fullWidth"></textarea><br />
+		<section class="section">
+			<h1>image2cpp</h1>
+			<p><a href="https://github.com/javl/image2cpp" target="_blank">Click here to visit the Github repo for this tool.</a></p>
+		</section>
+		<section class="section bottom-divider">
+			<section class="sub-section">
+				<div class="column">
+					<h2 class="sub-section-title">1. Select image</h2>
+					<input type="file" id="file-input" name="file-input" multiple/><br />
+				</div>
+				<div class="column column-center">
+					<h2 class="sub-section-title">or</h2>
+				</div>
+				<div class="column column-right">
+					<h2 class="sub-section-title">1. Paste byte array</h2>
+					<textarea id="byte-input" class="byte-input"></textarea><br />
 					<button onclick="handleTextInput('horizontal')">Read as horizontal</button>
 					<button onclick="handleTextInput('vertical')">Read as vertical</button>
-				</td>
-			</tr>
-		</table>
-		</p>
-		<hr />
-
-		<p>
+				</div>
+			</section>
+		</section>
+		<section class="section bottom-divider">
 			<h2>2. Image Settings</h2>
-			<label>Canvas size: </label> <input id="screenWidth" class="numberInput" type="text" name="screenWidth" onchange="updateInteger('screenWidth')" value="128"/> * <input id="screenHeight" class="numberInput" type="text" name="screenHeight" onchange="updateInteger('screenHeight')" value="64"/> pixels<br />
-			<label>Background color:</label>
-			<input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked="checked" onchange="updateRadio('backgroundColor')"/><label for="backgroundColorWhite" class="smallLabel">White</label>
-			<input id="backgroundColorBlack" type="radio" name="backgroundColor" value="black" onchange="updateRadio('backgroundColor')"/><label for="backgroundColorBlack" class="smallLabel">Black</label><br />
-			<label>Brightness threshold: </label> <input id="threshold" class="numberInput" type="text" name="threshold" onchange="updateInteger('threshold')" value="128"/> <i>0 - 255; pixels with brightness above become white, below become black.</i><br/>
-			<label for="scale">Scaling</label>
-			<select id="scale" name="scale" onchange="updateInteger('scale')">
-				<option value="1">original size</option>
-				<option value="2">scale to fit, keeping proportions</option>
-				<option value="3">stretch to fill canvas</option>
-				<option value="4">stretch to fill canvas horizontally</option>
-				<option value="5">stretch to fill canvas vertically</option>
-			</select><br />
-
-			<label for="centerHorizontally">Center horizontally</label><input id="centerHorizontally" type="checkbox" onchange="updateBoolean('centerHorizontally')" /><br />
-			<label for="centerVertically">Center vertically</label><input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" /><br />
-			<i>Centering the image only works when using a canvas larger than the selected image.</i><br />
-			<label for="invertColors">Invert image colors</label><input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" />
-		</p>
-
-		<hr />
-
-		<p>
+			<section class="sub-section">
+				<div class="table">
+					<div class="table-row">
+						<div class="table-cell"><label>Canvas size/s: </label></div>
+						<div class="table-cell">
+							<ul id="image-size-settings"></ul>
+							<div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
+							<div id="no-file-selected" class="msg">No files selected</div>
+							<button id="all-same-size">all same size</button>
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label>Background color:</label></div>
+						<div class="table-cell">
+							<input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked="checked" onchange="updateRadio('backgroundColor')"/>
+							<label for="backgroundColorWhite" class="smallLabel">White</label>
+							<input id="backgroundColorBlack" type="radio" name="backgroundColor" value="black" onchange="updateRadio('backgroundColor')"/>
+							<label for="backgroundColorBlack" class="smallLabel">Black</label>
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label for="invertColors">Invert image colors</label></div>
+						<div class="table-cell">
+							<input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" />
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label>Brightness threshold: </label></div>
+						<div class="table-cell">
+							<input id="threshold" class="size-input" type="text" name="threshold" onchange="updateInteger('threshold')" value="128"/>
+							<div class="note"><i>0 - 255; pixels with brightness above become white, below become black.</i></div>
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label for="scale">Scaling</label></div>
+						<div class="table-cell">
+							<select id="scale" name="scale" onchange="updateInteger('scale')">
+								<option value="1">original size</option>
+								<option value="2">scale to fit, keeping proportions</option>
+								<option value="3">stretch to fill canvas</option>
+								<option value="4">stretch to fill canvas horizontally</option>
+								<option value="5">stretch to fill canvas vertically</option>
+							</select>
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label>Center:</label></div>
+						<div class="table-cell">
+							<input id="centerHorizontally" type="checkbox" onchange="updateBoolean('centerHorizontally')" />
+							<label for="centerHorizontally">horizontally</label>
+							<input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
+							<label for="centerVertically">vertically</label>
+						</div>
+					</div>
+				</div>
+				<div class="note">
+					<i>NOTE: Centering the image only works when using a canvas larger than the selected image.</i>
+				</div>
+			</section>
+		</section>
+		<section class="section bottom-divider">
 			<h2>3. Preview</h2>
-			<canvas id="imageCanvas" style="border: 1px solid black;" width="128" height="64"></canvas>
-		</p>
-
-		<hr />
-
-		<p>
+			<section class="sub-section">
+				<div id="images-canvas-container"></div>
+			</section>
+		</section>
+		<section class="section">
 			<h2>4. Output</h2>
-			<label for="addArduinoCode">Add Arduino code</label><input id="addArduinoCode" type="checkbox" onchange="updateArduinoCode(this)" /><br />
-			<i>Adds some extra Arduino code around the output for easy copy-paste into <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">this example</a>.</i><br />
-			<p id="variableNameContainer">
-				<label>Variable name:</label>
-				<input id="variableName" class="textInput" type="text" name="variableName" onchange="" value="myBitmap"/>
-			</p>
-			<br />
-			<label>Draw mode:</label>
-			<input id="drawModeHorizontal" type="radio" name="drawMode" value="horizontal" checked="checked" onchange="updateRadio('drawMode')"/><label for="drawModeHorizontal" class="smallLabel">Horizontal</label>
-			<input id="drawModeVertical" type="radio" name="drawMode" value="vertical" onchange="updateRadio('drawMode')"/><label for="drawModeVertical" class="smallLabel">Vertical</label><br />
-			<i>If your image looks all messed up on your display, like the image below, try the other mode.</i><br />
-			<br />
-			<img class="inlineImg" src="img/error.jpg" width="150" height="64" alt="" /><br /><br />
-			<button type="button" onclick="outputString()">Generate code</button><br /><br />
-			<textarea id="outputField" class="fullWidth"></textarea>
-		</p>
+			<section class="sub-section">
+				<div class="table">
+					<div class="table-row">
+						<div class="table-cell"><label for="outputFormat">Code output format</label></div>
+						<div class="table-cell">
+							<select id="outputFormat" name="outputFormat" onchange="updateOutputFormat(this)">
+								<option value="plain">plain bytes</option>
+								<option value="arduino">Arduino code</option>
+								<option value="arduino_single">Arduino code, single bitmap</option>
+								<option value="adafruit_gfx">Adafruit GFXbitmapFont</option>
+							</select>
+							<div id="format-caption-container">
+								<div data-caption="arduino">
+									Adds some extra Arduino code around the output for easy copy-paste into
+									<a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">this example</a>.
+									If multiple images are loaded, generates a byte array for each and appends a counter to the identifier.
+								</div>
+								<div data-caption="arduino_single">
+									Adds some extra Arduino code around the output for easy copy-paste.
+									If multiple images are loaded, generates a single byte array.
+								</div>
+								<div data-caption="adafruit_gfx">
+									Creates a <code>GFXbitmapFont</code> formatted ouput. Used by a modified version of the Adafruit GFX library.
+									GitHub project and example <a href="https://github.com/wiredolphin/Adafruit-GFX-Library/tree/bitmap-font" target="_blank">here</a>.
+									<br />
+									<i>First ASCII character</i> value is used only if a glyph identifier of length equal to 1 is not provided for each image. The value itself will be incremented by 1 for each glyph.
+								</div>
+							</div>
+							<div id="extra-settings-container">
+								<div id="adafruit-gfx-settings" class="table nested-table">
+									<div class="table-row">
+										<div class="table-cell"><label>First ASCII character (dec):</label></div>
+										<div class="table-cell">
+											<input id="first-ascii-char" class="text-input" type="text" name="first-ascii-char" onchange="" value="48"/>
+										</div>
+									</div>
+									<div class="table-row">
+										<div class="table-cell"><label>x advance:</label></div>
+										<div class="table-cell">
+											<input id="x-advance" class="text-input" type="text" name="x-advance" onchange="" value="0"/>
+										</div>
+									</div>
+								</div>
+								<div id="arduino-identifier" class="table nested-table">
+									<div class="table-row">
+										<div class="table-cell"><label>Identifier:</label></div>
+										<div class="table-cell">
+											<input id="identifier" class="text-input" type="text" name="identifier" onchange="" value="myBitmap"/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="table-row">
+						<div class="table-cell"><label>Draw mode:</label></div>
+						<div class="table-cell">
+							<input id="drawModeHorizontal" type="radio" name="drawMode" value="horizontal" checked="checked" onchange="updateRadio('drawMode')"/>
+							<label for="drawModeHorizontal" class="smallLabel">Horizontal</label>
+							<input id="drawModeVertical" type="radio" name="drawMode" value="vertical" onchange="updateRadio('drawMode')"/>
+							<label for="drawModeVertical" class="smallLabel">Vertical</label>
+						</div>
+					</div>
+				</div>
+				<div class="note">
+					<i>If your image looks all messed up on your display, like the image below, try the other mode.</i>
+				</div>
+				<img class="inlineImg"
+					src="data:image/jpeg;base64,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"
+				width="150" height="64" alt="" />
+			</section>
+			<section class="sub-section">
+				<button type="button" class="generate-button" onclick="outputString()">Generate code</button>
+				<textarea id="code-output" class="code-output"></textarea>
+			</section>
+		</section>
 	</div>
+
+
 	<script type="text/javascript">
 
+		// An images collection with helper methods
+		function Images() {
+			var collection = [];
+			this.push = function(img, canvas, glyph) {
+				collection.push({ "img" : img, "canvas" : canvas, "glyph" : glyph });
+			};
+			this.remove = function(image) {
+				var i = collection.indexOf(image);
+				if(i != -1) collection.splice(i, 1);
+			};
+			this.each = function(f) { collection.forEach(f); };
+			this.length = function() { return collection.length; };
+			this.first = function() { return collection[0]; };
+			this.last = function() { return collection[collection.length - 1]; };
+			this.get = function(img) {
+				if(img) {
+					for(var i = 0; i < collection.length; i++) {
+						if(collection[i].img == img) {
+							return collection[i];
+						}
+					}
+				}
+				return collection;
+			};
+			return this;
+		}
+
 		// Add events to the file input button
-		var fileInput = document.getElementById('fileInput');
+		var fileInput = document.getElementById('file-input');
 		fileInput.addEventListener('click', function(){this.value = null;}, false);
 		fileInput.addEventListener('change', handleImageSelection, false);
-
 
 		// Filetypes accepted by the file picker
 		var fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
 
-
 		// The canvas we will draw on
-		var canvas = document.getElementById('imageCanvas');
-		var ctx = canvas.getContext('2d');
+		var canvasContainer = document.getElementById('images-canvas-container');
+		// multiple images settings container
+		var imageSizeSettings = document.getElementById('image-size-settings');
+		// all images same size button
+		var allSameSizeButton = document.getElementById('all-same-size');
+		// error message
+		var onlyImagesFileError = document.getElementById("only-images-file-error");
+		// initial message
+		var noFileSelected = document.getElementById("no-file-selected");
 
-
-		// The variable to hold our image. Global so we can easily reuse it when the
+		// The variable to hold our images. Global so we can easily reuse it when the
 		// user updates the settings (change canvas size, scale, invert, etc)
-		var img = new Image();
-
+		var images;
 
 		// A bunch of settings used when converting
 		var settings = {
@@ -166,27 +366,28 @@
 			scale: '1',
 			drawMode: 'horizontal',
 			threshold: 128,
-			addArduinoCode: false,
+			outputFormat: "plain",
 			invertColors: false
 		};
 
 		// Variable name, when 'arduino code' is required
-		var variableName = 'myBitmap';
+		var identifier = 'myBitmap';
 
+		function update() {
+			images.each(function(image) { place_image(image); });
+		}
 
 		// Easy way to update settings controlled by a textfield
 		function updateInteger(fieldName){
 			settings[fieldName] = document.getElementById(fieldName).value;
-			place_image();
+			update();
 		}
-
 
 		// Easy way to update settings controlled by a checkbox
 		function updateBoolean(fieldName){
 			settings[fieldName] = document.getElementById(fieldName).checked;
-			place_image();
+			update();
 		}
-
 
 		// Easy way to update settings controlled by a radiobutton
 		function updateRadio(fieldName){
@@ -196,18 +397,30 @@
 					settings[fieldName] = radioGroup[i].value;
 				}
 			}
-			place_image();
+			update();
 		}
 
 		// Updates Arduino code check-box
-		function updateArduinoCode(checkbox) {
-			var c = document.getElementById('variableNameContainer');
-			c && checkbox.checked ? c.style.display = "block" : c.style.display = "none";
-			settings['addArduinoCode'] = checkbox.checked;
+		function updateOutputFormat(elm) {
+
+			var caption = document.getElementById("format-caption-container");
+			var adafruitGfx = document.getElementById("adafruit-gfx-settings");
+			var arduino = document.getElementById('arduino-identifier');
+
+			for(var i = 0; i < caption.children.length; i++) {
+				caption.children[i].style.display = "none";
+			}
+			caption = document.querySelector("div[data-caption='" + elm.value + "']");
+			if(caption) caption.style.display = "block";
+
+			elm.value != "plain" ? arduino.style.display = "block" : arduino.style.display = "none";
+			elm.value == "adafruit_gfx" ? adafruitGfx.style.display = "block" : adafruitGfx.style.display = " none";
+
+			settings['outputFormat'] = elm.value;
 		}
 
 		// Make the canvas black and white
-		function blackAndWhite(){
+		function blackAndWhite(canvas, ctx){
 			var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
 			var data = imageData.data;
 			for (var i = 0; i < data.length; i += 4) {
@@ -222,7 +435,7 @@
 
 
 		// Invert the colors of the canvas
-		function invert() {
+		function invert(canvas, ctx) {
 			var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
 			var data = imageData.data;
 			for (var i = 0; i < data.length; i += 4) {
@@ -233,13 +446,17 @@
 			ctx.putImageData(imageData, 0, 0);
 		};
 
-
 		// Draw the image onto the canvas, taking into account color and scaling
-		function place_image(){
+		function place_image(image){
+
+			var img = image.img;
+			var canvas = image.canvas;
+			var ctx = canvas.getContext('2d');
+			image.ctx = ctx;
 
 			// Make sure we're using the right canvas size
-			canvas.width = settings['screenWidth'];
-			canvas.height = settings['screenHeight'];
+			//canvas.width = settings['screenWidth'];
+			//canvas.height = settings['screenHeight'];
 
 			// Invert background if needed
 			if (settings['invertColors']){
@@ -288,9 +505,9 @@
 				break;
 			}
 			// Make sure the image is black and white
-			blackAndWhite();
+			blackAndWhite(canvas, ctx);
 			if(settings['invertColors']){
-				invert();
+				invert(canvas, ctx);
 			}
 		}
 
@@ -298,7 +515,7 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
-			var input = document.getElementById('textInput').value;
+			var input = document.getElementById('byte-input').value;
 
 			// Remove Arduino code
 			input = input.replace(/const unsigned char myBitmap \[\] PROGMEM = \{/g, "");
@@ -321,36 +538,136 @@
 		}
 
 
+		function allSameSize(images, files) {
+			if(images.length() > 1 && images.length() == files.length) {
+    			var inputs = imageSizeSettings.querySelectorAll("input");
+    			allSameSizeButton.onclick = function() {
+ 					for(var i = 2; i < inputs.length; i++) {
+ 						if(inputs[i].name == "width") {
+ 							inputs[i].value = inputs[0].value;
+ 							inputs[i].oninput();
+ 						}
+ 						if(inputs[i].name == "height") {
+ 							inputs[i].value = inputs[1].value;
+ 							inputs[i].oninput();
+ 						}
+
+ 					}
+    			};
+    			allSameSizeButton.style.display = "block";
+    		}
+		}
+
 		// Handle selecting an image with the file picker
-		function handleImageSelection(e){
-			var reader = new FileReader();
-			reader.onload = function(event){
-				// Crude check to see if the uploaded file is an image
-				if (reader.result.substring (0, 10) != "data:image"){
-					alert("Please select an image file.");
-					return false;
+		function handleImageSelection(evt){
+
+			var files = evt.target.files;
+			onlyImagesFileError.style.display = "none";
+
+			files.length > 0 ?
+				noFileSelected.style.display = "none" :
+					noFileSelected.style.display = "block";
+
+			for (var i = 0, f; f = files[i]; i++) {
+
+				// Only process image files.
+		      if(!f.type.match('image.*')) {
+		      	onlyImagesFileError.style.display = "block";
+					continue;
 				}
 
-				img.onload = function(){
-					// Show the size underneath the file picker
-					document.getElementById('imageSize').innerHTML = img.width+" * " + img.height + " pixels";
+				var reader = new FileReader();
+				images = new Images();
 
-					// Resize the canvas and update the input fields
-					document.getElementById('screenWidth').value = img.width;
-					document.getElementById('screenHeight').value = img.height;
-					settings['screenWidth'] = img.width;
-					settings['screenHeight'] = img.height;
+				reader.onload = (function(file) {
+					return function(e) {
+						// Render thumbnail.
+						var img = new Image();
 
-					place_image();
-				}
-				img.src = event.target.result;
-			}
-			reader.readAsDataURL(e.target.files[0]);
+						img.onload = function(){
+
+							var canvas = document.createElement('canvas');
+
+							var imageEntry = document.createElement('li');
+							imageEntry.setAttribute('data-img', file.name);
+
+							var w = document.createElement('input');
+							w.type = "text";
+							w.name = "width";
+							w.className = "size-input";
+							w.value = img.width;
+							w.oninput = function() { canvas.width = this.value; update(); };
+
+							var h = document.createElement('input');
+							h.type = "text";
+							h.name = "height";
+							h.className = "size-input";
+							h.value = img.height;
+							h.oninput = function() { canvas.height = this.value; update(); };
+
+							var gil = document.createElement('span');
+							gil.innerHTML = "glyph";
+							gil.className = "file-info";
+
+							var gi = document.createElement('input');
+							gi.type = "text";
+							gi.name = "glyph";
+							gi.className = "glyph-input";
+							gi.onchange = function() {
+								var image = images.get(img);
+								image.glyph = gi.value;
+							};
+
+							var fn = document.createElement('span');
+							fn.className = "file-info";
+							fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
+
+							var rb = document.createElement('button');
+							rb.className = "remove-button";
+							rb.innerHTML = "remove";
+							rb.onclick = function() {
+								var image = images.get(img);
+								canvasContainer.removeChild(image.canvas);
+								images.remove(image);
+								imageSizeSettings.removeChild(imageEntry);
+								if(imageSizeSettings.children.length == 1) {
+									allSameSizeButton.style.display = "none";
+								}
+								if(images.length() == 0) noFileSelected.style.display = "block";
+								update();
+							};
+
+							imageEntry.appendChild(w);
+							imageEntry.appendChild(document.createTextNode(" x "));
+							imageEntry.appendChild(h);
+							imageEntry.appendChild(gil);
+							imageEntry.appendChild(gi);
+							imageEntry.appendChild(rb);
+							imageEntry.appendChild(fn);
+
+							imageSizeSettings.appendChild(imageEntry);
+
+							canvas.width = img.width;
+							canvas.height = img.height;
+							canvasContainer.appendChild(canvas);
+
+							images.push(img, canvas, file.name.split('.')[0]);
+							place_image(images.last());
+							allSameSize(images, files);
+						}
+						img.src = e.target.result;
+					};
+				})(f);
+				reader.readAsDataURL(f);
+    		}
 		}
 
 
 		// Output the image as a string for horizontally drawing displays
-		function imageToStringHorizontal(){
+		function imageToStringHorizontal(image){
+			var ctx = image.ctx;
+			var canvas = image.canvas;
+
 			var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
 			var output_string = "";
@@ -359,20 +676,20 @@
 			var byteIndex = 7;
 			var number = 0;
 
-			for (var index=0; index < imageData.data.length; index+=4){
-				var avg = (imageData.data[index] + imageData.data[index +1] + imageData.data[index +2]) / 3;
-				if (avg > settings['threshold']){
+			for(var index = 0; index < imageData.data.length; index += 4){
+				var avg = (imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2]) / 3;
+				if(avg > settings['threshold']){
 					number += Math.pow(2, byteIndex);
 				}
 				byteIndex--;
 
 				if(byteIndex < 0){
 					var byteSet = number.toString(16);
-					if (byteSet.length == 1){ byteSet = "0"+byteSet; }
+					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
 					var b = "0x"+byteSet;
-					output_string += b+", ";
+					output_string += b + ", ";
 					output_index++;
-					if (output_index >= 16){
+					if(output_index >= 16){
 						output_string += "\n";
 						output_index = 0;
 					}
@@ -385,10 +702,12 @@
 
 
 		// Output the image as a string for vertically drawing displays
-		function imageToStringVertical(){
+		function imageToStringVertical(image){
 			var x = 0;
 			var y = 7;
 			var page = 0;
+			var ctx = image.ctx;
+			var canvas = image.canvas;
 
 			var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 			var data = imageData.data;
@@ -396,9 +715,8 @@
 			var output_string = "";
 			var output_index = 0;
 
-
-			for (var p=0; p<Math.ceil(settings['screenHeight']/8);p++){
-				for (var x=0;x<=settings['screenWidth'];x++){
+			for(var p=0; p < Math.ceil(settings['screenHeight'] / 8); p++){
+				for(var x = 0;x <= settings['screenWidth']; x++){
 				// for (var x=0;x<1;x++){
 					var byteIndex = 7;
 					var number = 0;
@@ -414,9 +732,9 @@
 					var byteSet = number.toString(16);
 					if (byteSet.length == 1){ byteSet = "0"+byteSet; }
 					var b = "0x"+byteSet.toString(16);
-					output_string += b+", ";
+					output_string += b + ", ";
 					output_index++;
-					if (output_index >= 16){
+					if(output_index >= 16){
 						output_string += "\n";
 						output_index = 0;
 					}
@@ -427,27 +745,146 @@
 
 
 		// Get the custom arduino output variable name, if any
-		function getVariableName() {
-			var vn = document.getElementById('variableName');
-			return vn && vn.value.length ? vn.value : variableName;
+		function getIdentifier() {
+			var vn = document.getElementById('identifier');
+			return vn && vn.value.length ? vn.value : identifier;
 		}
 
 
 		// Output the image string to the textfield
 		function outputString(){
-			var output_string = "";
-			if (settings['drawMode'] == 'horizontal'){
-				output_string = imageToStringHorizontal();
-			}else{
-				output_string = imageToStringVertical();
+
+			var output_string = "", count = 1;
+			var code = "";
+
+			switch(settings['outputFormat']) {
+
+				case "arduino": {
+
+					images.each(function(image) {
+						if(settings['drawMode'] == 'horizontal'){
+							code = imageToStringHorizontal(image);
+						} else {
+							code = imageToStringVertical(image);
+						}
+						// remove last comma and space chars
+						code = code.substring(0, code.length - 3);
+
+						code = "\t" + code.split("\n").join("\n\t") + "\n";
+						var variableCount = images.length() > 1 ? count++ : "";
+						var comment = " // '" + image.glyph + "'\n";
+
+						code = comment + "const unsigned char "
+							+ getIdentifier()
+							+ variableCount
+							+ " [] PROGMEM = {"
+							+ "\n" + code + "};\n";
+
+						output_string += code;
+					});
+					break;
+				};
+				case "arduino_single": {
+					var comment = "";
+					images.each(function(image) {
+						if(settings['drawMode'] == 'horizontal'){
+							code = imageToStringHorizontal(image);
+						} else {
+							code = imageToStringVertical(image);
+						}
+						code = "\t" + code.split("\n").join("\n\t") + "\n";
+						comment = "\t// '" + image.glyph + "'\n";
+						output_string += comment + code;
+					});
+
+					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = "const unsigned char "
+						+ getIdentifier()
+						+ " [] PROGMEM = {"
+						+ "\n" + output_string + "\n};";
+					break;
+				};
+				case "adafruit_gfx": {
+					// bitmap
+					var comment = "";
+					var useGlyphs = 0;
+					images.each(function(image) {
+						if(settings['drawMode'] == 'horizontal'){
+							code = imageToStringHorizontal(image);
+						} else {
+							code = imageToStringVertical(image);
+						}
+						code = "\t" + code.split("\n").join("\n\t") + "\n";
+						comment = "\t// '" + image.glyph + "'\n";
+						output_string += comment + code;
+						if(image.glyph.length == 1) useGlyphs++;
+					});
+
+					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = "const unsigned char "
+						+ getIdentifier()
+						+ "Bitmap"
+						+ " [] PROGMEM = {"
+						+ "\n" + output_string + "\n};\n\n"
+						+ "const GFXbitmapGlyph "
+						+ getIdentifier()
+						+ "Glyphs [] PROGMEM = {\n";
+
+					var firstAschiiChar = document.getElementById("first-ascii-char").value;
+					var xAdvance = parseInt(document.getElementById("x-advance").value);
+					var offset = 0;
+					code = "";
+
+					// GFXbitmapGlyph
+					images.each(function(image) {
+						code += "\t{ "
+							+ offset + ", "
+							+ image.canvas.width + ", "
+							+ image.canvas.height + ", "
+							+ xAdvance + ", "
+							+ "'" + (images.length() == useGlyphs ?
+								image.glyph :
+									String.fromCharCode(firstAschiiChar++)) + "'"
+							+ " }"
+						if(image != images.last()) code += ",";
+						code += " // '" + image.glyph + "'\n";
+						offset += image.canvas.width;
+					});
+					code += "};\n";
+					output_string += code;
+
+					// GFXbitmapFont
+					output_string += "\nconst GFXbitmapFont "
+						+ getIdentifier()
+						+ "Font PROGMEM = {\n"
+						+ "\t(uint8_t *)"
+						+ getIdentifier() + "Bitmap,\n"
+						+ "\t(GFXbitmapGlyph *)"
+						+ getIdentifier()
+						+ "Glyphs,\n"
+						+ "\t" + images.length()
+						+ "\n};\n"
+					break;
+				};
+				default: {
+					images.each(function(image) {
+						if(settings['drawMode'] == 'horizontal'){
+							code = imageToStringHorizontal(image);
+						} else {
+							code = imageToStringVertical(image);
+						}
+
+						var comment = image.glyph ? (" // '" + image.glyph + "'\n") : "";
+						if(image.img != images.first().img) comment = "\n" + comment;
+						code = comment + code;
+						output_string += code;
+					});
+					output_string = output_string.substring(0, output_string.length - 2);
+				}
 			}
 
-			if(settings['addArduinoCode']){
-				output_string = "const unsigned char " + getVariableName() + " [] PROGMEM = {\n" + output_string + "\n};";
-			}
-			document.getElementById('outputField').value = output_string;
+			document.getElementById('code-output').value = output_string;
 		}
-
 
 		// Use the horizontally oriented list to draw the image
 		function listToImageHorizontal(list){
@@ -569,15 +1006,18 @@
 
 		// Quick and effective way to draw single pixels onto the canvas
 		// using a global 1x1px large canvas
-		var single_pixel = ctx.createImageData(1,1);
-		var d  = single_pixel.data;
+		var ctx = images && images.last() ? images.last().ctx : undefined;
+		if(ctx) {
+			var single_pixel = ctx.createImageData(1,1);
+			var d  = single_pixel.data;
 
-		function drawPixel(x, y, color){
-			d[0] = color;
-			d[1] = color;
-			d[2] = color;
-			d[3] = 255;
-			ctx.putImageData(single_pixel, x, y);
+			function drawPixel(x, y, color){
+				d[0] = color;
+				d[1] = color;
+				d[2] = color;
+				d[3] = 255;
+				ctx.putImageData(single_pixel, x, y);
+			}/**/
 		}
 	</script>
 </body>
