@@ -318,6 +318,7 @@
 			this.length = function() { return collection.length; };
 			this.first = function() { return collection[0]; };
 			this.last = function() { return collection[collection.length - 1]; };
+			this.getByIndex = function(index) { return collection[index]; };
 			this.get = function(img) {
 				if(img) {
 					for(var i = 0; i < collection.length; i++) {
@@ -515,6 +516,13 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
+			images = new Images();
+			
+			var canvas = document.createElement('canvas');
+			canvas.width = 128;
+			canvas.height = 64;
+			canvasContainer.appendChild(canvas);
+			
 			var input = document.getElementById('byte-input').value;
 
 			// Remove Arduino code
@@ -531,9 +539,9 @@
 			var list = input.split(",");
 
 			if(drawMode == 'horizontal'){
-				listToImageHorizontal(list);
+				listToImageHorizontal(list, canvas);
 			}else{
-				listToImageVertical(list);
+				listToImageVertical(list, canvas);
 			}
 		}
 
@@ -887,8 +895,9 @@
 		}
 
 		// Use the horizontally oriented list to draw the image
-		function listToImageHorizontal(list){
+		function listToImageHorizontal(list, canvas){
 
+			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			var imgData = ctx.createImageData(canvas.width, canvas.height);
@@ -925,13 +934,16 @@
 			// inside the img object. This way we can reuse the img object when
 			// we want to scale / invert, etc.
 			ctx.putImageData(imgData, 0, 0);
+			var img = new Image();
 			img.src = canvas.toDataURL('image/png');
+			images.push(img);
 		}
 
 
 		// Use the vertically oriented list to draw the image
-		function listToImageVertical(list){
+		function listToImageVertical(list, canvas){
 
+			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			// Create a new imageData object, but 90 degrees rotates (height x width)
