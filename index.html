@@ -149,6 +149,10 @@
 				<div class="column column-right">
 					<h2 class="sub-section-title">1. Paste byte array</h2>
 					<textarea id="byte-input" class="byte-input"></textarea><br />
+					<div class="text-input-size">
+						<input type="text" id="text-input-width" class="size-input" value="128" /> x
+						<input type="text" id="text-input-height" class="size-input" value="64" /> px
+					</div>
 					<button onclick="handleTextInput('horizontal')">Read as horizontal</button>
 					<button onclick="handleTextInput('vertical')">Read as vertical</button>
 				</div>
@@ -319,6 +323,8 @@
 			this.length = function() { return collection.length; };
 			this.first = function() { return collection[0]; };
 			this.last = function() { return collection[collection.length - 1]; };
+			this.getByIndex = function(index) { return collection[index]; };
+			this.setByIndex = function(index, img) { collection[index] = img; };
 			this.get = function(img) {
 				if(img) {
 					for(var i = 0; i < collection.length; i++) {
@@ -516,6 +522,20 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
+			images = new Images();
+
+			var canvas = document.createElement('canvas');
+			canvas.width = parseInt(document.getElementById("text-input-width").value);
+			canvas.height = parseInt(document.getElementById("text-input-height").value);
+
+			if(canvasContainer.children.length) {
+				canvasContainer.removeChild(canvasContainer.firstChild);
+			}
+			canvasContainer.appendChild(canvas);
+
+			var image = new Image();
+			images.setByIndex(0, {"img": image, "canvas" : canvas});
+
 			var input = document.getElementById('byte-input').value;
 
 			// Remove Arduino code
@@ -532,9 +552,9 @@
 			var list = input.split(",");
 
 			if(drawMode == 'horizontal'){
-				listToImageHorizontal(list);
+				listToImageHorizontal(list, canvas);
 			}else{
-				listToImageVertical(list);
+				listToImageVertical(list, canvas);
 			}
 		}
 
@@ -888,8 +908,9 @@
 		}
 
 		// Use the horizontally oriented list to draw the image
-		function listToImageHorizontal(list){
+		function listToImageHorizontal(list, canvas){
 
+			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			var imgData = ctx.createImageData(canvas.width, canvas.height);
@@ -926,13 +947,16 @@
 			// inside the img object. This way we can reuse the img object when
 			// we want to scale / invert, etc.
 			ctx.putImageData(imgData, 0, 0);
+			var img = new Image();
 			img.src = canvas.toDataURL('image/png');
+			images.first().img = img;
 		}
 
 
 		// Use the vertically oriented list to draw the image
-		function listToImageVertical(list){
+		function listToImageVertical(list, canvas){
 
+			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			// Create a new imageData object, but 90 degrees rotates (height x width)
@@ -962,7 +986,7 @@
 						color = 255;
 					}
 					// color = 0;
-					drawPixel(x, (page*8)+y, color);
+					drawPixel(ctx, x, (page*8)+y, color);
 					y--;
 					if(y < 0){
 						y = 7;
@@ -977,7 +1001,9 @@
 			}
 			// Save the canvas contents inside the img object. This way we can
 			// reuse the img object when we want to scale / invert, etc.
+			var img = new Image();
 			img.src = canvas.toDataURL('image/png');
+			images.first().img = img;
 		}
 
 
@@ -1007,18 +1033,15 @@
 
 		// Quick and effective way to draw single pixels onto the canvas
 		// using a global 1x1px large canvas
-		var ctx = images && images.last() ? images.last().ctx : undefined;
-		if(ctx) {
+		function drawPixel(ctx, x, y, color) {
 			var single_pixel = ctx.createImageData(1,1);
 			var d  = single_pixel.data;
 
-			function drawPixel(x, y, color){
-				d[0] = color;
-				d[1] = color;
-				d[2] = color;
-				d[3] = 255;
-				ctx.putImageData(single_pixel, x, y);
-			}/**/
+			d[0] = color;
+			d[1] = color;
+			d[2] = color;
+			d[3] = 255;
+			ctx.putImageData(single_pixel, x, y);
 		}
 	</script>
 </body>
