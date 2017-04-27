@@ -542,14 +542,19 @@
 			input = input.replace(/const unsigned char myBitmap \[\] PROGMEM = \{/g, "");
 			input = input.replace(/\};/g, "");
 
-			// Remove newlines
-			input = input.replace(/\r\n|\r|\n/g, "");
+			// Convert newlines to comma (helps to remove comments later)
+			input = input.replace(/\r\n|\r|\n/g, ",");
+			// Convert multiple commas in a row into a single one
+			input = input.replace(/,{2,}/g, ",");
 			// Remove whitespace
 			input = input.replace(/\s/g, "");
+			//Remove comments
+			input = input.replace(/\/\/(.+?),/g, "");
 			// Remove "0x"
 			input = input.replace(/0x/g, "");
 			// Split into list
 			var list = input.split(",");
+			console.log(list);
 
 			if(drawMode == 'horizontal'){
 				listToImageHorizontal(list, canvas);
