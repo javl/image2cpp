@@ -121,8 +121,8 @@
 		}
 		#images-canvas-container {
 			display: flex;
-		flex-wrap: wrap;
-		align-items: flex-start;
+			flex-wrap: wrap;
+			align-items: flex-start;
 		}
 		#extra-settings-container {	}
 		#arduino-identifier, #adafruit-gfx-settings, #all-same-size { display: none; }
@@ -701,13 +701,24 @@
 			var byteIndex = 7;
 			var number = 0;
 
+			// format is RGBA, so move 4 steps per pixel
 			for(var index = 0; index < imageData.data.length; index += 4){
+				// Get the average of the RGB (we ignore A)
 				var avg = (imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2]) / 3;
 				if(avg > settings['threshold']){
 					number += Math.pow(2, byteIndex);
 				}
 				byteIndex--;
 
+				// If we are at the last set, fill up our byte to 8 bits
+				if (index == imageData.data.length-4){
+					for(var i=byteIndex;i>-1;i--){
+						number += Math.pow(2, i);
+					}
+					byteIndex = -1;
+				}
+
+				// When we have the complete 8 bits, combine them into a hex value
 				if(byteIndex < 0){
 					var byteSet = number.toString(16);
 					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
