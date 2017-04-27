@@ -646,6 +646,7 @@
 							var fn = document.createElement('span');
 							fn.className = "file-info";
 							fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
+							fn.innerHTML += "<br />";
 
 							var rb = document.createElement('button');
 							rb.className = "remove-button";
@@ -662,13 +663,13 @@
 								update();
 							};
 
+							imageEntry.appendChild(fn);
 							imageEntry.appendChild(w);
 							imageEntry.appendChild(document.createTextNode(" x "));
 							imageEntry.appendChild(h);
 							imageEntry.appendChild(gil);
 							imageEntry.appendChild(gi);
 							imageEntry.appendChild(rb);
-							imageEntry.appendChild(fn);
 
 							imageSizeSettings.appendChild(imageEntry);
 
