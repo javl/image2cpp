@@ -358,7 +358,7 @@
 
 		// The variable to hold our images. Global so we can easily reuse it when the
 		// user updates the settings (change canvas size, scale, invert, etc)
-		var images;
+		var images = new Images();
 
 		// A bunch of settings used when converting
 		var settings = {
@@ -521,8 +521,6 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
-			images = new Images();
-
 			var canvas = document.createElement('canvas');
 			canvas.width = parseInt(document.getElementById("text-input-width").value);
 			canvas.height = parseInt(document.getElementById("text-input-height").value);
@@ -602,7 +600,6 @@
 				}
 
 				var reader = new FileReader();
-				images = new Images();
 
 				reader.onload = (function(file) {
 					return function(e) {
