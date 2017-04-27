@@ -682,6 +682,11 @@
 			}
 		}
 
+		function imageToString(orientation, image){
+			if(orientation == 'horizontal')
+				return imageToStringHorizontal(image);
+			return imageToStringVertical(image);
+		}
 
 		// Output the image as a string for horizontally drawing displays
 		function imageToStringHorizontal(image){
@@ -781,11 +786,8 @@
 				case "arduino": {
 
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
+
 						// remove last comma and space chars
 						code = code.substring(0, code.length - 3);
 
@@ -806,11 +808,7 @@
 				case "arduino_single": {
 					var comment = "";
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + "'\n";
 						output_string += comment + code;
@@ -828,11 +826,7 @@
 					var comment = "";
 					var useGlyphs = 0;
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + "'\n";
 						output_string += comment + code;
@@ -887,12 +881,7 @@
 				};
 				default: {
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
-
+						code = imageToString(settings['drawMode'], image);
 						var comment = image.glyph ? (" // '" + image.glyph + "'\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
