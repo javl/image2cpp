@@ -922,7 +922,14 @@
 
 			// Move the list into the imageData object
 			for (var i=0;i<list.length;i++){
-				var binString = hexToBinary(list[i]).result;
+
+				var binString = hexToBinary(list[i]);
+				if(!binString.valid){
+					alert("Something went wrong converting the string. Did you forget to remove any comments from the input?");
+					console.log("invalid hexToBinary: ", binString.s);
+					return;
+				}
+				binString = binString.result;
 				if (binString.length == 4){
 					binString = binString + "0000";
 				}
@@ -967,7 +974,13 @@
 			// Move the list into the imageData object
 			for (var i=0;i<list.length;i++){
 
-				var binString = hexToBinary(list[i]).result;
+				var binString = hexToBinary(list[i]);
+				if(!binString.valid){
+					alert("Something went wrong converting the string. Did you forget to remove any comments from the input?");
+					console.log("invalid hexToBinary: ", binString.s);
+					return;
+				}
+				binString = binString.result;
 				if (binString.length == 4){
 					binString = binString + "0000";
 				}
@@ -1016,7 +1029,7 @@
 				if (lookupTable.hasOwnProperty(s[i])) {
 					ret += lookupTable[s[i]];
 				} else {
-					return { valid: false };
+					return { valid: false, s: s };
 				}
 			}
 			return { valid: true, result: ret };
