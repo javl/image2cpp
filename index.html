@@ -14,8 +14,8 @@
 
 	<style type="text/css">
 		* {
-		   margin: 0;
-		   padding: 0;
+			margin: 0;
+			padding: 0;
 		}
 		body{
 			font-family: arial;
@@ -65,7 +65,7 @@
 		.table-cell:last-child label { margin-right: 10px; }
 		.nested-table { margin: 0; }
 		.nested-table .table-cell { font-size: .9em; color: #666; width: 200px; }
-		.nested-table .table-cell:first-child {  }
+		.nested-table .table-cell:first-child {	}
 		#format-caption-container div {
 			display: none;
 			width: 100%;
@@ -121,10 +121,10 @@
 		}
 		#images-canvas-container {
 			display: flex;
-   		flex-wrap: wrap;
-   		align-items: flex-start;
+		flex-wrap: wrap;
+		align-items: flex-start;
 		}
-		#extra-settings-container {  }
+		#extra-settings-container {	}
 		#arduino-identifier, #adafruit-gfx-settings, #all-same-size { display: none; }
 		.msg { font-size: 1.2em; }
 		.error-msg { color: #ff0000; display: none; }
@@ -560,22 +560,22 @@
 
 		function allSameSize(images, files) {
 			if(images.length() > 1 && images.length() == files.length) {
-    			var inputs = imageSizeSettings.querySelectorAll("input");
-    			allSameSizeButton.onclick = function() {
- 					for(var i = 2; i < inputs.length; i++) {
- 						if(inputs[i].name == "width") {
- 							inputs[i].value = inputs[0].value;
- 							inputs[i].oninput();
- 						}
- 						if(inputs[i].name == "height") {
- 							inputs[i].value = inputs[1].value;
- 							inputs[i].oninput();
- 						}
+				var inputs = imageSizeSettings.querySelectorAll("input");
+				allSameSizeButton.onclick = function() {
+					for(var i = 2; i < inputs.length; i++) {
+						if(inputs[i].name == "width") {
+							inputs[i].value = inputs[0].value;
+							inputs[i].oninput();
+						}
+						if(inputs[i].name == "height") {
+							inputs[i].value = inputs[1].value;
+							inputs[i].oninput();
+						}
 
- 					}
-    			};
-    			allSameSizeButton.style.display = "block";
-    		}
+					}
+				};
+				allSameSizeButton.style.display = "block";
+			}
 		}
 
 		// Handle selecting an image with the file picker
@@ -591,8 +591,8 @@
 			for (var i = 0, f; f = files[i]; i++) {
 
 				// Only process image files.
-		      if(!f.type.match('image.*')) {
-		      	onlyImagesFileError.style.display = "block";
+				if(!f.type.match('image.*')) {
+				onlyImagesFileError.style.display = "block";
 					continue;
 				}
 
@@ -679,7 +679,7 @@
 					};
 				})(f);
 				reader.readAsDataURL(f);
-    		}
+			}
 		}
 
 
@@ -737,7 +737,6 @@
 
 			for(var p=0; p < Math.ceil(settings['screenHeight'] / 8); p++){
 				for(var x = 0;x <= settings['screenWidth']; x++){
-				// for (var x=0;x<1;x++){
 					var byteIndex = 7;
 					var number = 0;
 
@@ -958,12 +957,6 @@
 			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-			// Create a new imageData object, but 90 degrees rotates (height x width)
-			// var imgData = ctx.createImageData(canvas.width, canvas.height);
-			// var imgData = ctx.getImageData(0, 0, canvas.height, canvas.width);
-			//var imgData = ctx.createImageData(canvas.width, canvas.height);
-			// var data = imgData.data;
-
 			var index = 0;
 
 			var page = 0;
@@ -984,7 +977,6 @@
 					if(binString.charAt(k) == '1'){
 						color = 255;
 					}
-					// color = 0;
 					drawPixel(ctx, x, (page*8)+y, color);
 					y--;
 					if(y < 0){
@@ -1034,7 +1026,7 @@
 		// using a global 1x1px large canvas
 		function drawPixel(ctx, x, y, color) {
 			var single_pixel = ctx.createImageData(1,1);
-			var d  = single_pixel.data;
+			var d = single_pixel.data;
 
 			d[0] = color;
 			d[1] = color;
