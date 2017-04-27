@@ -14,8 +14,8 @@
 
 	<style type="text/css">
 		* {
-		   margin: 0;
-		   padding: 0;
+			margin: 0;
+			padding: 0;
 		}
 		body{
 			font-family: arial;
@@ -65,7 +65,7 @@
 		.table-cell:last-child label { margin-right: 10px; }
 		.nested-table { margin: 0; }
 		.nested-table .table-cell { font-size: .9em; color: #666; width: 200px; }
-		.nested-table .table-cell:first-child {  }
+		.nested-table .table-cell:first-child {	}
 		#format-caption-container div {
 			display: none;
 			width: 100%;
@@ -121,10 +121,10 @@
 		}
 		#images-canvas-container {
 			display: flex;
-   		flex-wrap: wrap;
-   		align-items: flex-start;
+			flex-wrap: wrap;
+			align-items: flex-start;
 		}
-		#extra-settings-container {  }
+		#extra-settings-container {	}
 		#arduino-identifier, #adafruit-gfx-settings, #all-same-size { display: none; }
 		.msg { font-size: 1.2em; }
 		.error-msg { color: #ff0000; display: none; }
@@ -561,22 +561,22 @@
 
 		function allSameSize(images, files) {
 			if(images.length() > 1 && images.length() == files.length) {
-    			var inputs = imageSizeSettings.querySelectorAll("input");
-    			allSameSizeButton.onclick = function() {
- 					for(var i = 2; i < inputs.length; i++) {
- 						if(inputs[i].name == "width") {
- 							inputs[i].value = inputs[0].value;
- 							inputs[i].oninput();
- 						}
- 						if(inputs[i].name == "height") {
- 							inputs[i].value = inputs[1].value;
- 							inputs[i].oninput();
- 						}
+				var inputs = imageSizeSettings.querySelectorAll("input");
+				allSameSizeButton.onclick = function() {
+					for(var i = 2; i < inputs.length; i++) {
+						if(inputs[i].name == "width") {
+							inputs[i].value = inputs[0].value;
+							inputs[i].oninput();
+						}
+						if(inputs[i].name == "height") {
+							inputs[i].value = inputs[1].value;
+							inputs[i].oninput();
+						}
 
- 					}
-    			};
-    			allSameSizeButton.style.display = "block";
-    		}
+					}
+				};
+				allSameSizeButton.style.display = "block";
+			}
 		}
 
 		// Handle selecting an image with the file picker
@@ -592,8 +592,8 @@
 			for (var i = 0, f; f = files[i]; i++) {
 
 				// Only process image files.
-		      if(!f.type.match('image.*')) {
-		      	onlyImagesFileError.style.display = "block";
+				if(!f.type.match('image.*')) {
+				onlyImagesFileError.style.display = "block";
 					continue;
 				}
 
@@ -680,9 +680,14 @@
 					};
 				})(f);
 				reader.readAsDataURL(f);
-    		}
+			}
 		}
 
+		function imageToString(orientation, image){
+			if(orientation == 'horizontal')
+				return imageToStringHorizontal(image);
+			return imageToStringVertical(image);
+		}
 
 		// Output the image as a string for horizontally drawing displays
 		function imageToStringHorizontal(image){
@@ -697,13 +702,24 @@
 			var byteIndex = 7;
 			var number = 0;
 
+			// format is RGBA, so move 4 steps per pixel
 			for(var index = 0; index < imageData.data.length; index += 4){
+				// Get the average of the RGB (we ignore A)
 				var avg = (imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2]) / 3;
 				if(avg > settings['threshold']){
 					number += Math.pow(2, byteIndex);
 				}
 				byteIndex--;
 
+				// If we are at the last set, fill up our byte to 8 bits
+				if (index == imageData.data.length-4){
+					for(var i=byteIndex;i>-1;i--){
+						number += Math.pow(2, i);
+					}
+					byteIndex = -1;
+				}
+
+				// When we have the complete 8 bits, combine them into a hex value
 				if(byteIndex < 0){
 					var byteSet = number.toString(16);
 					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
@@ -738,7 +754,6 @@
 
 			for(var p=0; p < Math.ceil(settings['screenHeight'] / 8); p++){
 				for(var x = 0;x <= settings['screenWidth']; x++){
-				// for (var x=0;x<1;x++){
 					var byteIndex = 7;
 					var number = 0;
 
@@ -783,11 +798,8 @@
 				case "arduino": {
 
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
+
 						// remove last comma and space chars
 						code = code.substring(0, code.length - 3);
 
@@ -808,11 +820,7 @@
 				case "arduino_single": {
 					var comment = "";
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + "'\n";
 						output_string += comment + code;
@@ -830,11 +838,7 @@
 					var comment = "";
 					var useGlyphs = 0;
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
+						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + "'\n";
 						output_string += comment + code;
@@ -889,12 +893,7 @@
 				};
 				default: {
 					images.each(function(image) {
-						if(settings['drawMode'] == 'horizontal'){
-							code = imageToStringHorizontal(image);
-						} else {
-							code = imageToStringVertical(image);
-						}
-
+						code = imageToString(settings['drawMode'], image);
 						var comment = image.glyph ? (" // '" + image.glyph + "'\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
@@ -959,12 +958,6 @@
 			var ctx = canvas.getContext('2d');
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-			// Create a new imageData object, but 90 degrees rotates (height x width)
-			// var imgData = ctx.createImageData(canvas.width, canvas.height);
-			// var imgData = ctx.getImageData(0, 0, canvas.height, canvas.width);
-			//var imgData = ctx.createImageData(canvas.width, canvas.height);
-			// var data = imgData.data;
-
 			var index = 0;
 
 			var page = 0;
@@ -985,7 +978,6 @@
 					if(binString.charAt(k) == '1'){
 						color = 255;
 					}
-					// color = 0;
 					drawPixel(ctx, x, (page*8)+y, color);
 					y--;
 					if(y < 0){
@@ -1035,7 +1027,7 @@
 		// using a global 1x1px large canvas
 		function drawPixel(ctx, x, y, color) {
 			var single_pixel = ctx.createImageData(1,1);
-			var d  = single_pixel.data;
+			var d = single_pixel.data;
 
 			d[0] = color;
 			d[1] = color;
