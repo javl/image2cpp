@@ -116,7 +116,7 @@
 		#image-size-settings { list-style-type: none; }
 		#image-size-settings li { margin: 4px 0; }
 		#images-canvas-container canvas {
-			border: 3px solid #00CB99;
+			border: 3px solid #88DAC5;
 			margin: 10px 15px;
 		}
 		#images-canvas-container {
@@ -359,7 +359,7 @@
 
 		// The variable to hold our images. Global so we can easily reuse it when the
 		// user updates the settings (change canvas size, scale, invert, etc)
-		var images;
+		var images = new Images();
 
 		// A bunch of settings used when converting
 		var settings = {
@@ -522,8 +522,6 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
-			images = new Images();
-
 			var canvas = document.createElement('canvas');
 			canvas.width = parseInt(document.getElementById("text-input-width").value);
 			canvas.height = parseInt(document.getElementById("text-input-height").value);
@@ -603,7 +601,6 @@
 				}
 
 				var reader = new FileReader();
-				images = new Images();
 
 				reader.onload = (function(file) {
 					return function(e) {
@@ -647,6 +644,7 @@
 							var fn = document.createElement('span');
 							fn.className = "file-info";
 							fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
+							fn.innerHTML += "<br />";
 
 							var rb = document.createElement('button');
 							rb.className = "remove-button";
@@ -663,13 +661,13 @@
 								update();
 							};
 
+							imageEntry.appendChild(fn);
 							imageEntry.appendChild(w);
 							imageEntry.appendChild(document.createTextNode(" x "));
 							imageEntry.appendChild(h);
 							imageEntry.appendChild(gil);
 							imageEntry.appendChild(gi);
 							imageEntry.appendChild(rb);
-							imageEntry.appendChild(fn);
 
 							imageSizeSettings.appendChild(imageEntry);
 
