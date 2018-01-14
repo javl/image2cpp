@@ -150,8 +150,8 @@
 					<h2 class="sub-section-title">1. Paste byte array</h2>
 					<textarea id="byte-input" class="byte-input"></textarea><br />
 					<div class="text-input-size">
-						<input type="text" id="text-input-width" class="size-input" value="128" /> x
-						<input type="text" id="text-input-height" class="size-input" value="64" /> px
+						<input type="number" min="0" id="text-input-width" class="size-input" value="128" /> x
+						<input type="number" min="0" id="text-input-height" class="size-input" value="64" /> px
 					</div>
 					<button onclick="handleTextInput('horizontal')">Read as horizontal</button>
 					<button onclick="handleTextInput('vertical')">Read as vertical</button>
@@ -189,7 +189,7 @@
 					<div class="table-row">
 						<div class="table-cell"><label>Brightness threshold: </label></div>
 						<div class="table-cell">
-							<input id="threshold" class="size-input" type="text" name="threshold" onchange="updateInteger('threshold')" value="128"/>
+							<input id="threshold" class="size-input" type="number" min="0" max="255" name="threshold" oninput="updateInteger('threshold')" value="128"/>
 							<div class="note"><i>0 - 255; pixels with brightness above become white, below become black.</i></div>
 						</div>
 					</div>
@@ -615,15 +615,17 @@
 							imageEntry.setAttribute('data-img', file.name);
 
 							var w = document.createElement('input');
-							w.type = "text";
+							w.type = "number";
 							w.name = "width";
+							w.min = 0;
 							w.className = "size-input";
 							w.value = img.width;
 							w.oninput = function() { canvas.width = this.value; update(); };
 
 							var h = document.createElement('input');
-							h.type = "text";
+							h.type = "number";
 							h.name = "height";
+							h.min = 0;
 							h.className = "size-input";
 							h.value = img.height;
 							h.oninput = function() { canvas.height = this.value; update(); };
