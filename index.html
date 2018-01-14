@@ -810,7 +810,7 @@
 
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						var variableCount = images.length() > 1 ? count++ : "";
-						var comment = " // '" + image.glyph + "'\n";
+						var comment = " // '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
 						code = comment + "const unsigned char "
 							+ getIdentifier()
@@ -827,7 +827,7 @@
 					images.each(function(image) {
 						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
-						comment = "\t// '" + image.glyph + "'\n";
+						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
 					});
 
@@ -845,7 +845,7 @@
 					images.each(function(image) {
 						code = imageToString(settings['drawMode'], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
-						comment = "\t// '" + image.glyph + "'\n";
+						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
 						if(image.glyph.length == 1) useGlyphs++;
 					});
@@ -899,7 +899,7 @@
 				default: {
 					images.each(function(image) {
 						code = imageToString(settings['drawMode'], image);
-						var comment = image.glyph ? (" // '" + image.glyph + "'\n") : "";
+						var comment = image.glyph ? (" // '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
 						output_string += code;
