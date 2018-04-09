@@ -46,6 +46,8 @@
 		.column-center {
 			min-width: 160px;
 			text-align: center;
+			vertical-align: middle;
+			padding-top:80px;
 		}
 		.column-right {
 			float: right;
@@ -97,6 +99,9 @@
 			padding: 6px 20px;
 			font-size: 1.6em;
 		}
+		.url-input {
+			width: 100%;
+		}
 		.generate-button {
 			margin: 40px 0 20px;
 		}
@@ -138,16 +143,24 @@
 			<p><b>Note:</b> the tool was updated to let you select and convert multiple files at the same time (among some other changes). Do let us know if this update broke anything by <a href="https://github.com/javl/image2cpp/issues" target="_blank">opening an issue on Github</a>.</p>
 		</section>
 		<section class="section bottom-divider">
+			<h2>1. Select image(s)</h2><br>
 			<section class="sub-section">
 				<div class="column">
-					<h2 class="sub-section-title">1. Select image</h2>
+					<br>
+					<h3 class="sub-section-title">Option 1: Select file(s)</h3>
 					<input type="file" id="file-input" name="file-input" multiple/><br />
+					<br>
+					<br>
+					<h3 class="sub-section-title">Option 2: Enter URL</h3>
+					<input type="text" id="url-input" class="url-input" name="url-input"/><br />
+					<button onclick="handleUrlInput()">Load from URL</button>
+
 				</div>
 				<div class="column column-center">
-					<h2 class="sub-section-title">or</h2>
+					<h3 class="sub-section-title">or</h3>
 				</div>
 				<div class="column column-right">
-					<h2 class="sub-section-title">1. Paste byte array</h2>
+					<h3 class="sub-section-title">Option 3: Paste byte array</h3>
 					<textarea id="byte-input" class="byte-input"></textarea><br />
 					<div class="text-input-size">
 						<input type="number" min="0" id="text-input-width" class="size-input" value="128" /> x
@@ -575,117 +588,147 @@
 							inputs[i].value = inputs[1].value;
 							inputs[i].oninput();
 						}
-
 					}
 				};
 				allSameSizeButton.style.display = "block";
 			}
 		}
 
-		// Handle selecting an image with the file picker
+		// Handle selecting an image with the file picker or the url input
 		function handleImageSelection(evt){
+			// if 'evt' is a string, it means it came from the URL field,
+			// otherwise it's from the file picker
+			if (typeof evt === 'string' || evt instanceof String){
+				var url = evt; // for readability
+				var filename = url.split('/').pop();
 
-			var files = evt.target.files;
-			onlyImagesFileError.style.display = "none";
+				var request = new XMLHttpRequest();
+				request.open('GET', url, true);
+				request.responseType = 'blob';
+				request.onload = function() {
+					var file = request.response;
+					file.name = filename;
+					createFileReader(file);
+				};
+				request.onerror  = function(){
+					alert("Problem loading image from URL. Are you sure you entered a valid link to an image on the web?");
+				};
+				request.send();
 
-			files.length > 0 ?
-				noFileSelected.style.display = "none" :
+			}else{
+				var files = evt.target.files;
+				onlyImagesFileError.style.display = "none";
+
+				if(files.length > 0){
+					noFileSelected.style.display = "none";
+				}else{
 					noFileSelected.style.display = "block";
-
-			for (var i = 0, f; f = files[i]; i++) {
-
-				// Only process image files.
-				if(!f.type.match('image.*')) {
-				onlyImagesFileError.style.display = "block";
-					continue;
 				}
 
-				var reader = new FileReader();
+				for (var i = 0, f; f = files[i]; i++) {
 
-				reader.onload = (function(file) {
-					return function(e) {
-						// Render thumbnail.
-						var img = new Image();
+					// Only process image files.
+					if(!f.type.match('image.*')) {
+					onlyImagesFileError.style.display = "block";
+						continue;
+					}
 
-						img.onload = function(){
-
-							var canvas = document.createElement('canvas');
-
-							var imageEntry = document.createElement('li');
-							imageEntry.setAttribute('data-img', file.name);
-
-							var w = document.createElement('input');
-							w.type = "number";
-							w.name = "width";
-							w.min = 0;
-							w.className = "size-input";
-							w.value = img.width;
-							w.oninput = function() { canvas.width = this.value; update(); };
-
-							var h = document.createElement('input');
-							h.type = "number";
-							h.name = "height";
-							h.min = 0;
-							h.className = "size-input";
-							h.value = img.height;
-							h.oninput = function() { canvas.height = this.value; update(); };
-
-							var gil = document.createElement('span');
-							gil.innerHTML = "glyph";
-							gil.className = "file-info";
-
-							var gi = document.createElement('input');
-							gi.type = "text";
-							gi.name = "glyph";
-							gi.className = "glyph-input";
-							gi.onchange = function() {
-								var image = images.get(img);
-								image.glyph = gi.value;
-							};
-
-							var fn = document.createElement('span');
-							fn.className = "file-info";
-							fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
-							fn.innerHTML += "<br />";
-
-							var rb = document.createElement('button');
-							rb.className = "remove-button";
-							rb.innerHTML = "remove";
-							rb.onclick = function() {
-								var image = images.get(img);
-								canvasContainer.removeChild(image.canvas);
-								images.remove(image);
-								imageSizeSettings.removeChild(imageEntry);
-								if(imageSizeSettings.children.length == 1) {
-									allSameSizeButton.style.display = "none";
-								}
-								if(images.length() == 0) noFileSelected.style.display = "block";
-								update();
-							};
-
-							imageEntry.appendChild(fn);
-							imageEntry.appendChild(w);
-							imageEntry.appendChild(document.createTextNode(" x "));
-							imageEntry.appendChild(h);
-							imageEntry.appendChild(gil);
-							imageEntry.appendChild(gi);
-							imageEntry.appendChild(rb);
-
-							imageSizeSettings.appendChild(imageEntry);
-
-							canvas.width = img.width;
-							canvas.height = img.height;
-							canvasContainer.appendChild(canvas);
-
-							images.push(img, canvas, file.name.split('.')[0]);
-							place_image(images.last());
-							allSameSize(images, files);
-						}
-						img.src = e.target.result;
-					};
-				})(f);
-				reader.readAsDataURL(f);
+					createFileReader(f, files);
+				}
 			}
+
+		}
+
+		function createFileReader(f, files){
+			var reader = new FileReader();
+
+			reader.onload = (function(file) {
+				return function(e) {
+					// Render thumbnail.
+					var img = new Image();
+
+					img.onload = function(){
+
+						var canvas = document.createElement('canvas');
+
+						var imageEntry = document.createElement('li');
+						imageEntry.setAttribute('data-img', file.name);
+
+						var w = document.createElement('input');
+						w.type = "number";
+						w.name = "width";
+						w.min = 0;
+						w.className = "size-input";
+						w.value = img.width;
+						w.oninput = function() { canvas.width = this.value; update(); };
+
+						var h = document.createElement('input');
+						h.type = "number";
+						h.name = "height";
+						h.min = 0;
+						h.className = "size-input";
+						h.value = img.height;
+						h.oninput = function() { canvas.height = this.value; update(); };
+
+						var gil = document.createElement('span');
+						gil.innerHTML = "glyph";
+						gil.className = "file-info";
+
+						var gi = document.createElement('input');
+						gi.type = "text";
+						gi.name = "glyph";
+						gi.className = "glyph-input";
+						gi.onchange = function() {
+							var image = images.get(img);
+							image.glyph = gi.value;
+						};
+
+						var fn = document.createElement('span');
+						fn.className = "file-info";
+						fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
+						fn.innerHTML += "<br />";
+
+						var rb = document.createElement('button');
+						rb.className = "remove-button";
+						rb.innerHTML = "remove";
+						rb.onclick = function() {
+							var image = images.get(img);
+							canvasContainer.removeChild(image.canvas);
+							images.remove(image);
+							imageSizeSettings.removeChild(imageEntry);
+							if(imageSizeSettings.children.length == 1) {
+								allSameSizeButton.style.display = "none";
+							}
+							if(images.length() == 0) noFileSelected.style.display = "block";
+							update();
+						};
+
+						imageEntry.appendChild(fn);
+						imageEntry.appendChild(w);
+						imageEntry.appendChild(document.createTextNode(" x "));
+						imageEntry.appendChild(h);
+						imageEntry.appendChild(gil);
+						imageEntry.appendChild(gi);
+						imageEntry.appendChild(rb);
+
+						imageSizeSettings.appendChild(imageEntry);
+
+						canvas.width = img.width;
+						canvas.height = img.height;
+						canvasContainer.appendChild(canvas);
+
+						images.push(img, canvas, file.name.split('.')[0]);
+						place_image(images.last());
+						// allSameSize(images, files);
+					};
+					img.src = e.target.result;
+				};
+			})(f);
+			reader.readAsDataURL(f);
+		}
+
+		function handleUrlInput() {
+			handleImageSelection(document.getElementById('url-input').value);
 		}
 
 		function imageToString(orientation, image){
