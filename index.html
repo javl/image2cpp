@@ -21,10 +21,10 @@
 			font-family: arial;
 		}
 		.wrapper {
-			width: 800px;
-			margin: auto;
 			display: flex;
 			flex-direction: column;
+			margin: auto;
+			width: 800px;
 		}
 		.section {
 			margin: 10px 0;
@@ -37,7 +37,8 @@
 			clear: both;
 			margin-bottom: 1px;
 		}
-		.section, .sub-section {
+		.section,
+		.sub-section {
 			width: 100%;
 		}
 		.column {
@@ -56,46 +57,77 @@
 		p {
 			margin: 20px 0;
 		}
-		.table { display: table; width: 100%; margin: 10px 0 0;}
-		.table-row { display: table-row; width: 100%; }
-		.table-cell { display: table-cell; padding: 5px 0;}
-		.table-cell:first-child { width: 30%; }
-		.table-cell:last-child { width: 70%; }
-		.table-cell:first-child label {font-weight: bold; }
-		.table-cell:last-child label { margin-right: 10px; }
-		.nested-table { margin: 0; }
-		.nested-table .table-cell { font-size: .9em; color: #666; width: 200px; }
-		.nested-table .table-cell:first-child {	}
-		#format-caption-container div {
-			display: none;
+		.table {
+			display: table;
+			margin: 10px 0 0;
 			width: 100%;
-			padding: 10px 0 15px;
+		}
+		.table-row {
+			display: table-row;
+			width: 100%;
+		}
+		.table-cell {
+			display: table-cell;
+			padding: 5px 0;
+		}
+		.table-cell:first-child {
+			width: 30%;
+		}
+		.table-cell:last-child {
+			width: 70%;
+		}
+		.table-cell:first-child label {
+			font-weight: bold;
+		}
+		.table-cell:last-child label {
+			margin-right: 10px;
+		}
+		.nested-table {
+			margin: 0;
+		}
+		.nested-table .table-cell {
+			color: #666;
+			font-size: .9em;
+			width: 200px;
+		}
+		.nested-table .table-cell:first-child {	}
+
+		#format-caption-container div {
+			color: #505050;
+			display: none;
 			font-size: .9em;
 			line-height: 1.4em;
-			color: #505050;
+			padding: 10px 0 15px;
+			width: 100%;
 		}
 		.byte-input {
-			min-width: 360px;
 			min-height: 160px;
+			min-width: 360px;
 		}
 		.code-output {
-			width: 100%;
 			height: 200px;
+			width: 100%;
 		}
-		.note { color: #666666; margin: 3px 0; font-size: .9em; line-height: 1.4em; }
-		button, input[type="file"]::-webkit-file-upload-button {
-			margin: 10px 0;
-			background: #00CB99;
-			border: none;
-			padding: 4px 8px;
-			color: #fff;
-			font-weight: 100;
+		.note {
+			color: #666666;
 			font-size: .9em;
+			line-height: 1.4em;
+			margin: 3px 0;
+		}
+		button,
+		input[type="file"]::-webkit-file-upload-button {
+			background: #00CB99;
 			border-radius: 3px;
+			border: none;
+			color: #fff;
+			font-size: .9em;
+			font-weight: 100;
+			margin: 10px 0;
+			padding: 4px 8px;
 		}
 		input[type="file"]::-webkit-file-upload-button {
-			padding: 6px 20px;
 			font-size: 1.6em;
+			padding: 6px 20px;
 		}
 		.generate-button {
 			margin: 40px 0 20px;
@@ -105,37 +137,57 @@
 			padding: 1px 4px;
 		}
 		.file-info {
-			font-size: .7em;
 			color: #505050;
+			font-size: .7em;
 			margin-left: 20px;
-			white-space: pre;
 			max-width: 300px;
+			white-space: pre;
 		}
-		.size-input{ width: 45px; }
-		.glyph-input { width: 80px; margin-left: 10px; }
-		#image-size-settings { list-style-type: none; }
-		#image-size-settings li { margin: 4px 0; }
+		.size-input{
+			width: 45px;
+		}
+		.glyph-input {
+			width: 80px;
+			margin-left: 10px;
+		}
+		#image-size-settings {
+			list-style-type: none;
+		}
+		#image-size-settings li {
+			margin: 4px 0;
+		}
 		#images-canvas-container canvas {
 			border: 3px solid #88DAC5;
 			margin: 10px 15px;
 		}
 		#images-canvas-container {
+			align-items: flex-start;
 			display: flex;
 			flex-wrap: wrap;
-			align-items: flex-start;
 		}
 		#extra-settings-container {	}
-		#arduino-identifier, #adafruit-gfx-settings, #all-same-size { display: none; }
-		.msg { font-size: 1.2em; }
-		.error-msg { color: #ff0000; display: none; }
+		#arduino-identifier,
+		#adafruit-gfx-settings,
+		#all-same-size {
+			display: none;
+		}
+		.msg {
+			font-size: 1.2em;
+		}
+		.error-msg {
+			color: #ff0000;
+			display: none;
+		}
 	</style>
 </head>
 <body>
 	<div class="wrapper">
 		<section class="section">
 			<h1>image2cpp</h1>
-			<p><a href="https://github.com/javl/image2cpp" target="_blank">Click here to visit the Github repo for this tool.</a></p>
-			<p><b>Note:</b> the tool was updated to let you select and convert multiple files at the same time (among some other changes). Do let us know if this update broke anything by <a href="https://github.com/javl/image2cpp/issues" target="_blank">opening an issue on Github</a>.</p>
+			<p>This tool helps you convert images into bytestrings, which can be used with Arduino and OLED displays (among other platforms).
+				It was originally made to work with the Adafruit OLED library. An example sketch for Arduino and this library can be found <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>.</p>
+			<p>More info can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
+			<p>This tool also works offline. Simply save this page to your computer and open the file in your browser.</p>
 		</section>
 		<section class="section bottom-divider">
 			<section class="sub-section">
@@ -308,7 +360,6 @@
 
 
 	<script type="text/javascript">
-
 		// An images collection with helper methods
 		function Images() {
 			var collection = [];
@@ -339,19 +390,19 @@
 		}
 
 		// Add events to the file input button
-		var fileInput = document.getElementById('file-input');
-		fileInput.addEventListener('click', function(){this.value = null;}, false);
-		fileInput.addEventListener('change', handleImageSelection, false);
+		var fileInput = document.getElementById("file-input");
+		fileInput.addEventListener("click", function(){this.value = null;}, false);
+		fileInput.addEventListener("change", handleImageSelection, false);
 
 		// Filetypes accepted by the file picker
-		var fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
+		var fileTypes = ["jpg", "jpeg", "png", "bmp", "gif", "svg"];
 
 		// The canvas we will draw on
-		var canvasContainer = document.getElementById('images-canvas-container');
+		var canvasContainer = document.getElementById("images-canvas-container");
 		// multiple images settings container
-		var imageSizeSettings = document.getElementById('image-size-settings');
+		var imageSizeSettings = document.getElementById("image-size-settings");
 		// all images same size button
-		var allSameSizeButton = document.getElementById('all-same-size');
+		var allSameSizeButton = document.getElementById("all-same-size");
 		// error message
 		var onlyImagesFileError = document.getElementById("only-images-file-error");
 		// initial message
@@ -370,15 +421,15 @@
 			centerHorizontally: false,
 			centerVertically: false,
 			backgroundColor: "white",
-			scale: '1',
-			drawMode: 'horizontal',
+			scale: "1",
+			drawMode: "horizontal",
 			threshold: 128,
 			outputFormat: "plain",
 			invertColors: false
 		};
 
-		// Variable name, when 'arduino code' is required
-		var identifier = 'myBitmap';
+		// Variable name, when "arduino code" is required
+		var identifier = "myBitmap";
 
 		function update() {
 			images.each(function(image) { place_image(image); });
@@ -412,7 +463,7 @@
 
 			var caption = document.getElementById("format-caption-container");
 			var adafruitGfx = document.getElementById("adafruit-gfx-settings");
-			var arduino = document.getElementById('arduino-identifier');
+			var arduino = document.getElementById("arduino-identifier");
 
 			for(var i = 0; i < caption.children.length; i++) {
 				caption.children[i].style.display = "none";
@@ -421,9 +472,9 @@
 			if(caption) caption.style.display = "block";
 
 			elm.value != "plain" ? arduino.style.display = "block" : arduino.style.display = "none";
-			elm.value == "adafruit_gfx" ? adafruitGfx.style.display = "block" : adafruitGfx.style.display = " none";
+			elm.value == "adafruit_gfx" ? adafruitGfx.style.display = "block" : adafruitGfx.style.display = "none";
 
-			settings['outputFormat'] = elm.value;
+			settings["outputFormat"] = elm.value;
 		}
 
 		// Make the canvas black and white
@@ -432,13 +483,13 @@
 			var data = imageData.data;
 			for (var i = 0; i < data.length; i += 4) {
 				var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-				avg > settings['threshold'] ? avg = 255 : avg = 0;
+				avg > settings["threshold"] ? avg = 255 : avg = 0;
 				data[i]     = avg; // red
 				data[i + 1] = avg; // green
 				data[i + 2] = avg; // blue
 			}
 			ctx.putImageData(imageData, 0, 0);
-		};
+		}
 
 
 		// Invert the colors of the canvas
@@ -451,25 +502,25 @@
 				data[i + 2] = 255 - data[i + 2]; // blue
 			}
 			ctx.putImageData(imageData, 0, 0);
-		};
+		}
 
 		// Draw the image onto the canvas, taking into account color and scaling
 		function place_image(image){
 
 			var img = image.img;
 			var canvas = image.canvas;
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext("2d");
 			image.ctx = ctx;
 
 			// Make sure we're using the right canvas size
-			//canvas.width = settings['screenWidth'];
-			//canvas.height = settings['screenHeight'];
+			//canvas.width = settings["screenWidth"];
+			//canvas.height = settings["screenHeight"];
 
 			// Invert background if needed
-			if (settings['invertColors']){
-				settings['backgroundColor'] == 'white' ? ctx.fillStyle = 'black' : ctx.fillStyle = 'white';
+			if (settings["invertColors"]){
+				settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
 			}else{
-				ctx.fillStyle = settings['backgroundColor'];
+				ctx.fillStyle = settings["backgroundColor"];
 			}
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -477,35 +528,35 @@
 			var offset_x = 0;
 			var offset_y = 0;
 
-			switch(settings['scale']){
-				case '1': // Original
-					if(settings['centerHorizontally']){ offset_x = (canvas.width - img.width) / 2; }
-					if(settings['centerVertically']){ offset_y = (canvas.height - img.height) / 2; }
+			switch(settings["scale"]){
+				case "1": // Original
+					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width) / 2; }
+					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height) / 2; }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width, img.height);
 				break;
-				case '2': // Fit (make as large as possible without changing ratio)
+				case "2": // Fit (make as large as possible without changing ratio)
 					var horRatio = canvas.width / img.width;
 					var verRatio =  canvas.height / img.height;
 					var useRatio  = Math.min(horRatio, verRatio);
 
-					if(settings['centerHorizontally']){ offset_x = (canvas.width - img.width*useRatio) / 2; }
-					if(settings['centerVertically']){ offset_y = (canvas.height - img.height*useRatio) / 2; }
+					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width*useRatio) / 2; }
+					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height*useRatio) / 2; }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width * useRatio, img.height * useRatio);
 				break;
-				case '3': // Stretch x+y (make as large as possible without keeping ratio)
+				case "3": // Stretch x+y (make as large as possible without keeping ratio)
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, canvas.width, canvas.height);
 				break;
-				case '4': // Stretch x (make as wide as possible)
+				case "4": // Stretch x (make as wide as possible)
 					offset_x = 0;
-					if(settings['centerVertically']){ offset_y = (canvas.height - img.height) / 2; }
+					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height) / 2; }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, canvas.width, img.height);
 				break;
-				case '5': // Stretch y (make as tall as possible)
-					if(settings['centerHorizontally']){ offset_x = (canvas.width - img.width) / 2; }
+				case "5": // Stretch y (make as tall as possible)
+					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width) / 2; }
 					offset_y = 0;
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width, canvas.height);
@@ -513,7 +564,7 @@
 			}
 			// Make sure the image is black and white
 			blackAndWhite(canvas, ctx);
-			if(settings['invertColors']){
+			if(settings["invertColors"]){
 				invert(canvas, ctx);
 			}
 		}
@@ -522,7 +573,7 @@
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
-			var canvas = document.createElement('canvas');
+			var canvas = document.createElement("canvas");
 			canvas.width = parseInt(document.getElementById("text-input-width").value);
 			canvas.height = parseInt(document.getElementById("text-input-height").value);
 
@@ -534,7 +585,7 @@
 			var image = new Image();
 			images.setByIndex(0, {"img": image, "canvas" : canvas});
 
-			var input = document.getElementById('byte-input').value;
+			var input = document.getElementById("byte-input").value;
 
 			// Remove Arduino code
 			input = input.replace(/const unsigned char myBitmap \[\] PROGMEM = \{/g, "");
@@ -554,7 +605,7 @@
 			var list = input.split(",");
 			console.log(list);
 
-			if(drawMode == 'horizontal'){
+			if(drawMode == "horizontal"){
 				listToImageHorizontal(list, canvas);
 			}else{
 				listToImageVertical(list, canvas);
@@ -595,7 +646,7 @@
 			for (var i = 0, f; f = files[i]; i++) {
 
 				// Only process image files.
-				if(!f.type.match('image.*')) {
+				if(!f.type.match("image.*")) {
 				onlyImagesFileError.style.display = "block";
 					continue;
 				}
@@ -609,12 +660,12 @@
 
 						img.onload = function(){
 
-							var canvas = document.createElement('canvas');
+							var canvas = document.createElement("canvas");
 
-							var imageEntry = document.createElement('li');
-							imageEntry.setAttribute('data-img', file.name);
+							var imageEntry = document.createElement("li");
+							imageEntry.setAttribute("data-img", file.name);
 
-							var w = document.createElement('input');
+							var w = document.createElement("input");
 							w.type = "number";
 							w.name = "width";
 							w.min = 0;
@@ -622,7 +673,7 @@
 							w.value = img.width;
 							w.oninput = function() { canvas.width = this.value; update(); };
 
-							var h = document.createElement('input');
+							var h = document.createElement("input");
 							h.type = "number";
 							h.name = "height";
 							h.min = 0;
@@ -630,11 +681,11 @@
 							h.value = img.height;
 							h.oninput = function() { canvas.height = this.value; update(); };
 
-							var gil = document.createElement('span');
+							var gil = document.createElement("span");
 							gil.innerHTML = "glyph";
 							gil.className = "file-info";
 
-							var gi = document.createElement('input');
+							var gi = document.createElement("input");
 							gi.type = "text";
 							gi.name = "glyph";
 							gi.className = "glyph-input";
@@ -643,12 +694,12 @@
 								image.glyph = gi.value;
 							};
 
-							var fn = document.createElement('span');
+							var fn = document.createElement("span");
 							fn.className = "file-info";
 							fn.innerHTML = file.name + "  (file resolution: " + img.width + " x " + img.height + ")";
 							fn.innerHTML += "<br />";
 
-							var rb = document.createElement('button');
+							var rb = document.createElement("button");
 							rb.className = "remove-button";
 							rb.innerHTML = "remove";
 							rb.onclick = function() {
@@ -677,10 +728,10 @@
 							canvas.height = img.height;
 							canvasContainer.appendChild(canvas);
 
-							images.push(img, canvas, file.name.split('.')[0]);
+							images.push(img, canvas, file.name.split(".")[0]);
 							place_image(images.last());
 							allSameSize(images, files);
-						}
+						};
 						img.src = e.target.result;
 					};
 				})(f);
@@ -689,7 +740,7 @@
 		}
 
 		function imageToString(orientation, image){
-			if(orientation == 'horizontal')
+			if(orientation == "horizontal")
 				return imageToStringHorizontal(image);
 			return imageToStringVertical(image);
 		}
@@ -711,7 +762,7 @@
 			for(var index = 0; index < imageData.data.length; index += 4){
 				// Get the average of the RGB (we ignore A)
 				var avg = (imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2]) / 3;
-				if(avg > settings['threshold']){
+				if(avg > settings["threshold"]){
 					number += Math.pow(2, byteIndex);
 				}
 				byteIndex--;
@@ -745,8 +796,6 @@
 
 		// Output the image as a string for vertically drawing displays
 		function imageToStringVertical(image){
-			var x = 0;
-			var y = 7;
 			var page = 0;
 			var ctx = image.ctx;
 			var canvas = image.canvas;
@@ -757,15 +806,15 @@
 			var output_string = "";
 			var output_index = 0;
 
-			for(var p=0; p < Math.ceil(settings['screenHeight'] / 8); p++){
-				for(var x = 0;x <= settings['screenWidth']; x++){
+			for(var p=0; p < Math.ceil(settings["screenHeight"] / 8); p++){
+				for(var x = 0; x <= settings["screenWidth"]; x++){
 					var byteIndex = 7;
 					var number = 0;
 
 					for (var y = 7; y >= 0; y--){
-						var index = ((p*8)+y)*(settings['screenWidth']*4)+x;
+						var index = ((p*8)+y)*(settings["screenWidth"]*4)+x;
 						var avg = (data[index] + data[index +1] + data[index +2]) / 3;
-						if (avg > settings['threshold']){
+						if (avg > settings["threshold"]){
 							number += Math.pow(2, byteIndex);
 						}
 						byteIndex--;
@@ -787,7 +836,7 @@
 
 		// Get the custom arduino output variable name, if any
 		function getIdentifier() {
-			var vn = document.getElementById('identifier');
+			var vn = document.getElementById("identifier");
 			return vn && vn.value.length ? vn.value : identifier;
 		}
 
@@ -798,59 +847,61 @@
 			var output_string = "", count = 1;
 			var code = "";
 
-			switch(settings['outputFormat']) {
+			switch(settings["outputFormat"]) {
 
 				case "arduino": {
 
 					images.each(function(image) {
-						code = imageToString(settings['drawMode'], image);
+						code = imageToString(settings["drawMode"], image);
 
-						// remove last comma and space chars
-						code = code.substring(0, code.length - 3);
+						// Trim whitespace from end and remove trailing comma
+						code = code.replace(/,\s*$/,"");
 
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						var variableCount = images.length() > 1 ? count++ : "";
-						var comment = " // '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
+						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
-						code = comment + "const unsigned char "
-							+ getIdentifier()
-							+ variableCount
-							+ " [] PROGMEM = {"
-							+ "\n" + code + "};\n";
+						code = comment + "const unsigned char " +
+								getIdentifier() +
+								variableCount +
+								" [] PROGMEM = {" +
+								"\n" + code + "};\n";
 
 						output_string += code;
 					});
 					break;
-				};
+				}
+
 				case "arduino_single": {
 					var comment = "";
 					images.each(function(image) {
-						code = imageToString(settings['drawMode'], image);
+						code = imageToString(settings["drawMode"], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
 					});
 
-					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = output_string.replace(/,\s*$/,"");
+
 					output_string = "const unsigned char "
 						+ getIdentifier()
 						+ " [] PROGMEM = {"
 						+ "\n" + output_string + "\n};";
 					break;
-				};
-				case "adafruit_gfx": {
-					// bitmap
+				}
+
+				case "adafruit_gfx": { // bitmap
 					var comment = "";
 					var useGlyphs = 0;
 					images.each(function(image) {
-						code = imageToString(settings['drawMode'], image);
+						code = imageToString(settings["drawMode"], image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
 						if(image.glyph.length == 1) useGlyphs++;
 					});
 
-					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = output_string.replace(/,\s*$/,"");
 					output_string = "const unsigned char "
 						+ getIdentifier()
 						+ "Bitmap"
@@ -875,9 +926,9 @@
 							+ "'" + (images.length() == useGlyphs ?
 								image.glyph :
 									String.fromCharCode(firstAschiiChar++)) + "'"
-							+ " }"
-						if(image != images.last()) code += ",";
-						code += " // '" + image.glyph + "'\n";
+							+ " }";
+						if(image != images.last()){ code += ","; }
+						code += "// '" + image.glyph + "'\n";
 						offset += image.canvas.width;
 					});
 					code += "};\n";
@@ -893,28 +944,29 @@
 						+ getIdentifier()
 						+ "Glyphs,\n"
 						+ "\t" + images.length()
-						+ "\n};\n"
+						+ "\n};\n";
 					break;
-				};
-				default: {
+				}
+				default: { // plain
 					images.each(function(image) {
-						code = imageToString(settings['drawMode'], image);
-						var comment = image.glyph ? (" // '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
+						code = imageToString(settings["drawMode"], image);
+						var comment = image.glyph ? ("// '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
 						output_string += code;
 					});
-					output_string = output_string.substring(0, output_string.length - 2);
+					// Trim whitespace from end and remove trailing comma
+					output_string = output_string.replace(/,\s*$/gm,"");
 				}
 			}
 
-			document.getElementById('code-output').value = output_string;
+			document.getElementById("code-output").value = output_string;
 		}
 
 		// Use the horizontally oriented list to draw the image
 		function listToImageHorizontal(list, canvas){
 
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext("2d");
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			var imgData = ctx.createImageData(canvas.width, canvas.height);
@@ -942,7 +994,7 @@
 				// Check if pixel is white or black
 				for(var k=0; k<binString.length; k++){
 					var color = 0;
-					if(binString.charAt(k) == '1'){
+					if(binString.charAt(k) == "1"){
 						color = 255;
 					}
 					imgData.data[index] = color;
@@ -950,7 +1002,7 @@
 					imgData.data[index+2] = color;
 					imgData.data[index+3] = 255;
 
-					index += 4
+					index += 4;
 				}
 			}
 
@@ -959,7 +1011,7 @@
 			// we want to scale / invert, etc.
 			ctx.putImageData(imgData, 0, 0);
 			var img = new Image();
-			img.src = canvas.toDataURL('image/png');
+			img.src = canvas.toDataURL("image/png");
 			images.first().img = img;
 		}
 
@@ -967,7 +1019,7 @@
 		// Use the vertically oriented list to draw the image
 		function listToImageVertical(list, canvas){
 
-			var ctx = canvas.getContext('2d');
+			var ctx = canvas.getContext("2d");
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 			var index = 0;
@@ -993,7 +1045,7 @@
 				// Check if pixel is white or black
 				for(var k=0; k<binString.length; k++){
 					var color = 0;
-					if(binString.charAt(k) == '1'){
+					if(binString.charAt(k) == "1"){
 						color = 255;
 					}
 					drawPixel(ctx, x, (page*8)+y, color);
@@ -1001,7 +1053,7 @@
 					if(y < 0){
 						y = 7;
 						x++;
-						if(x >= settings['screenWidth']){
+						if(x >= settings["screenWidth"]){
 							x = 0;
 							page++;
 						}
@@ -1012,7 +1064,7 @@
 			// Save the canvas contents inside the img object. This way we can
 			// reuse the img object when we want to scale / invert, etc.
 			var img = new Image();
-			img.src = canvas.toDataURL('image/png');
+			img.src = canvas.toDataURL("image/png");
 			images.first().img = img;
 		}
 
@@ -1020,15 +1072,15 @@
 		// Convert hex to binary
 		function hexToBinary(s) {
 
-			var i, k, part, ret = '';
-			// lookup table for easier conversion. '0' characters are padded for '1' to '7'
+			var i, k, part, ret = "";
+			// lookup table for easier conversion. "0" characters are
+			// padded for "1" to "7"
 			var lookupTable = {
-				'0': '0000', '1': '0001', '2': '0010', '3': '0011', '4': '0100',
-				'5': '0101', '6': '0110', '7': '0111', '8': '1000', '9': '1001',
-				'a': '1010', 'b': '1011', 'c': '1100', 'd': '1101',
-				'e': '1110', 'f': '1111',
-				'A': '1010', 'B': '1011', 'C': '1100', 'D': '1101',
-				'E': '1110', 'F': '1111'
+				"0": "0000", "1": "0001", "2": "0010", "3": "0011", "4": "0100",
+				"5": "0101", "6": "0110", "7": "0111", "8": "1000", "9": "1001",
+				"a": "1010", "b": "1011", "c": "1100", "d": "1101", "e": "1110",
+				"f": "1111", "A": "1010", "B": "1011", "C": "1100", "D": "1101",
+				"E": "1110", "F": "1111"
 			};
 			for (i = 0; i < s.length; i += 1) {
 				if (lookupTable.hasOwnProperty(s[i])) {
