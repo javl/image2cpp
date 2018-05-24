@@ -805,12 +805,12 @@
 					images.each(function(image) {
 						code = imageToString(settings['drawMode'], image);
 
-						// remove last comma and space chars
-						code = code.substring(0, code.length - 3);
+						// Trim whitespace from end and remove trailing comma
+						code = code.replace(/,\s*$/,"");
 
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						var variableCount = images.length() > 1 ? count++ : "";
-						var comment = " // '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
+						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
 						code = comment + "const unsigned char "
 							+ getIdentifier()
@@ -831,7 +831,8 @@
 						output_string += comment + code;
 					});
 
-					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = output_string.replace(/,\s*$/,"");
+
 					output_string = "const unsigned char "
 						+ getIdentifier()
 						+ " [] PROGMEM = {"
@@ -850,7 +851,7 @@
 						if(image.glyph.length == 1) useGlyphs++;
 					});
 
-					output_string = output_string.substring(0, output_string.length - 3);
+					output_string = output_string.replace(/,\s*$/,"");
 					output_string = "const unsigned char "
 						+ getIdentifier()
 						+ "Bitmap"
@@ -877,7 +878,7 @@
 									String.fromCharCode(firstAschiiChar++)) + "'"
 							+ " }"
 						if(image != images.last()) code += ",";
-						code += " // '" + image.glyph + "'\n";
+						code += "// '" + image.glyph + "'\n";
 						offset += image.canvas.width;
 					});
 					code += "};\n";
@@ -896,15 +897,16 @@
 						+ "\n};\n"
 					break;
 				};
-				default: {
+				default: { // plain
 					images.each(function(image) {
 						code = imageToString(settings['drawMode'], image);
-						var comment = image.glyph ? (" // '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
+						var comment = image.glyph ? ("// '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
 						output_string += code;
 					});
-					output_string = output_string.substring(0, output_string.length - 2);
+					// Trim whitespace from end and remove trailing comma
+					output_string = output_string.replace(/,\s*$/gm,"");
 				}
 			}
 
