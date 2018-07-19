@@ -576,6 +576,8 @@
 			var canvas = document.createElement("canvas");
 			canvas.width = parseInt(document.getElementById("text-input-width").value);
 			canvas.height = parseInt(document.getElementById("text-input-height").value);
+			settings["screenWidth"] = canvas.width;
+			settings["screenHeight"] = canvas.height;
 
 			if(canvasContainer.children.length) {
 				canvasContainer.removeChild(canvasContainer.firstChild);
@@ -668,18 +670,22 @@
 							var w = document.createElement("input");
 							w.type = "number";
 							w.name = "width";
+							w.id = "screenWidth";
 							w.min = 0;
 							w.className = "size-input";
 							w.value = img.width;
-							w.oninput = function() { canvas.width = this.value; update(); };
+							settings["screenWidth"] = img.width;
+							w.oninput = function() { canvas.width = this.value; update(); updateInteger('screenWidth'); };
 
 							var h = document.createElement("input");
 							h.type = "number";
 							h.name = "height";
+							h.id = "screenHeight";
 							h.min = 0;
 							h.className = "size-input";
 							h.value = img.height;
-							h.oninput = function() { canvas.height = this.value; update(); };
+							settings["screenHeight"] = img.height;
+							h.oninput = function() { canvas.height = this.value; update(); updateInteger('screenHeight'); };
 
 							var gil = document.createElement("span");
 							gil.innerHTML = "glyph";
@@ -796,7 +802,6 @@
 
 		// Output the image as a string for vertically drawing displays
 		function imageToStringVertical(image){
-			var page = 0;
 			var ctx = image.ctx;
 			var canvas = image.canvas;
 
@@ -807,12 +812,12 @@
 			var output_index = 0;
 
 			for(var p=0; p < Math.ceil(settings["screenHeight"] / 8); p++){
-				for(var x = 0; x <= settings["screenWidth"]; x++){
+				for(var x = 0; x < settings["screenWidth"]; x++){
 					var byteIndex = 7;
 					var number = 0;
 
 					for (var y = 7; y >= 0; y--){
-						var index = ((p*8)+y)*(settings["screenWidth"]*4)+x;
+						var index = ((p*8)+y)*(settings["screenWidth"]*4)+x*4;
 						var avg = (data[index] + data[index +1] + data[index +2]) / 3;
 						if (avg > settings["threshold"]){
 							number += Math.pow(2, byteIndex);
