@@ -576,6 +576,8 @@
 			var canvas = document.createElement("canvas");
 			canvas.width = parseInt(document.getElementById("text-input-width").value);
 			canvas.height = parseInt(document.getElementById("text-input-height").value);
+			settings["screenWidth"] = canvas.width;
+			settings["screenHeight"] = canvas.height;
 
 			if(canvasContainer.children.length) {
 				canvasContainer.removeChild(canvasContainer.firstChild);
