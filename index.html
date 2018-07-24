@@ -24,7 +24,7 @@
 			display: flex;
 			flex-direction: column;
 			margin: auto;
-			width: 800px;
+			width: 900px;
 		}
 		.section {
 			margin: 10px 0;
@@ -115,18 +115,18 @@
 			margin: 3px 0;
 		}
 		button,
-		input[type="file"]::-webkit-file-upload-button {
+		input[type="file"] {
 			background: #00CB99;
 			border-radius: 3px;
 			border: none;
 			color: #fff;
 			font-size: .9em;
-			font-weight: 100;
+			font-weight: bold;
 			margin: 10px 0;
 			padding: 4px 8px;
 		}
-		input[type="file"]::-webkit-file-upload-button {
-			font-size: 1.6em;
+		input[type="file"] {
+			font-size: 1.0em;
 			padding: 6px 20px;
 		}
 		.generate-button {
@@ -178,15 +178,20 @@
 			color: #ff0000;
 			display: none;
 		}
+		h1{
+			padding: 10px;
+			color: white;
+			background-color: #00cb99;
+		}
 	</style>
 </head>
 <body>
 	<div class="wrapper">
 		<section class="section">
 			<h1>image2cpp</h1>
-			<p>This tool helps you convert images into bytestrings, which can be used with Arduino and OLED displays (among other platforms).
+			<p>image2cpp is a simple tool to change images into byte arrays to use with Arduino and (monochrome) displays such as OLEDs.
 				It was originally made to work with the Adafruit OLED library. An example sketch for Arduino and this library can be found <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>.</p>
-			<p>More info can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
+			<p>More info (and credits) can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you can report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
 			<p>This tool also works offline. Simply save this page to your computer and open the file in your browser.</p>
 		</section>
 		<section class="section bottom-divider">
