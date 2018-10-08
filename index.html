@@ -778,11 +778,12 @@
 				}
 				byteIndex--;
 
-				// If we are at the last set, fill up our byte to 8 bits
-				if (index == imageData.data.length-4){
-					for(var i=byteIndex;i>-1;i--){
-						number += Math.pow(2, i);
-					}
+				// if this was the last pixel of a row or the last pixel of the
+				// image, fill up the rest of our byte with zeros so it always contains 8 bits
+				if ((index != 0 && (((index/4)+1)%(canvas.width)) == 0 ) || (index == imageData.data.length-4)) {
+					// for(var i=byteIndex;i>-1;i--){
+						// number += Math.pow(2, i);
+					// }
 					byteIndex = -1;
 				}
 
