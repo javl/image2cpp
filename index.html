@@ -535,8 +535,8 @@
 
 			switch(settings["scale"]){
 				case "1": // Original
-					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width) / 2; }
-					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height) / 2; }
+					if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width) / 2); }
+					if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - img.height) / 2); }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width, img.height);
 				break;
@@ -545,8 +545,8 @@
 					var verRatio =  canvas.height / img.height;
 					var useRatio  = Math.min(horRatio, verRatio);
 
-					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width*useRatio) / 2; }
-					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height*useRatio) / 2; }
+					if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width*useRatio) / 2); }
+					if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - img.height*useRatio) / 2); }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width * useRatio, img.height * useRatio);
 				break;
@@ -556,12 +556,12 @@
 				break;
 				case "4": // Stretch x (make as wide as possible)
 					offset_x = 0;
-					if(settings["centerVertically"]){ offset_y = (canvas.height - img.height) / 2; }
+					if(settings["centerVertically"]){ Math.round(offset_y = (canvas.height - img.height) / 2); }
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, canvas.width, img.height);
 				break;
 				case "5": // Stretch y (make as tall as possible)
-					if(settings["centerHorizontally"]){ offset_x = (canvas.width - img.width) / 2; }
+					if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width) / 2); }
 					offset_y = 0;
 					ctx.drawImage(img, 0, 0, img.width, img.height,
 						offset_x, offset_y, img.width, canvas.height);
