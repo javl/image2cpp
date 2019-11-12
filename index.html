@@ -926,7 +926,7 @@
 			}
 		}
 
-		function imageToString(orientation, image){
+		function imageToString(image){
 			// extract raw image data
 			var ctx = image.ctx;
 			var canvas = image.canvas;
@@ -955,7 +955,7 @@
 				case "arduino": {
 
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 
 						// Trim whitespace from end and remove trailing comma
 						code = code.replace(/,\s*$/,"");
@@ -964,7 +964,6 @@
 						var variableCount = images.length() > 1 ? count++ : "";
 						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
-						//uint16_t - unsigned char
 						code = comment + "const " + getType() + " " +
 								getIdentifier() +
 								variableCount +
@@ -979,7 +978,7 @@
 				case "arduino_single": {
 					var comment = "";
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
@@ -998,7 +997,7 @@
 					var comment = "";
 					var useGlyphs = 0;
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
@@ -1053,7 +1052,7 @@
 				}
 				default: { // plain
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						var comment = image.glyph ? ("// '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
