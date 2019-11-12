@@ -468,16 +468,12 @@
 					var firstByte = (rgb >> 8) & 0xff;
 					var secondByte = rgb & 0xff;
 
-					var byteSet = firstByte.toString(16);
-					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
-					output_string += "0x" + byteSet + ", ";
-					
-					byteSet = secondByte.toString(16);
-					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
+					var byteSet = rgb.toString(16);
+					while(byteSet.length < 4){ byteSet = "0" + byteSet; }
 					output_string += "0x" + byteSet + ", ";
 
 					// add newlines every 16 bytes
-					output_index += 2;
+					output_index++;
 					if(output_index >= 16){
 						output_string += "\n";
 						output_index = 0;
@@ -968,7 +964,8 @@
 						var variableCount = images.length() > 1 ? count++ : "";
 						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
-						code = comment + "const unsigned char " +
+						//uint16_t - unsigned char
+						code = comment + "const " + getType() + " " +
 								getIdentifier() +
 								variableCount +
 								" [] PROGMEM = {" +
@@ -990,7 +987,7 @@
 
 					output_string = output_string.replace(/,\s*$/,"");
 
-					output_string = "const unsigned char "
+					output_string = "const " + getType() + " " +
 						+ getIdentifier()
 						+ " [] PROGMEM = {"
 						+ "\n" + output_string + "\n};";
@@ -1211,6 +1208,16 @@
 			d[2] = color;
 			d[3] = 255;
 			ctx.putImageData(single_pixel, x, y);
+		}
+		
+		// get the type (in arduino code) of the output image
+		// this is a bit of a hack, it's better to make this a property of the conversion function (should probably turn it into objects)
+		function getType() {
+			if (settings.conversionFunction == ConversionFunctions.horizontal565) {
+				return "uint16_t";
+			} else {
+				return "unsigned char";
+			}
 		}
 	</script>
 </body>
