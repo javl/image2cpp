@@ -696,14 +696,18 @@
 			//canvas.height = settings["screenHeight"];
 
 			// Invert background if needed
-			if (settings["backgroundColor"] != "transparent") {
+			if (settings["backgroundColor"] == "transparent") {
+				ctx.fillStyle = "rgba(0,0,0,0.0)";
+				ctx.globalCompositeOperation = 'copy';
+			} else {
 				if (settings["invertColors"]){
 					settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
-				}else{
+				} else {
 					ctx.fillStyle = settings["backgroundColor"];
 				}
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				ctx.globalCompositeOperation = 'source-over';
 			}
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 			// Offset used for centering the image when requested
 			var offset_x = 0;
