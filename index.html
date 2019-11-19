@@ -748,10 +748,13 @@
 				break;
 			}
 			// Make sure the image is black and white
-			/*blackAndWhite(canvas, ctx);
-			if(settings["invertColors"]){
-				invert(canvas, ctx);
-			}*/
+			if(settings.conversionFunction == ConversionFunctions.horizontal1bit
+				|| settings.conversionFunction == ConversionFunctions.vertical1bit) {
+				blackAndWhite(canvas, ctx);
+				if(settings["invertColors"]){
+					invert(canvas, ctx);
+				}
+			}
 		}
 
 
