@@ -235,6 +235,8 @@
 							<label for="backgroundColorWhite" class="smallLabel">White</label>
 							<input id="backgroundColorBlack" type="radio" name="backgroundColor" value="black" onchange="updateRadio('backgroundColor')"/>
 							<label for="backgroundColorBlack" class="smallLabel">Black</label>
+							<input id="backgroundColorTransparent" type="radio" name="backgroundColor" value="transparent" onchange="updateRadio('backgroundColor')"/>
+							<label for="backgroundColorTransparent" class="smallLabel">Transparent</label>
 						</div>
 					</div>
 					<div class="table-row">
@@ -244,10 +246,10 @@
 						</div>
 					</div>
 					<div class="table-row">
-						<div class="table-cell"><label>Brightness threshold: </label></div>
+						<div class="table-cell"><label>Brightness (or alpha) threshold: </label></div>
 						<div class="table-cell">
 							<input id="threshold" class="size-input" type="number" min="0" max="255" name="threshold" oninput="updateInteger('threshold')" value="128"/>
-							<div class="note"><i>0 - 255; pixels with brightness above become white, below become black.</i></div>
+							<div class="note"><i>0 - 255; pixels with brightness above become white, below become black<br\>pixels with alpha above become opaque, below transparent.</i></div>
 						</div>
 					</div>
 					<div class="table-row">
@@ -342,19 +344,23 @@
 					<div class="table-row">
 						<div class="table-cell"><label>Draw mode:</label></div>
 						<div class="table-cell">
-							<input id="drawModeHorizontal" type="radio" name="drawMode" value="horizontal" checked="checked" onchange="updateRadio('drawMode')"/>
-							<label for="drawModeHorizontal" class="smallLabel">Horizontal</label>
-							<input id="drawModeVertical" type="radio" name="drawMode" value="vertical" onchange="updateRadio('drawMode')"/>
-							<label for="drawModeVertical" class="smallLabel">Vertical</label>
+							<select id="drawMode" name="drawMode" onchange="updateDrawMode(this)">
+								<option value="horizontal1bit">Horizontal - 1 bit per pixel</option>
+								<option value="vertical1bit">Vertical - 1 bit per pixel</option>
+								<option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
+								<option value="horizontalAlpha">Horizontal - 1 bit per pixel aplha map</option>
+							</select>
 						</div>
 					</div>
 				</div>
-				<div class="note">
-					<i>If your image looks all messed up on your display, like the image below, try the other mode.</i>
+				<div id="note1bit">
+					<div class="note">
+						<i>If your image looks all messed up on your display, like the image below, try the other mode.</i>
+					</div>
+					<img class="inlineImg"
+						src="data:image/jpeg;base64,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"
+					width="150" height="64" alt="" />
 				</div>
-				<img class="inlineImg"
-					src="data:image/jpeg;base64,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"
-				width="150" height="64" alt="" />
 			</section>
 			<section class="sub-section">
 				<button type="button" class="generate-button" onclick="outputString()">Generate code</button>
@@ -365,6 +371,159 @@
 
 
 	<script type="text/javascript">
+		var ConversionFunctions = {
+			// Output the image as a string for horizontally drawing displays
+			horizontal1bit: function (data, canvasWidth, canvasHeight){
+				var output_string = "";
+				var output_index = 0;
+
+				var byteIndex = 7;
+				var number = 0;
+
+				// format is RGBA, so move 4 steps per pixel
+				for(var index = 0; index < data.length; index += 4){
+					// Get the average of the RGB (we ignore A)
+					var avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
+					if(avg > settings["threshold"]){
+						number += Math.pow(2, byteIndex);
+					}
+					byteIndex--;
+
+					// if this was the last pixel of a row or the last pixel of the
+					// image, fill up the rest of our byte with zeros so it always contains 8 bits
+					if ((index != 0 && (((index/4)+1)%(canvasWidth)) == 0 ) || (index == data.length-4)) {
+						// for(var i=byteIndex;i>-1;i--){
+							// number += Math.pow(2, i);
+						// }
+						byteIndex = -1;
+					}
+
+					// When we have the complete 8 bits, combine them into a hex value
+					if(byteIndex < 0){
+						var byteSet = number.toString(16);
+						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
+						var b = "0x"+byteSet;
+						output_string += b + ", ";
+						output_index++;
+						if(output_index >= 16){
+							output_string += "\n";
+							output_index = 0;
+						}
+						number = 0;
+						byteIndex = 7;
+					}
+				}
+				return output_string;
+			},
+
+
+			// Output the image as a string for vertically drawing displays
+			vertical1bit: function (data, canvasWidth, canvasHeight){
+				var output_string = "";
+				var output_index = 0;
+
+				for(var p=0; p < Math.ceil(settings["screenHeight"] / 8); p++){
+					for(var x = 0; x < settings["screenWidth"]; x++){
+						var byteIndex = 7;
+						var number = 0;
+
+						for (var y = 7; y >= 0; y--){
+							var index = ((p*8)+y)*(settings["screenWidth"]*4)+x*4;
+							var avg = (data[index] + data[index +1] + data[index +2]) / 3;
+							if (avg > settings["threshold"]){
+								number += Math.pow(2, byteIndex);
+							}
+							byteIndex--;
+						}
+						var byteSet = number.toString(16);
+						if (byteSet.length == 1){ byteSet = "0"+byteSet; }
+						var b = "0x"+byteSet.toString(16);
+						output_string += b + ", ";
+						output_index++;
+						if(output_index >= 16){
+							output_string += "\n";
+							output_index = 0;
+						}
+					}
+				}
+				return output_string;
+			},
+			
+			// Output the image as a string for 565 displays (horizontally)
+			horizontal565: function (data, canvasWidth, canvasHeight){
+				var output_string = "";
+				var output_index = 0;
+
+				// format is RGBA, so move 4 steps per pixel
+				for(var index = 0; index < data.length; index += 4){
+					// Get the RGB values
+					var r = data[index];
+					var g = data[index + 1];
+					var b = data[index + 2];
+					
+					// calculate the 565 color value
+					var rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | ((b & 0b11111000) >> 3);
+					
+					// Split up the color value in two bytes
+					var firstByte = (rgb >> 8) & 0xff;
+					var secondByte = rgb & 0xff;
+
+					var byteSet = rgb.toString(16);
+					while(byteSet.length < 4){ byteSet = "0" + byteSet; }
+					output_string += "0x" + byteSet + ", ";
+
+					// add newlines every 16 bytes
+					output_index++;
+					if(output_index >= 16){
+						output_string += "\n";
+						output_index = 0;
+					}
+				}
+				return output_string;
+			},
+			
+			// Output the alpha mask as a string for horizontally drawing displays
+			horizontalAlpha: function (data, canvasWidth, canvasHeight){
+				var output_string = "";
+				var output_index = 0;
+
+				var byteIndex = 7;
+				var number = 0;
+
+				// format is RGBA, so move 4 steps per pixel
+				for(var index = 0; index < data.length; index += 4){
+					// Get alpha part of the image data
+					var alpha = data[index + 3];
+					if(alpha > settings["threshold"]){
+						number += Math.pow(2, byteIndex);
+					}
+					byteIndex--;
+
+					// if this was the last pixel of a row or the last pixel of the
+					// image, fill up the rest of our byte with zeros so it always contains 8 bits
+					if ((index != 0 && (((index/4)+1)%(canvasWidth)) == 0 ) || (index == data.length-4)) {
+						byteIndex = -1;
+					}
+
+					// When we have the complete 8 bits, combine them into a hex value
+					if(byteIndex < 0){
+						var byteSet = number.toString(16);
+						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
+						var b = "0x"+byteSet;
+						output_string += b + ", ";
+						output_index++;
+						if(output_index >= 16){
+							output_string += "\n";
+							output_index = 0;
+						}
+						number = 0;
+						byteIndex = 7;
+					}
+				}
+				return output_string;
+			}
+		};
+	
 		// An images collection with helper methods
 		function Images() {
 			var collection = [];
@@ -430,7 +589,8 @@
 			drawMode: "horizontal",
 			threshold: 128,
 			outputFormat: "plain",
-			invertColors: false
+			invertColors: false,
+			conversionFunction: ConversionFunctions.horizontal1bit
 		};
 
 		// Variable name, when "arduino code" is required
@@ -481,6 +641,20 @@
 
 			settings["outputFormat"] = elm.value;
 		}
+		
+		function updateDrawMode(elm) {
+			var note = document.getElementById("note1bit");
+			if(elm.value == "horizontal1bit" || elm.value == "vertical1bit") {
+				note.style.display = "block";
+			} else {
+				note.style.display = "none";
+			}
+			
+			var conversionFunction = ConversionFunctions[elm.value];
+			if(conversionFunction) {
+				settings.conversionFunction = conversionFunction;
+			}
+		}
 
 		// Make the canvas black and white
 		function blackAndWhite(canvas, ctx){
@@ -522,10 +696,16 @@
 			//canvas.height = settings["screenHeight"];
 
 			// Invert background if needed
-			if (settings["invertColors"]){
-				settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
-			}else{
-				ctx.fillStyle = settings["backgroundColor"];
+			if (settings["backgroundColor"] == "transparent") {
+				ctx.fillStyle = "rgba(0,0,0,0.0)";
+				ctx.globalCompositeOperation = 'copy';
+			} else {
+				if (settings["invertColors"]){
+					settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
+				} else {
+					ctx.fillStyle = settings["backgroundColor"];
+				}
+				ctx.globalCompositeOperation = 'source-over';
 			}
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -568,9 +748,12 @@
 				break;
 			}
 			// Make sure the image is black and white
-			blackAndWhite(canvas, ctx);
-			if(settings["invertColors"]){
-				invert(canvas, ctx);
+			if(settings.conversionFunction == ConversionFunctions.horizontal1bit
+				|| settings.conversionFunction == ConversionFunctions.vertical1bit) {
+				blackAndWhite(canvas, ctx);
+				if(settings["invertColors"]){
+					invert(canvas, ctx);
+				}
 			}
 		}
 
@@ -750,100 +933,16 @@
 			}
 		}
 
-		function imageToString(orientation, image){
-			if(orientation == "horizontal")
-				return imageToStringHorizontal(image);
-			return imageToStringVertical(image);
-		}
-
-		// Output the image as a string for horizontally drawing displays
-		function imageToStringHorizontal(image){
-			var ctx = image.ctx;
-			var canvas = image.canvas;
-
-			var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-			var output_string = "";
-			var output_index = 0;
-
-			var byteIndex = 7;
-			var number = 0;
-
-			// format is RGBA, so move 4 steps per pixel
-			for(var index = 0; index < imageData.data.length; index += 4){
-				// Get the average of the RGB (we ignore A)
-				var avg = (imageData.data[index] + imageData.data[index + 1] + imageData.data[index + 2]) / 3;
-				if(avg > settings["threshold"]){
-					number += Math.pow(2, byteIndex);
-				}
-				byteIndex--;
-
-				// if this was the last pixel of a row or the last pixel of the
-				// image, fill up the rest of our byte with zeros so it always contains 8 bits
-				if ((index != 0 && (((index/4)+1)%(canvas.width)) == 0 ) || (index == imageData.data.length-4)) {
-					// for(var i=byteIndex;i>-1;i--){
-						// number += Math.pow(2, i);
-					// }
-					byteIndex = -1;
-				}
-
-				// When we have the complete 8 bits, combine them into a hex value
-				if(byteIndex < 0){
-					var byteSet = number.toString(16);
-					if(byteSet.length == 1){ byteSet = "0"+byteSet; }
-					var b = "0x"+byteSet;
-					output_string += b + ", ";
-					output_index++;
-					if(output_index >= 16){
-						output_string += "\n";
-						output_index = 0;
-					}
-					number = 0;
-					byteIndex = 7;
-				}
-			}
-			return output_string;
-		}
-
-
-		// Output the image as a string for vertically drawing displays
-		function imageToStringVertical(image){
+		function imageToString(image){
+			// extract raw image data
 			var ctx = image.ctx;
 			var canvas = image.canvas;
 
 			var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 			var data = imageData.data;
-
-			var output_string = "";
-			var output_index = 0;
-
-			for(var p=0; p < Math.ceil(settings["screenHeight"] / 8); p++){
-				for(var x = 0; x < settings["screenWidth"]; x++){
-					var byteIndex = 7;
-					var number = 0;
-
-					for (var y = 7; y >= 0; y--){
-						var index = ((p*8)+y)*(settings["screenWidth"]*4)+x*4;
-						var avg = (data[index] + data[index +1] + data[index +2]) / 3;
-						if (avg > settings["threshold"]){
-							number += Math.pow(2, byteIndex);
-						}
-						byteIndex--;
-					}
-					var byteSet = number.toString(16);
-					if (byteSet.length == 1){ byteSet = "0"+byteSet; }
-					var b = "0x"+byteSet.toString(16);
-					output_string += b + ", ";
-					output_index++;
-					if(output_index >= 16){
-						output_string += "\n";
-						output_index = 0;
-					}
-				}
-			}
-			return output_string;
+			
+			return settings.conversionFunction(data, canvas.width, canvas.height);
 		}
-
 
 		// Get the custom arduino output variable name, if any
 		function getIdentifier() {
@@ -863,7 +962,7 @@
 				case "arduino": {
 
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 
 						// Trim whitespace from end and remove trailing comma
 						code = code.replace(/,\s*$/,"");
@@ -872,7 +971,7 @@
 						var variableCount = images.length() > 1 ? count++ : "";
 						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
 
-						code = comment + "const unsigned char " +
+						code = comment + "const " + getType() + " " +
 								getIdentifier() +
 								variableCount +
 								" [] PROGMEM = {" +
@@ -886,7 +985,7 @@
 				case "arduino_single": {
 					var comment = "";
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
@@ -894,7 +993,7 @@
 
 					output_string = output_string.replace(/,\s*$/,"");
 
-					output_string = "const unsigned char "
+					output_string = "const " + getType() + " " +
 						+ getIdentifier()
 						+ " [] PROGMEM = {"
 						+ "\n" + output_string + "\n};";
@@ -905,7 +1004,7 @@
 					var comment = "";
 					var useGlyphs = 0;
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						comment = "\t// '" + image.glyph + ", " + image.canvas.width+"x"+image.canvas.height+"px\n";
 						output_string += comment + code;
@@ -960,7 +1059,7 @@
 				}
 				default: { // plain
 					images.each(function(image) {
-						code = imageToString(settings["drawMode"], image);
+						code = imageToString(image);
 						var comment = image.glyph ? ("// '" + image.glyph + "', " + image.canvas.width+"x"+image.canvas.height+"px\n") : "";
 						if(image.img != images.first().img) comment = "\n" + comment;
 						code = comment + code;
@@ -1115,6 +1214,16 @@
 			d[2] = color;
 			d[3] = 255;
 			ctx.putImageData(single_pixel, x, y);
+		}
+		
+		// get the type (in arduino code) of the output image
+		// this is a bit of a hack, it's better to make this a property of the conversion function (should probably turn it into objects)
+		function getType() {
+			if (settings.conversionFunction == ConversionFunctions.horizontal565) {
+				return "uint16_t";
+			} else {
+				return "unsigned char";
+			}
 		}
 	</script>
 </body>
