@@ -371,7 +371,7 @@
 	</div>
 
 
-	<script type="text/javascript">
+	<script type="text/javascript">	
 		var ConversionFunctions = {
 			// Output the image as a string for horizontally drawing displays
 			horizontal1bit: function (data, canvasWidth, canvasHeight){
@@ -1098,6 +1098,9 @@
 			var page = 0;
 			var x = 0;
 			var y = 7;
+			// round the width up to the next byte
+			var widthRoundedUp = Math.floor(canvas.width / 8 + (canvas.width % 8 ? 1 : 0)) * 8;
+			var widthCounter = 0;
 
 			// Move the list into the imageData object
 			for (var i=0;i<list.length;i++){
@@ -1114,7 +1117,15 @@
 				}
 
 				// Check if pixel is white or black
-				for(var k=0; k<binString.length; k++){
+				for(var k=0; k<binString.length; k++, widthCounter++){
+					// if we've counted enough bits, reset counter for next line
+					if(widthCounter >= widthRoundedUp) {
+						widthCounter = 0;
+					}
+					// skip 'artifact' pixels due to rounding up to a byte
+					if(widthCounter >= canvas.width) {
+						continue;
+					}
 					var color = 0;
 					if(binString.charAt(k) == "1"){
 						color = 255;
