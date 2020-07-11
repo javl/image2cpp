@@ -350,6 +350,7 @@
 								<option value="vertical1bit">Vertical - 1 bit per pixel</option>
 								<option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
 								<option value="horizontalAlpha">Horizontal - 1 bit per pixel alpha map</option>
+								<option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888</option>
 							</select>
 						</div>
 					</div>
@@ -1272,7 +1273,9 @@
 		function getType() {
 			if (settings.conversionFunction == ConversionFunctions.horizontal565) {
 				return "uint16_t";
-			} else {
+			}else if(settings.conversionFunction == ConversionFunctions.horizontal888){
+				return "unsigned long";
+			}else{
 				return "unsigned char";
 			}
 		}
