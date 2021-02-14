@@ -346,6 +346,7 @@
 						<div class="table-cell"><label>Draw mode:</label></div>
 						<div class="table-cell">
 							<select id="drawMode" name="drawMode" onchange="updateDrawMode(this)">
+								<option value="XBM">XBM (Horizontal - 1bpp - little indian)</option>
 								<option value="horizontal1bit">Horizontal - 1 bit per pixel</option>
 								<option value="vertical1bit">Vertical - 1 bit per pixel</option>
 								<option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
@@ -374,6 +375,51 @@
 
 	<script type="text/javascript">	
 		var ConversionFunctions = {
+
+			// Output the image as a string for horizontally drawing displays
+			XBM: function (data, canvasWidth, canvasHeight){
+				var output_string = "";
+				var output_index = 0;
+
+				var byteIndex = 0;
+				var number = 0;
+
+				// format is RGBA, so move 4 steps per pixel
+				for(var index = 0; index < data.length; index += 4){
+					// Get the average of the RGB (we ignore A)
+					var avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
+					if(avg > settings["threshold"]){
+						number += Math.pow(2, byteIndex);
+					}
+					byteIndex++;
+
+					// if this was the last pixel of a row or the last pixel of the
+					// image, fill up the rest of our byte with zeros so it always contains 8 bits
+					if ((index != 0 && (((index/4)+1)%(canvasWidth)) == 0 ) || (index == data.length-4)) {
+						// for(var i=byteIndex;i>-1;i--){
+							// number += Math.pow(2, i);
+						// }
+						byteIndex = 8;
+					}
+
+					// When we have the complete 8 bits, combine them into a hex value
+					if(byteIndex < 7){
+						var byteSet = number.toString(16);
+						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
+						var b = "0x"+byteSet;
+						output_string += b + ", ";
+						output_index++;
+						if(output_index >= 16){
+							output_string += "\n";
+							output_index = 0;
+						}
+						number = 0;
+						byteIndex = 0;
+					}
+				}
+				return output_string;
+			},
+
 			// Output the image as a string for horizontally drawing displays
 			horizontal1bit: function (data, canvasWidth, canvasHeight){
 				var output_string = "";
