@@ -821,7 +821,7 @@
 			var input = document.getElementById("byte-input").value;
 
 			// Remove Arduino code
-			input = input.replace(/(const)?\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, "");
+			input = input.replace(/const\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, "");
 			input = input.replace(/\};|\{/g, "");
 
 			// Convert newlines to comma (helps to remove comments later)
