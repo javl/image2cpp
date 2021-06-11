@@ -372,7 +372,7 @@
 	</div>
 
 
-	<script type="text/javascript">	
+	<script type="text/javascript">
 		var ConversionFunctions = {
 			// Output the image as a string for horizontally drawing displays
 			horizontal1bit: function (data, canvasWidth, canvasHeight){
@@ -669,20 +669,6 @@
 			elm.value == "adafruit_gfx" ? adafruitGfx.style.display = "block" : adafruitGfx.style.display = "none";
 
 			settings["outputFormat"] = elm.value;
-		}
-
-		function updateDrawMode(elm) {
-			var note = document.getElementById("note1bit");
-			if(elm.value == "horizontal1bit" || elm.value == "vertical1bit") {
-				note.style.display = "block";
-			} else {
-				note.style.display = "none";
-			}
-
-			var conversionFunction = ConversionFunctions[elm.value];
-			if(conversionFunction) {
-				settings.conversionFunction = conversionFunction;
-			}
 		}
 
 		function updateDrawMode(elm) {
