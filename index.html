@@ -288,12 +288,6 @@
 					</div>
 
 					<div class="table-row">
-						<div class="table-cell"><label for="invertColors">Rotate image 180</label></div>
-						<div class="table-cell">
-							<input id="rotate180" type="checkbox" onchange="updateBoolean('rotate180')" />
-						</div>
-					</div>
-					<div class="table-row">
 						<div class="table-cell"><label>Brightness / alpha threshold: </label></div>
 						<div class="table-cell">
 							<input id="threshold" class="size-input" type="number" min="0" max="255" name="threshold" oninput="updateInteger('threshold')" value="128"/>
@@ -322,6 +316,14 @@
 							<label for="centerHorizontally">horizontally</label>
 							<input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
 							<label for="centerVertically">vertically</label>
+						</div>
+					</div>
+
+					<div class="table-row">
+						<div class="table-cell"><label for="invertColors">Rotate image:</label></div>
+						<div class="table-cell">
+							<input id="rotate180" type="checkbox" onchange="updateBoolean('rotate180')" />
+							<label for="rotate180">rotate 180 degrees</label>
 						</div>
 					</div>
 
