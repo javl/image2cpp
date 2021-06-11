@@ -230,6 +230,7 @@
 			<p>More info (and credits) can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you can report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
 			<p>This tool also works offline. Simply save this page to your computer and open the file in your browser.</p>
 		</section>
+
 		<section class="section bottom-divider">
 			<section class="sub-section">
 				<div class="column">
@@ -251,10 +252,12 @@
 				</div>
 			</section>
 		</section>
+
 		<section class="section bottom-divider">
 			<h2>2. Image Settings</h2>
 			<section class="sub-section">
 				<div class="table">
+
 					<div class="table-row">
 						<div class="table-cell"><label>Canvas size(s): </label></div>
 						<div class="table-cell">
@@ -264,6 +267,7 @@
 							<button id="all-same-size">all same size</button>
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label>Background color:</label></div>
 						<div class="table-cell">
@@ -275,12 +279,14 @@
 							<label for="backgroundColorTransparent" class="smallLabel">Transparent</label>
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label for="invertColors">Invert image colors</label></div>
 						<div class="table-cell">
 							<input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" />
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label>Brightness / alpha threshold: </label></div>
 						<div class="table-cell">
@@ -289,6 +295,7 @@
 								<i>0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead.</i></div>
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label for="scale">Scaling</label></div>
 						<div class="table-cell">
@@ -301,6 +308,7 @@
 							</select>
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label>Center:</label></div>
 						<div class="table-cell">
@@ -316,12 +324,14 @@
 				</div>
 			</section>
 		</section>
+
 		<section class="section bottom-divider">
 			<h2>3. Preview</h2>
 			<section class="sub-section">
 				<div id="images-canvas-container"></div>
 			</section>
 		</section>
+
 		<section class="section">
 			<h2>4. Output</h2>
 			<section class="sub-section">
@@ -378,6 +388,7 @@
 							</div>
 						</div>
 					</div>
+
 					<div class="table-row">
 						<div class="table-cell"><label>Draw mode:</label></div>
 						<div class="table-cell">
@@ -391,6 +402,7 @@
 						</div>
 					</div>
 				</div>
+
 				<div id="note1bit">
 					<div class="note">
 						<i>If your image looks all messed up on your display, like the image below, try using a different mode.</i>
@@ -400,13 +412,13 @@
 					width="150" height="64" alt="" />
 				</div>
 			</section>
+
 			<section class="sub-section">
 				<button type="button" class="generate-button" onclick="outputString()">Generate code</button>
 				<textarea id="code-output" class="code-output"></textarea>
 			</section>
 		</section>
 	</div>
-
 
 	<script type="text/javascript">
 		var ConversionFunctions = {
@@ -690,7 +702,6 @@
 
 		// Updates Arduino code check-box
 		function updateOutputFormat(elm) {
-
 			var caption = document.getElementById("format-caption-container");
 			var adafruitGfx = document.getElementById("adafruit-gfx-settings");
 			var arduino = document.getElementById("arduino-identifier");
@@ -734,7 +745,6 @@
 			}
 			ctx.putImageData(imageData, 0, 0);
 		}
-
 
 		// Invert the colors of the canvas
 		function invert(canvas, ctx) {
@@ -822,7 +832,6 @@
 			}
 		}
 
-
 		// Handle inserting an image by pasting code
 		function handleTextInput(drawMode){
 
@@ -866,7 +875,6 @@
 				listToImageVertical(list, canvas);
 			}
 		}
-
 
 		function allSameSize(images, files) {
 			if(images.length() > 1 && images.length() == files.length) {
@@ -1013,7 +1021,6 @@
 			var vn = document.getElementById("identifier");
 			return vn && vn.value.length ? vn.value : identifier;
 		}
-
 
 		// Output the image string to the textfield
 		function outputString(){
@@ -1200,7 +1207,6 @@
 			images.first().img = img;
 		}
 
-
 		// Use the vertically oriented list to draw the image
 		function listToImageVertical(list, canvas){
 
@@ -1253,7 +1259,6 @@
 			images.first().img = img;
 		}
 
-
 		// Convert hex to binary
 		function hexToBinary(s) {
 
@@ -1277,7 +1282,6 @@
 			return { valid: true, result: ret };
 		}
 
-
 		// Quick and effective way to draw single pixels onto the canvas
 		// using a global 1x1px large canvas
 		function drawPixel(ctx, x, y, color) {
@@ -1290,6 +1294,7 @@
 			d[3] = 255;
 			ctx.putImageData(single_pixel, x, y);
 		}
+
 		// get the type (in arduino code) of the output image
 		// this is a bit of a hack, it's better to make this a property of the conversion function (should probably turn it into objects)
 		function getType() {
