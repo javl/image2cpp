@@ -16,7 +16,7 @@ You can find a simple Arduino example sketch [over here](https://github.com/javl
 I wrote the code with my 128x64 pixel monochrome OLED display in mind, but it should work with most similar displays. You might need to change some export settings; those are explained in the tool.
 
 ### Credit
-Initial code by [javl](https://github.com/javl), with aditional code by (in alphabetical order) [davidalim](https://github.com/davidalim), [hurricaneJoef](https://github.com/hurricaneJoef), [jochenderwae](https://github.com/jochenderwae), [Sebski123](https://github.com/Sebski123), [whoisnian](https://github.com/whoisnian) and [wiredolphin](https://github.com/wiredolphin).
+Initial code by [javl](https://github.com/javl), with aditional code by (in alphabetical order) [akumpf](https://github.com/akumpf), [davidalim](https://github.com/davidalim), [hurricaneJoef](https://github.com/hurricaneJoef), [jochenderwae](https://github.com/jochenderwae), [Sebski123](https://github.com/Sebski123), [whoisnian](https://github.com/whoisnian) and [wiredolphin](https://github.com/wiredolphin).
 The example sketch is based on code by [Adafruit](https://github.com/adafruit).
 
 ### License
