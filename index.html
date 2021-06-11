@@ -288,6 +288,12 @@
 					</div>
 
 					<div class="table-row">
+						<div class="table-cell"><label for="invertColors">Rotate image 180</label></div>
+						<div class="table-cell">
+							<input id="rotate180" type="checkbox" onchange="updateBoolean('rotate180')" />
+						</div>
+					</div>
+					<div class="table-row">
 						<div class="table-cell"><label>Brightness / alpha threshold: </label></div>
 						<div class="table-cell">
 							<input id="threshold" class="size-input" type="number" min="0" max="255" name="threshold" oninput="updateInteger('threshold')" value="128"/>
@@ -389,9 +395,9 @@
 								</div>
 								<div id="arduino-identifier" class="table nested-table">
 									<div class="table-row">
-										<div class="table-cell"><label>Identifier:</label></div>
+										<div class="table-cell"><label>Identifier/Prefix:</label></div>
 										<div class="table-cell">
-											<input id="identifier" class="text-input" type="text" name="identifier" onchange="" value="myBitmap"/>
+											<input id="identifier" class="text-input" type="text" name="identifier" onchange="" value="epd_bitmap_"/>
 										</div>
 									</div>
 								</div>
@@ -679,6 +685,7 @@
 			threshold: 128,
 			outputFormat: "plain",
 			invertColors: false,
+			rotate180: false,
 			conversionFunction: ConversionFunctions.horizontal1bit
 		};
 
@@ -791,6 +798,15 @@
 				ctx.globalCompositeOperation = 'source-over';
 			}
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			ctx.setTransform(1, 0, 0, 1, 0, 0); // start with identity matrix transform (no rotation).
+			if(settings["rotate180"]){
+				// Matrix transformation
+				ctx.translate(canvas.width/2.0, canvas.height/2.0);
+				ctx.rotate(Math.PI);
+				ctx.translate(-canvas.width/2.0, -canvas.height/2.0);
+			}
+
 
 			// Offset used for centering the image when requested
 			var offset_x = 0;
@@ -1053,7 +1069,9 @@
 			switch(settings["outputFormat"]) {
 
 				case "arduino": {
-
+					let varQuickArray = [];
+					let bytesUsed     = 0;
+					// --
 					images.each(function(image) {
 						code = imageToString(image);
 
@@ -1063,15 +1081,21 @@
 						code = "\t" + code.split("\n").join("\n\t") + "\n";
 						var variableCount = images.length() > 1 ? count++ : "";
 						var comment = "// '" + image.glyph + "', "+image.canvas.width+"x"+image.canvas.height+"px\n";
+						bytesUsed += code.split("\n").length * 16; // 16 bytes per line.
+						console.log(image);
 
-						code = comment + "const " + getType() + " " +
-								getIdentifier() +
-								variableCount +
-								" [] PROGMEM = {" +
-								"\n" + code + "};\n";
-
+						let varname = getIdentifier() + image.glyph.replace(/[^a-zA-Z0-9]/g,"_");
+						varQuickArray.push(varname);
+						code = comment + "const " + getType() + " " + varname + " [] PROGMEM = {\n" + code + "};\n";
 						output_string += code;
 					});
+					// --
+					varQuickArray.sort();
+					// --
+					output_string += "\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = "+bytesUsed+")\n"
+					output_string += "const int " + (getIdentifier()+"allArray_LEN") + " = " + varQuickArray.length + ";\n"
+					output_string += "const " + getType() + "* " + (getIdentifier()+"allArray") + "["+varQuickArray.length+"] = {\n\t"+varQuickArray.join(",\n\t")+"\n};\n";
+					// --
 					break;
 				}
 
@@ -1328,6 +1352,10 @@
 				return "unsigned char";
 			}
 		}
+		// --
+
+		document.getElementById("outputFormat").value = "arduino";
+		document.getElementById("outputFormat").onchange();
 	</script>
 </body>
 </html>
