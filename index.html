@@ -318,6 +318,16 @@
 							<label for="centerVertically">vertically</label>
 						</div>
 					</div>
+
+					<div class="table-row">
+						<div class="table-cell"><label>Flip:</label></div>
+						<div class="table-cell">
+							<input id="flipHorizontally" type="checkbox" onchange="updateBoolean('flipHorizontally')" />
+							<label for="flipHorizontally">horizontally</label>
+							<input id="flipVertically" type="checkbox" onchange="updateBoolean('flipVertically')" />
+							<label for="flipVertically">vertically</label>
+						</div>
+					</div>
 				</div>
 				<div class="note">
 					<i>Note: centering the image only works when using a canvas larger than the original image.</i>
@@ -661,6 +671,8 @@
 			preserveRatio: true,
 			centerHorizontally: false,
 			centerVertically: false,
+			flipHorizontally: false,
+			flipVertically: false,
 			backgroundColor: "white",
 			scale: "1",
 			drawMode: "horizontal",
@@ -766,10 +778,6 @@
 			var ctx = canvas.getContext("2d");
 			image.ctx = ctx;
 
-			// Make sure we're using the right canvas size
-			//canvas.width = settings["screenWidth"];
-			//canvas.height = settings["screenHeight"];
-
 			// Invert background if needed
 			if (settings["backgroundColor"] == "transparent") {
 				ctx.fillStyle = "rgba(0,0,0,0.0)";
@@ -829,6 +837,20 @@
 				if(settings["invertColors"]){
 					invert(canvas, ctx);
 				}
+			}
+
+			// Flip image if needed
+			if (settings["flipHorizontally"]) {
+				ctx.save();
+				ctx.scale(-1, 1);
+				ctx.drawImage(canvas, -canvas.width, 0);
+				ctx.restore();
+			}
+			if (settings["flipVertically"]) {
+				ctx.save();
+				ctx.scale(1, -1);
+				ctx.drawImage(canvas, 0, -canvas.height);
+				ctx.restore();
 			}
 		}
 
