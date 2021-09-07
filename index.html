@@ -137,6 +137,12 @@
 			margin: 3px 0;
 		}
 
+		.file-input-entry {
+			display: flex;
+			justify-content: space-between;
+			margin-bottom: 10px;
+		}
+
 		button,
 		input[type="file"] {
 			background: #00CB99;
@@ -233,7 +239,7 @@
 
 		<section class="section bottom-divider">
 			<section class="sub-section">
-				<div class="column">
+				<div class="column" id="file-input-column">
 					<h2 class="sub-section-title">1. Select image</h2>
 					<input type="file" id="file-input" name="file-input" multiple/><br />
 				</div>
@@ -653,6 +659,8 @@
 		fileInput.addEventListener("click", function(){this.value = null;}, false);
 		fileInput.addEventListener("change", handleImageSelection, false);
 
+		var fileInputColumn = document.getElementById("file-input-column");
+
 		// Filetypes accepted by the file picker
 		var fileTypes = ["jpg", "jpeg", "png", "bmp", "gif", "svg"];
 
@@ -962,7 +970,16 @@
 						var img = new Image();
 
 						img.onload = function(){
+							const fileInputColumnEntry = document.createElement("div");
+							fileInputColumnEntry.className = "file-input-entry";
+							
+							const fileInputColumnEntryLabel = document.createElement("span");
+							fileInputColumnEntryLabel.textContent = file.name;
 
+							const fileInputColumnEntryRemoveButton = document.createElement("button");
+							fileInputColumnEntryRemoveButton.className = "remove-button";
+							fileInputColumnEntryRemoveButton.innerHTML = "remove";
+							
 							var canvas = document.createElement("canvas");
 
 							var imageEntry = document.createElement("li");
@@ -1009,17 +1026,26 @@
 							var rb = document.createElement("button");
 							rb.className = "remove-button";
 							rb.innerHTML = "remove";
-							rb.onclick = function() {
+
+							const removeButtonOnClick = function() {
 								var image = images.get(img);
 								canvasContainer.removeChild(image.canvas);
 								images.remove(image);
 								imageSizeSettings.removeChild(imageEntry);
+								fileInputColumn.removeChild(fileInputColumnEntry);
 								if(imageSizeSettings.children.length == 1) {
 									allSameSizeButton.style.display = "none";
 								}
 								if(images.length() == 0) noFileSelected.style.display = "block";
 								update();
 							};
+
+							rb.onclick = removeButtonOnClick;
+							fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
+
+							fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
+							fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
+							fileInputColumn.appendChild(fileInputColumnEntry);
 
 							imageEntry.appendChild(fn);
 							imageEntry.appendChild(w);
