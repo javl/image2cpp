@@ -439,12 +439,15 @@
 
 			<section class="sub-section">
 				<button type="button" class="generate-button" onclick="outputString()">Generate code</button>
+				<button type="button" id = "copy-button" onclick="copyOutput()">Copy Output</button>
 				<textarea id="code-output" class="code-output"></textarea>
 			</section>
 		</section>
 	</div>
 
 	<script type="text/javascript">
+		document.getElementById("copy-button").disabled = true;
+		var __output;
 		var ConversionFunctions = {
 			// Output the image as a string for horizontally drawing displays
 			horizontal1bit: function (data, canvasWidth, canvasHeight){
@@ -1216,6 +1219,12 @@
 			}
 
 			document.getElementById("code-output").value = output_string;
+			__output = output_string;
+			document.getElementById("copy-button").disabled = false;
+		}
+
+		function copyOutput() {
+			navigator.clipboard.writeText(__output);
 		}
 
 		// Use the horizontally oriented list to draw the image
