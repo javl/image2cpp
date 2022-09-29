@@ -1231,12 +1231,12 @@
 		function downloadFile() {
 			raw = [];
 			images.each((image) => {
-					data = imageToString(image)
-						.split(',')
-						.map(s => s.trim())
-						.filter(Boolean)
-						.map((byte) => parseInt(byte, 16));
-						raw = raw.concat(data);
+				data = imageToString(image)
+					.split(',')
+					.map(s => s.trim())
+					.filter(Boolean)
+					.map((byte) => parseInt(byte, 16));
+				raw = raw.concat(data);
 			});
 			data = new Uint8Array(raw);
 			a = document.createElement("a");
