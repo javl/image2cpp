@@ -951,7 +951,9 @@
 		// Handle selecting an image with the file picker
 		function handleImageSelection(evt){
 
-			var files = evt.target.files;
+			var files = Array.from(evt.target.files);
+			files.sort((a, b) => a.name > b.name);
+
 			onlyImagesFileError.style.display = "none";
 
 			files.length > 0 ?
