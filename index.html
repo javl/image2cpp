@@ -459,6 +459,7 @@
 			<section class="sub-section">
 				<button type="button" class="generate-button" onclick="outputString()">Generate code</button>
 				<button type="button" id = "copy-button" onclick="copyOutput()">Copy Output</button>
+				<button type="button" id = "download-button" onclick="downloadFile()">Download as binary file</button>
 				<textarea id="code-output" class="code-output"></textarea>
 			</section>
 		</section>
@@ -969,7 +970,9 @@
 		// Handle selecting an image with the file picker
 		function handleImageSelection(evt){
 
-			var files = evt.target.files;
+			var files = Array.from(evt.target.files);
+			files.sort((a, b) => a.name > b.name);
+
 			onlyImagesFileError.style.display = "none";
 
 			files.length > 0 ?
@@ -1244,6 +1247,28 @@
 
 		function copyOutput() {
 			navigator.clipboard.writeText(__output);
+		}
+
+		function downloadFile() {
+			raw = [];
+			images.each((image) => {
+				data = imageToString(image)
+					.split(',')
+					.map(s => s.trim())
+					.filter(Boolean)
+					.map((byte) => parseInt(byte, 16));
+				raw = raw.concat(data);
+			});
+			data = new Uint8Array(raw);
+			a = document.createElement("a");
+			a.style = "display: none";
+			document.body.appendChild(a);
+			blob = new Blob([data], {type: "octet/stream"});
+			url = window.URL.createObjectURL(blob);
+			a.href = url;
+			a.download = getIdentifier() + ".bin";
+			a.click();
+			window.URL.revokeObjectURL(url);
 		}
 
 		// Use the horizontally oriented list to draw the image
