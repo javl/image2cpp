@@ -342,6 +342,13 @@
 							<label for="flipVertically">vertically</label>
 						</div>
 					</div>
+					
+					<div class="table-row">
+						<div class="table-cell"><label for="bitswap">Swap Bits in Byte</label></div>
+						<div class="table-cell">
+							<input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')">
+						</div>
+					</div>	
 				</div>
 				<div class="note">
 					<i>Note: centering the image only works when using a canvas larger than the original image.</i>
@@ -477,7 +484,7 @@
 
 					// When we have the complete 8 bits, combine them into a hex value
 					if(byteIndex < 0){
-						var byteSet = number.toString(16);
+						var byteSet = bitswap(number).toString(16);
 						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
 						var b = "0x"+byteSet;
 						output_string += b + ", ";
@@ -512,7 +519,7 @@
 							}
 							byteIndex--;
 						}
-						var byteSet = number.toString(16);
+						var byteSet = bitswap(number).toString(16);
 						if (byteSet.length == 1){ byteSet = "0"+byteSet; }
 						var b = "0x"+byteSet.toString(16);
 						output_string += b + ", ";
@@ -543,7 +550,7 @@
 					var firstByte = (rgb >> 8) & 0xff;
 					var secondByte = rgb & 0xff;
 
-					var byteSet = rgb.toString(16);
+					var byteSet = bitswap(rgb).toString(16);
 					while(byteSet.length < 4){ byteSet = "0" + byteSet; }
 					output_string += "0x" + byteSet + ", ";
 
@@ -573,7 +580,7 @@
 					var firstByte = (rgb >> 8) & 0xff;
 					var secondByte = rgb & 0xff;
 
-					var byteSet = rgb.toString(16);
+					var byteSet = bitswap(rgb).toString(16);
 					while(byteSet.length < 8){ byteSet = "0" + byteSet; }
 					output_string += "0x" + byteSet + ", ";
 
@@ -611,7 +618,7 @@
 
 					// When we have the complete 8 bits, combine them into a hex value
 					if(byteIndex < 0){
-						var byteSet = number.toString(16);
+						var byteSet = bitswap(number).toString(16);
 						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
 						var b = "0x"+byteSet;
 						output_string += b + ", ";
@@ -1389,6 +1396,15 @@
 				return "unsigned char";
 			}
 		}
+		function bitswap(b) {
+		 if(settings["bitswap"])
+		  {
+		   b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
+		   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
+		   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
+		  }
+		 return b;		
+		}		
 		// --
 
 		document.getElementById("outputFormat").value = "arduino";
