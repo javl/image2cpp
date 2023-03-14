@@ -20,6 +20,7 @@ Initial code by [javl](https://github.com/javl) with aditional code by (in alpha
 * [akumpf](https://github.com/akumpf)
 * [Daniyal Warraich](https://github.com/Daniyal-Warraich)
 * [davidalim](https://github.com/davidalim)
+* [dotcypress](https://github.com/dotcypress)
 * [Harry48225](https://github.com/harry48225)
 * [hurricaneJoef](https://github.com/hurricaneJoef)
 * [jochenderwae](https://github.com/jochenderwae)
