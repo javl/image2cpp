@@ -303,7 +303,7 @@
 					</div>
 
 					<div class="table-row">
-						<div class="table-cell"><label for="scale">Scaling</label></div>
+						<div class="table-cell"><label for="scale">Scaling:</label></div>
 						<div class="table-cell">
 							<select id="scale" name="scale" onchange="updateInteger('scale')">
 								<option value="1">original size</option>
@@ -316,12 +316,19 @@
 					</div>
 
 					<div class="table-row">
-						<div class="table-cell"><label>Center:</label></div>
+						<div class="table-cell"><label>Center image:</label></div>
 						<div class="table-cell">
 							<input id="centerHorizontally" type="checkbox" onchange="updateBoolean('centerHorizontally')" />
 							<label for="centerHorizontally">horizontally</label>
 							<input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
 							<label for="centerVertically">vertically</label>
+						</div>
+					</div>
+
+					<div class="table-row">
+						<div class="table-cell"></div>
+						<div class="table-cell">
+							<i class="note">Centering the image only works when using a canvas larger than the original image.</i>
 						</div>
 					</div>
 
@@ -334,7 +341,7 @@
 					</div>
 
 					<div class="table-row">
-						<div class="table-cell"><label>Flip:</label></div>
+						<div class="table-cell"><label>Flip image:</label></div>
 						<div class="table-cell">
 							<input id="flipHorizontally" type="checkbox" onchange="updateBoolean('flipHorizontally')" />
 							<label for="flipHorizontally">horizontally</label>
@@ -342,16 +349,21 @@
 							<label for="flipVertically">vertically</label>
 						</div>
 					</div>
-					
+
 					<div class="table-row">
-						<div class="table-cell"><label for="bitswap">Swap Bits in Byte</label></div>
+						<div class="table-cell"><label for="bitswap">Swap bits in byte:</label></div>
 						<div class="table-cell">
-							<input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')">
+							<input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')"> swap
 						</div>
-					</div>	
-				</div>
-				<div class="note">
-					<i>Note: centering the image only works when using a canvas larger than the original image.</i>
+					</div>
+
+					<div class="table-row">
+						<div class="table-cell"></div>
+						<div class="table-cell">
+							<i class="note">Useful when working with the u8g2 library.</i>
+						</div>
+					</div>
+
 				</div>
 			</section>
 		</section>
@@ -1403,8 +1415,8 @@
 		   b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
 		   b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
 		  }
-		 return b;		
-		}		
+		 return b;
+		}
 		// --
 
 		document.getElementById("outputFormat").value = "arduino";
