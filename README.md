@@ -5,7 +5,7 @@ image2cpp is a simple tool to change images into byte arrays (or your array back
 
 Alternatively you can also enter a byte array as input to turn it back into an image. This might be useful for debugging, or when you want to write the byte array yourself. I don't know.
 
-Did you find this script useful? Feel free to support my open source software:
+Did you find this tool useful? Feel free to support my open source software:
 
 ![GitHub Sponsor](https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub)
 
