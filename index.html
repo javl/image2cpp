@@ -453,6 +453,14 @@
 							</select>
 						</div>
 					</div>
+
+					<div class="table-row" id="remove-zeroes-commas-container">
+						<div class="table-cell"><label>Extra formatting options:</label></div>
+						<div class="table-cell">
+							<input id="removeZeroesCommas" type="checkbox" onchange="updateBoolean('removeZeroesCommas')"/>
+							<label for="removeZeroesCommas">Remove '0x' and commas from output</label>
+						</div>
+					</div>
 				</div>
 
 				<div id="note1bit">
@@ -508,11 +516,16 @@
 					if(byteIndex < 0){
 						var byteSet = bitswap(number).toString(16);
 						if(byteSet.length == 1){ byteSet = "0"+byteSet; }
-						var b = "0x"+byteSet;
-						output_string += b + ", ";
+						if (!settings.removeZeroesCommas) {
+							output_string += "0x" + byteSet + ", ";
+						} else {
+							output_string += byteSet;
+						}
 						output_index++;
 						if(output_index >= 16){
-							output_string += "\n";
+							if (!settings.removeZeroesCommas) {
+								output_string += "\n";
+							}
 							output_index = 0;
 						}
 						number = 0;
@@ -724,6 +737,7 @@
 			backgroundColor: "white",
 			scale: "1",
 			drawMode: "horizontal",
+			removeZeroesCommas: false,
 			threshold: 128,
 			outputFormat: "plain",
 			invertColors: false,
@@ -766,6 +780,7 @@
 			var caption = document.getElementById("format-caption-container");
 			var adafruitGfx = document.getElementById("adafruit-gfx-settings");
 			var arduino = document.getElementById("arduino-identifier");
+			var removeZeroesCommasContainer = document.getElementById("remove-zeroes-commas-container");
 
 			for(var i = 0; i < caption.children.length; i++) {
 				caption.children[i].style.display = "none";
@@ -773,7 +788,14 @@
 			caption = document.querySelector("div[data-caption='" + elm.value + "']");
 			if(caption) caption.style.display = "block";
 
-			elm.value != "plain" ? arduino.style.display = "block" : arduino.style.display = "none";
+			if (elm.value != "plain") {
+				arduino.style.display = "block";
+				removeZeroesCommasContainer.style.display = "none";
+				settings.removeZeroesCommas = false;
+			} else {
+				arduino.style.display = "none";
+				removeZeroesCommasContainer.style.display = "table-row";
+			}
 			elm.value == "adafruit_gfx" ? adafruitGfx.style.display = "block" : adafruitGfx.style.display = "none";
 
 			settings["outputFormat"] = elm.value;
