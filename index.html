@@ -11,6 +11,7 @@
 <head>
   <meta charset="UTF-8">
   <title>image2cpp</title>
+  <script src="./dithering.js"></script>
 
   <style type="text/css">
     * {
@@ -303,9 +304,21 @@
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label>Brightness / alpha threshold: </label></div>
+            <div class="table-cell"><label for="ditheringMode">Dithering: </label></div>
             <div class="table-cell">
-              <input id="threshold" class="size-input" type="number" min="0" max="255" name="threshold" oninput="updateInteger('threshold')" value="128"/>
+              <select id="ditheringMode" onchange="updateInteger('ditheringMode')">
+                  <option value="0">Binary</option>
+                  <option value="1">Bayer</option>
+                  <option value="2">Floyd-Steinberg</option>
+                  <option value="3">Atkinson</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-row">
+            <div class="table-cell"><label for="ditheringThreshold">Brightness / alpha threshold: </label></div>
+            <div class="table-cell">
+              <input id="ditheringThreshold" class="size-input" type="number" min="0" max="255" name="ditheringThreshold" oninput="updateInteger('ditheringThreshold')" value="128"/>
               <div class="note">
                 <i>0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead.</i></div>
             </div>
@@ -484,6 +497,7 @@
   </div>
 
   <script type="text/javascript">
+
     document.getElementById("copy-button").disabled = true;
     var __output;
     var ConversionFunctions = {
@@ -499,7 +513,7 @@
         for(var index = 0; index < data.length; index += 4){
           // Get the average of the RGB (we ignore A)
           var avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
-          if(avg > settings["threshold"]){
+          if(avg > settings["thresholdThreshold"]){
             number += Math.pow(2, byteIndex);
           }
           byteIndex--;
@@ -550,7 +564,7 @@
             for (var y = 7; y >= 0; y--){
               var index = ((p*8)+y)*(settings["screenWidth"]*4)+x*4;
               var avg = (data[index] + data[index +1] + data[index +2]) / 3;
-              if (avg > settings["threshold"]){
+              if (avg > settings["ditheringThreshold"]){
                 number += Math.pow(2, byteIndex);
               }
               byteIndex--;
@@ -641,7 +655,7 @@
         for(var index = 0; index < data.length; index += 4){
           // Get alpha part of the image data
           var alpha = data[index + 3];
-          if(alpha > settings["threshold"]){
+          if(alpha > settings["ditheringThreshold"]){
             number += Math.pow(2, byteIndex);
           }
           byteIndex--;
@@ -739,7 +753,8 @@
       scale: "1",
       drawMode: "horizontal",
       removeZeroesCommas: false,
-      threshold: 128,
+      ditheringThreshold: 128,
+      ditheringMode: 0,
       outputFormat: "plain",
       invertColors: false,
       rotate180: false,
@@ -755,6 +770,7 @@
 
     // Easy way to update settings controlled by a textfield
     function updateInteger(fieldName){
+      console.log('get fieldname', fieldName);
       settings[fieldName] = document.getElementById(fieldName).value;
       update();
     }
@@ -816,19 +832,19 @@
       }
     }
 
-    // Make the canvas black and white
-    function blackAndWhite(canvas, ctx){
-      var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
-      var data = imageData.data;
-      for (var i = 0; i < data.length; i += 4) {
-        var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-        avg > settings["threshold"] ? avg = 255 : avg = 0;
-        data[i]     = avg; // red
-        data[i + 1] = avg; // green
-        data[i + 2] = avg; // blue
-      }
-      ctx.putImageData(imageData, 0, 0);
-    }
+    // // Make the canvas black and white
+    // function blackAndWhite(canvas, ctx){
+    //   var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
+    //   var data = imageData.data;
+    //   for (var i = 0; i < data.length; i += 4) {
+    //     var avg = (data[i] + data[i +1] + data[i +2]) / 3;
+    //     avg > settings["threshold"] ? avg = 255 : avg = 0;
+    //     data[i]     = avg; // red
+    //     data[i + 1] = avg; // green
+    //     data[i + 2] = avg; // blue
+    //   }
+    //   ctx.putImageData(imageData, 0, 0);
+    // }
 
     // Invert the colors of the canvas
     function invert(canvas, ctx) {
@@ -914,7 +930,7 @@
       // Make sure the image is black and white
       if(settings.conversionFunction == ConversionFunctions.horizontal1bit
         || settings.conversionFunction == ConversionFunctions.vertical1bit) {
-        blackAndWhite(canvas, ctx);
+        dithering(ctx, canvas.width, canvas.height, settings.ditheringThreshold, settings.ditheringMode);(canvas, ctx);
         if(settings["invertColors"]){
           invert(canvas, ctx);
         }

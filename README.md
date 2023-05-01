@@ -34,7 +34,7 @@ Initial code by [javl](https://github.com/javl) with aditional code by (in alpha
 * [whoisnian](https://github.com/whoisnian)
 * [wiredolphin](https://github.com/wiredolphin).
 
-The example sketch is based on code by [Adafruit](https://github.com/adafruit).
+The example sketch is based on code by [Adafruit](https://github.com/adafruit). Dithering code from [stellar-L3N-etag](https://github.com/reece15/stellar-L3N-etag).
 
 ### License
 image2cpp is released under GPL v3. This means you can use the project in any way you want (use, adapt, distribute, etc.) as long as you share any changes and link back to this repo. See [LICENSE.md](https://github.com/javl/image2cpp/blob/master/LICENSE.md) for more info.
