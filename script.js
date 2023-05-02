@@ -245,7 +245,7 @@ const ConversionFunctions = {
     return outputString;
   },
 };
-settings.ConversionFunction = ConversionFunctions.horizontal1bit;
+settings.conversionFunction = ConversionFunctions.horizontal1bit;
 
 // An images collection with helper methods
 function Images() {
@@ -458,7 +458,7 @@ function placeImage(_image) {
   ctx.restore();
 
   // Make sure the image is black and white
-  console.log('dithering: ', dithering);
+  console.log(settings.conversionFunction);
   if (settings.conversionFunction === ConversionFunctions.horizontal1bit
     || settings.conversionFunction === ConversionFunctions.vertical1bit) {
     dithering(ctx, canvas.width, canvas.height, settings.ditheringThreshold, settings.ditheringMode);
