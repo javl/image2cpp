@@ -70,8 +70,11 @@
           }
           var byteSet = bitswap(number).toString(16);
           if (byteSet.length == 1){ byteSet = "0"+byteSet; }
-          var b = "0x"+byteSet.toString(16);
-          output_string += b + ", ";
+          if (!settings.removeZeroesCommas) {
+            output_string += "0x" + byteSet.toString(16) + ", ";
+          } else {
+            output_string += byteSet.toString(16);
+          }
           output_index++;
           if(output_index >= 16){
             output_string += "\n";
@@ -101,8 +104,11 @@
 
         var byteSet = bitswap(rgb).toString(16);
         while(byteSet.length < 4){ byteSet = "0" + byteSet; }
-        output_string += "0x" + byteSet + ", ";
-
+        if (!settings.removeZeroesCommas) {
+          output_string += "0x" + byteSet + ", ";
+        } else {
+          output_string += byteSet;
+        }
         // add newlines every 16 bytes
         output_index++;
         if(output_index >= 16){
@@ -131,7 +137,11 @@
 
         var byteSet = bitswap(rgb).toString(16);
         while(byteSet.length < 8){ byteSet = "0" + byteSet; }
-        output_string += "0x" + byteSet + ", ";
+        if (!settings.removeZeroesCommas) {
+          output_string += "0x" + byteSet + ", ";
+        } else {
+          output_string += byteSet;
+        }
 
         // add newlines every 16 bytes
         output_index++;
@@ -169,8 +179,11 @@
         if(byteIndex < 0){
           var byteSet = bitswap(number).toString(16);
           if(byteSet.length == 1){ byteSet = "0"+byteSet; }
-          var b = "0x"+byteSet;
-          output_string += b + ", ";
+          if (!settings.removeZeroesCommas) {
+            output_string += "0x"+byteSet + ", ";
+          } else {
+            output_string += byteSet;
+          }
           output_index++;
           if(output_index >= 16){
             output_string += "\n";
