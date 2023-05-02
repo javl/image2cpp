@@ -11,7 +11,7 @@ const bwPalette = [
 
 
 function dithering(ctx, width, height, threshold, typeIndex) {
-  const type = ['binary', 'bayer', 'floysteinberg', 'atkinson'][typeIndex];
+  const type = ['binary', 'bayer', 'floydsteinberg', 'atkinson'][typeIndex];
   const bayerThresholdMap = [
     [  15, 135,  45, 165 ],
     [ 195,  75, 225, 105 ],
@@ -43,12 +43,14 @@ function dithering(ctx, width, height, threshold, typeIndex) {
     if (type ==="binary") {
       // No dithering
       imageData.data[currentPixel] = imageData.data[currentPixel] < threshold ? 0 : 255;
+
     } else if (type ==="bayer") {
       // 4x4 Bayer ordered dithering algorithm
       var x = currentPixel/4 % w;
       var y = Math.floor(currentPixel/4 / w);
       var map = Math.floor( (imageData.data[currentPixel] + bayerThresholdMap[x%4][y%4]) / 2 );
       imageData.data[currentPixel] = (map < threshold) ? 0 : 255;
+
     } else if (type ==="floydsteinberg") {
       // Floydaâ‚¬"Steinberg dithering algorithm
       newPixel = imageData.data[currentPixel] < 129 ? 0 : 255;
@@ -59,7 +61,8 @@ function dithering(ctx, width, height, threshold, typeIndex) {
       imageData.data[currentPixel + 4*w - 4 ] += err*3;
       imageData.data[currentPixel + 4*w     ] += err*5;
       imageData.data[currentPixel + 4*w + 4 ] += err*1;
-    } else {
+
+    } else if (type ==="atkinson") {
       // Bill Atkinson's dithering algorithm
       newPixel = imageData.data[currentPixel] < threshold ? 0 : 255;
       err = Math.floor((imageData.data[currentPixel] - newPixel) / 8);
@@ -71,6 +74,9 @@ function dithering(ctx, width, height, threshold, typeIndex) {
       imageData.data[currentPixel + 4*w     ] += err;
       imageData.data[currentPixel + 4*w + 4 ] += err;
       imageData.data[currentPixel + 8*w     ] += err;
+
+    } else {
+      console.error("unknown dithering type requested: " + type);
     }
 
     // Set g and b pixels equal to r
