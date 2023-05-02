@@ -11,9 +11,7 @@ const bwPalette = [
 
 
 function dithering(ctx, width, height, threshold, typeIndex) {
-  console.log('typeindex: ', typeIndex);
   const type = ['binary', 'bayer', 'floysteinberg', 'atkinson'][typeIndex];
-  console.log('type: ', type);
   const bayerThresholdMap = [
     [  15, 135,  45, 165 ],
     [ 195,  75, 225, 105 ],
