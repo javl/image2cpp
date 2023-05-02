@@ -873,20 +873,6 @@
       image.ctx = ctx;
       ctx.save();
 
-      // Invert background if needed
-      if (settings["backgroundColor"] == "transparent") {
-        ctx.fillStyle = "rgba(0,0,0,0.0)";
-        ctx.globalCompositeOperation = 'copy';
-      } else {
-        if (settings["invertColors"]){
-          settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
-        } else {
-          ctx.fillStyle = settings["backgroundColor"];
-        }
-        ctx.globalCompositeOperation = 'source-over';
-      }
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       const flipHorizontal = settings["flipHorizontally"] ? -1 : 1;
       const flipVertical = settings["flipVertically"] ? -1 : 1;
 
@@ -928,6 +914,21 @@
         ctx.translate(0, canvas.height);
         ctx.rotate(-Math.PI*0.5);
       }
+
+      // Draw background
+      if (settings["backgroundColor"] == "transparent") {
+        ctx.fillStyle = "rgba(0,0,0,0.0)";
+        ctx.globalCompositeOperation = 'copy';
+      } else {
+        if (settings["invertColors"]){
+          settings["backgroundColor"] == "white" ? ctx.fillStyle = "black" : ctx.fillStyle = "white";
+        } else {
+          ctx.fillStyle = settings["backgroundColor"];
+        }
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       // Offset used for centering the image when requested
       var offset_x = 0;
       var offset_y = 0;
@@ -945,16 +946,10 @@
         // offset_y_dir = -1;
       // }
 
-      console.log('scale: ', settings['scale']);
       switch(settings["scale"]){
         case 1: // Original
           if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - imgW) / 2); }
           if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - imgH) / 2); }
-          // offset_x *= offset_x_dir;
-          // offset_y *= offset_y_dir;
-          console.log('original');
-          console.log(`ctx.drawImage(img, 0, 0, ${imgW}, ${imgH},
-          ${offset_x}, ${offset_y}, ${imgW}, ${imgH})`);
           ctx.drawImage(img, 0, 0, imgW, imgH,
             offset_x, offset_y, imgW, imgH);
         break;
