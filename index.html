@@ -757,7 +757,7 @@
       flipHorizontally: false,
       flipVertically: false,
       backgroundColor: "white",
-      scale: "1",
+      scale: 1,
       drawMode: "horizontal",
       removeZeroesCommas: false,
       ditheringThreshold: 128,
@@ -891,15 +891,15 @@
       const flipVertical = settings["flipVertically"] ? -1 : 1;
 
       if (settings['rotation'] == 0) {
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = settings['screenWidth'];
+        canvas.height = settings['screenHeight'];
         const xTranslate = settings["flipHorizontally"] ? canvas.width : 0;
         const yTranslate = settings["flipVertically"] ? canvas.height : 0;
         ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
 
       } else if (settings['rotation'] == 90) {
-        canvas.width = img.height;
-        canvas.height = img.width;
+        canvas.width = settings['screenHeight'];
+        canvas.height = settings['screenWidth'];
         const xTranslate = settings["flipHorizontally"] ? canvas.width : 0;
         const yTranslate = settings["flipVertically"] ? canvas.height : 0;
         ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
@@ -909,8 +909,8 @@
         // ctx.translate(-canvas.width/2, 0);
 
       } else if (settings['rotation'] == 180) {
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = settings['screenWidth'];
+        canvas.height = settings['screenHeight'];
         const xTranslate = settings["flipHorizontally"] ? canvas.width : 0;
         const yTranslate = settings["flipVertically"] ? canvas.height : 0;
         ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
@@ -920,8 +920,8 @@
         ctx.translate(-canvas.width/2.0, -canvas.height/2.0);
 
       } else if (settings['rotation'] == 270) {
-        canvas.width = img.height;
-        canvas.height = img.width;
+        canvas.width = settings['screenHeight'];
+        canvas.height = settings['screenWidth'];
         const xTranslate = settings["flipHorizontally"] ? canvas.width : 0;
         const yTranslate = settings["flipVertically"] ? canvas.height : 0;
         ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
@@ -931,39 +931,62 @@
       // Offset used for centering the image when requested
       var offset_x = 0;
       var offset_y = 0;
+      // var offset_x_dir = 1;
+      // var offset_y_dir = 1;
 
+      var imgW = img.width;
+      var imgH = img.height;
+      // if (settings['flipHorizontally']) {
+        // imgW = -img.width;
+        // offset_x_dir = -1;
+      // }
+      // if (settings['flipVertically']) {
+        // imgH = -img.height;
+        // offset_y_dir = -1;
+      // }
+
+      console.log('scale: ', settings['scale']);
       switch(settings["scale"]){
-        case "1": // Original
-          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width) / 2); }
-          if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - img.height) / 2); }
-          ctx.drawImage(img, 0, 0, img.width, img.height,
-            offset_x, offset_y, img.width, img.height);
+        case 1: // Original
+          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - imgW) / 2); }
+          if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - imgH) / 2); }
+          // offset_x *= offset_x_dir;
+          // offset_y *= offset_y_dir;
+          console.log('original');
+          console.log(`ctx.drawImage(img, 0, 0, ${imgW}, ${imgH},
+          ${offset_x}, ${offset_y}, ${imgW}, ${imgH})`);
+          ctx.drawImage(img, 0, 0, imgW, imgH,
+            offset_x, offset_y, imgW, imgH);
         break;
-        case "2": // Fit (make as large as possible without changing ratio)
-          var horRatio = canvas.width / img.width;
-          var verRatio =  canvas.height / img.height;
+        case 2: // Fit (make as large as possible without changing ratio)
+          var horRatio = canvas.width / imgW;
+          var verRatio =  canvas.height / imgH;
           var useRatio  = Math.min(horRatio, verRatio);
 
-          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width*useRatio) / 2); }
-          if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - img.height*useRatio) / 2); }
-          ctx.drawImage(img, 0, 0, img.width, img.height,
-            offset_x, offset_y, img.width * useRatio, img.height * useRatio);
+          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - imgW*useRatio) / 2); }
+          if(settings["centerVertically"]){ offset_y = Math.round((canvas.height - imgH*useRatio) / 2); }
+          // offset_x *= offset_x_dir;
+          // offset_y *= offset_y_dir;
+          ctx.drawImage(img, 0, 0, imgW, imgH,
+            offset_x, offset_y, imgW * useRatio, imgH * useRatio);
         break;
-        case "3": // Stretch x+y (make as large as possible without keeping ratio)
-          ctx.drawImage(img, 0, 0, img.width, img.height,
+        case 3: // Stretch x+y (make as large as possible without keeping ratio)
+          ctx.drawImage(img, 0, 0, imgW, imgH,
             offset_x, offset_y, canvas.width, canvas.height);
         break;
-        case "4": // Stretch x (make as wide as possible)
+        case 4: // Stretch x (make as wide as possible)
           offset_x = 0;
-          if(settings["centerVertically"]){ Math.round(offset_y = (canvas.height - img.height) / 2); }
-          ctx.drawImage(img, 0, 0, img.width, img.height,
-            offset_x, offset_y, canvas.width, img.height);
+          if(settings["centerVertically"]){ Math.round(offset_y = (canvas.height - imgH) / 2); }
+          // offset_y *= offset_y_dir;
+          ctx.drawImage(img, 0, 0, imgW, imgH,
+            offset_x, offset_y, canvas.width, imgH);
         break;
-        case "5": // Stretch y (make as tall as possible)
-          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - img.width) / 2); }
+        case 5: // Stretch y (make as tall as possible)
+          if(settings["centerHorizontally"]){ offset_x = Math.round((canvas.width - imgW) / 2); }
+          // offset_x *= offset_x_dir;
           offset_y = 0;
-          ctx.drawImage(img, 0, 0, img.width, img.height,
-            offset_x, offset_y, img.width, canvas.height);
+          ctx.drawImage(img, 0, 0, imgW, imgH,
+            offset_x, offset_y, imgW, canvas.height);
         break;
       }
       ctx.restore();
