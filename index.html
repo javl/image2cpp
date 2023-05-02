@@ -513,7 +513,7 @@
         for(var index = 0; index < data.length; index += 4){
           // Get the average of the RGB (we ignore A)
           var avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
-          if(avg > settings["thresholdThreshold"]){
+          if(avg > settings["ditheringThreshold"]){
             number += Math.pow(2, byteIndex);
           }
           byteIndex--;
