@@ -298,48 +298,13 @@ function placeImage(_image) {
   const { img } = _image;
   const { canvas } = _image;
   const ctx = canvas.getContext('2d');
+
+  // reset canvas size
+  canvas.width = settings.screenWidth;
+  canvas.height = settings.screenHeight;
   // eslint-disable-next-line no-param-reassign
   _image.ctx = ctx;
   ctx.save();
-
-  const flipHorizontal = settings.flipHorizontally ? -1 : 1;
-  const flipVertical = settings.flipVertically ? -1 : 1;
-
-  if (settings.rotation === 0) {
-    canvas.width = settings.screenWidth;
-    canvas.height = settings.screenHeight;
-    const xTranslate = settings.flipHorizontally ? canvas.width : 0;
-    const yTranslate = settings.flipVertically ? canvas.height : 0;
-    ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
-  } else if (settings.rotation === 90) {
-    canvas.width = settings.screenHeight;
-    canvas.height = settings.screenWidth;
-    const xTranslate = settings.flipHorizontally ? canvas.width : 0;
-    const yTranslate = settings.flipVertically ? canvas.height : 0;
-    ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
-    // ctx = canvas.getContext("2d");
-    ctx.translate(canvas.width, 0);
-    ctx.rotate(Math.PI / 2);
-    // ctx.translate(-canvas.width/2, 0);
-  } else if (settings.rotation === 180) {
-    canvas.width = settings.screenWidth;
-    canvas.height = settings.screenHeight;
-    const xTranslate = settings.flipHorizontally ? canvas.width : 0;
-    const yTranslate = settings.flipVertically ? canvas.height : 0;
-    ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
-    // Matrix transformation
-    ctx.translate(canvas.width / 2.0, canvas.height / 2.0);
-    ctx.rotate(Math.PI);
-    ctx.translate(-canvas.width / 2.0, -canvas.height / 2.0);
-  } else if (settings.rotation === 270) {
-    canvas.width = settings.screenHeight;
-    canvas.height = settings.screenWidth;
-    const xTranslate = settings.flipHorizontally ? canvas.width : 0;
-    const yTranslate = settings.flipVertically ? canvas.height : 0;
-    ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xTranslate, yTranslate);
-    ctx.translate(0, canvas.height);
-    ctx.rotate(-Math.PI * 0.5);
-  }
 
   // Draw background
   if (settings.backgroundColor === 'transparent') {
@@ -362,14 +327,17 @@ function placeImage(_image) {
   // Offset used for centering the image when requested
   let offsetX = 0;
   let offsetY = 0;
-
   const imgW = img.width;
   const imgH = img.height;
 
   switch (settings.scale) {
     case 1: // Original
-      if (settings.centerHorizontally) { offsetX = Math.round((canvas.width - imgW) / 2); }
-      if (settings.centerVertically) { offsetY = Math.round((canvas.height - imgH) / 2); }
+      if (settings.centerHorizontally) {
+        offsetX = Math.round((canvas.width - imgW) / 2);
+      }
+      if (settings.centerVertically) {
+        offsetY = Math.round((canvas.height - imgH) / 2);
+      }
       ctx.drawImage(
         img,
         0,
@@ -384,16 +352,14 @@ function placeImage(_image) {
       break;
     case 2: // Fit (make as large as possible without changing ratio)
       // eslint-disable-next-line no-case-declarations
-      const horRatio = canvas.width / imgW;
-      // eslint-disable-next-line no-case-declarations
-      const verRatio = canvas.height / imgH;
-      // eslint-disable-next-line no-case-declarations
-      const useRatio = Math.min(horRatio, verRatio);
+      const useRatio = Math.min(canvas.width / imgW, canvas.height / imgH);
+      if (settings.centerHorizontally) {
+        offsetX = Math.round((canvas.width - imgW * useRatio) / 2);
+      }
+      if (settings.centerVertically) {
+        offsetY = Math.round((canvas.height - imgH * useRatio) / 2);
+      }
 
-      if (settings.centerHorizontally) { offsetX = Math.round((canvas.width - imgW * useRatio) / 2); }
-      if (settings.centerVertically) { offsetY = Math.round((canvas.height - imgH * useRatio) / 2); }
-      // offsetX *= offsetX_dir;
-      // offsetY *= offsetY_dir;
       ctx.drawImage(
         img,
         0,
@@ -458,13 +424,54 @@ function placeImage(_image) {
   ctx.restore();
 
   // Make sure the image is black and white
-  console.log(settings.conversionFunction);
   if (settings.conversionFunction === ConversionFunctions.horizontal1bit
     || settings.conversionFunction === ConversionFunctions.vertical1bit) {
+    // eslint-disable-next-line no-undef
     dithering(ctx, canvas.width, canvas.height, settings.ditheringThreshold, settings.ditheringMode);
     if (settings.invertColors) {
       invert(canvas, ctx);
     }
+  }
+
+  if (settings.rotation !== 0) {
+    const clone = canvas.cloneNode(true);
+    clone.getContext('2d').drawImage(canvas, 0, 0);
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (settings.rotation === 90) {
+      canvas.width = settings.screenHeight;
+      canvas.height = settings.screenWidth;
+      ctx.setTransform(1, 0, 0, 1, canvas.width, 0); // set the scale and position
+      ctx.rotate(Math.PI / 2); // set the rotation
+      ctx.drawImage(clone, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    } else if (settings.rotation === 180) {
+      ctx.setTransform(1, 0, 0, 1, canvas.width, canvas.height); // set the scale and position
+      ctx.rotate(Math.PI); // set the rotation
+      ctx.drawImage(clone, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    } else if (settings.rotation === 270) {
+      canvas.width = settings.screenHeight;
+      canvas.height = settings.screenWidth;
+      ctx.setTransform(1, 0, 0, 1, 0, canvas.height); // set the scale and position
+      ctx.rotate(Math.PI * 1.5); // set the rotation
+      ctx.drawImage(clone, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+  }
+
+  const flipHorizontal = settings.flipHorizontally ? -1 : 1;
+  const xOffset = settings.flipHorizontally ? canvas.width : 0;
+  const flipVertical = settings.flipVertically ? -1 : 1;
+  const yOffset = settings.flipVertically ? canvas.height : 0;
+
+  if (flipHorizontal === -1 || flipVertical === -1) {
+    const clone = canvas.cloneNode(true);
+    clone.getContext('2d').drawImage(canvas, 0, 0);
+    ctx.setTransform(flipHorizontal, 0, 0, flipVertical, xOffset, yOffset); // set the scale and position
+    ctx.drawImage(clone, 0, 0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 }
 
