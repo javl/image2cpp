@@ -847,7 +847,9 @@ function handleImageSelection(evt) {
             if (imageSizeSettings.children.length === 1) {
               allSameSizeButton.style.display = 'none';
             }
-            if (images.length() === 0) noFileSelected.style.display = 'block';
+            if (images.length() === 0) {
+              noFileSelected.style.display = 'block';
+            }
             update();
           };
 
