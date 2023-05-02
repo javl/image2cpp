@@ -743,11 +743,17 @@ function handleImageSelection(evt) {
   onlyImagesFileError.style.display = 'none';
 
   // initial message
-  const noFileSelected = document.getElementById('no-file-selected');
+  const noFileSelected = document.querySelectorAll('.no-file-selected');
   if (files.length > 0) {
-    noFileSelected.style.display = 'none';
+    noFileSelected.forEach((el) => {
+      // eslint-disable-next-line no-param-reassign
+      el.style.display = 'none';
+    });
   } else {
-    noFileSelected.style.display = 'block';
+    noFileSelected.forEach((el) => {
+      // eslint-disable-next-line no-param-reassign
+      el.style.display = 'block';
+    });
   }
 
   for (let i = 0; files[i]; i++) {
@@ -848,7 +854,10 @@ function handleImageSelection(evt) {
               allSameSizeButton.style.display = 'none';
             }
             if (images.length() === 0) {
-              noFileSelected.style.display = 'block';
+              noFileSelected.forEach((el) => {
+                // eslint-disable-next-line no-param-reassign
+                el.style.display = 'block';
+              });
             }
             update();
           };
