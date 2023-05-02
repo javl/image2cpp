@@ -24,6 +24,7 @@ const settings = {
 };
 
 let outputString = '';
+let allSameSizeButton;
 
 function bitswap(b) {
   if (settings.bitswap) {
@@ -711,7 +712,6 @@ function handleTextInput(drawMode) {
 }
 
 function allSameSize(_images, files) {
-  const allSameSizeButton = document.getElementById('all-same-size');
   if (_images.length() > 1 && _images.length() === files.length) {
     // multiple images settings container
     // var imageSizeSettings = document.getElementById("image-size-settings");
@@ -1134,6 +1134,7 @@ window.onload = () => {
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
 
+  allSameSizeButton = document.getElementById('all-same-size');
   // The variable to hold our images. Global so we can easily reuse it when the
   // user updates the settings (change canvas size, scale, invert, etc)
 
