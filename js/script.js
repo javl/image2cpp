@@ -841,7 +841,7 @@ function handleImageSelection(evt) {
           const fileInputColumn = document.getElementById('file-input-column');
           const imageSizeSettings = document.getElementById('image-size-settings');
           const canvasContainer = document.getElementById('images-canvas-container');
-          const allSameSizeButton = document.getElementById('all-same-size');
+          allSameSizeButton = document.getElementById('all-same-size');
 
           const removeButtonOnClick = () => {
             const image = images.get(img);
