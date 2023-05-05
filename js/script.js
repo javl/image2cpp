@@ -916,13 +916,11 @@ function generateOutputString() {
         code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
         outputString += code;
       });
-      // --
+
       varQuickArray.sort();
-      // --
       outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
       outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
       outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
-      // --
       break;
     }
 
@@ -1058,13 +1056,6 @@ function downloadBinFile() {
 
 // eslint-disable-next-line no-unused-vars
 function updateDrawMode(elm) {
-  // var note = document.getElementById("note1bit");
-  // if(elm.value == "horizontal1bit" || elm.value == "vertical1bit") {
-  //   note.style.display = "block";
-  // } else {
-  //   note.style.display = "none";
-  // }
-
   const conversionFunction = ConversionFunctions[elm.value];
   if (conversionFunction) {
     settings.conversionFunction = conversionFunction;
@@ -1123,24 +1114,6 @@ window.onload = () => {
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
-
-  // The variable to hold our images. Global so we can easily reuse it when the
-  // user updates the settings (change canvas size, scale, invert, etc)
-
-  // // Make the canvas black and white
-  // function blackAndWhite(canvas, ctx){
-  //   var imageData = ctx.getImageData(0,0,canvas.width, canvas.height);
-  //   var data = imageData.data;
-  //   for (var i = 0; i < data.length; i += 4) {
-  //     var avg = (data[i] + data[i +1] + data[i +2]) / 3;
-  //     avg > settings["threshold"] ? avg = 255 : avg = 0;
-  //     data[i]     = avg; // red
-  //     data[i + 1] = avg; // green
-  //     data[i + 2] = avg; // blue
-  //   }
-  //   ctx.putImageData(imageData, 0, 0);
-  // }
-
   document.getElementById('outputFormat').value = 'arduino';
   document.getElementById('outputFormat').onchange();
 };
