@@ -42,8 +42,6 @@ const ConversionFunctions = {
   // Output the image as a string for horizontally drawing displays
   // eslint-disable-next-line no-unused-vars
   horizontal1bit(data, canvasWidth, canvasHeight) {
-    // eslint-disable-next-line no-shadow
-    outputString = '';
     let outputIndex = 0;
 
     let byteIndex = 7;
@@ -93,8 +91,6 @@ const ConversionFunctions = {
   // Output the image as a string for vertically drawing displays
   // eslint-disable-next-line no-unused-vars
   vertical1bit(data, canvasWidth, canvasHeight) {
-    // eslint-disable-next-line no-shadow
-    outputString = '';
     let outputIndex = 0;
 
     for (let p = 0; p < Math.ceil(settings.screenHeight / 8); p++) {
@@ -130,8 +126,6 @@ const ConversionFunctions = {
   // Output the image as a string for 565 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
   horizontal565(data, canvasWidth, canvasHeight) {
-    // eslint-disable-next-line no-shadow
-    outputString = '';
     let outputIndex = 0;
 
     // format is RGBA, so move 4 steps per pixel
@@ -166,8 +160,6 @@ const ConversionFunctions = {
   // Output the image as a string for rgb888 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
   horizontal888(data, canvasWidth, canvasHeight) {
-    // eslint-disable-next-line no-shadow
-    outputString = '';
     let outputIndex = 0;
 
     // format is RGBA, so move 4 steps per pixel
@@ -203,8 +195,6 @@ const ConversionFunctions = {
   // Output the alpha mask as a string for horizontally drawing displays
   // eslint-disable-next-line no-unused-vars
   horizontalAlpha(data, canvasWidth, canvasHeight) {
-    // eslint-disable-next-line no-shadow
-    outputString = '';
     let outputIndex = 0;
 
     let byteIndex = 7;
@@ -424,6 +414,7 @@ function placeImage(_image) {
   }
   ctx.restore();
 
+  outputString = '';
   if (settings.conversionFunction === ConversionFunctions.horizontal1bit
     || settings.conversionFunction === ConversionFunctions.vertical1bit) {
     // eslint-disable-next-line no-undef
@@ -909,7 +900,7 @@ function getIdentifier() {
 // Output the image string to the textfield
 // eslint-disable-next-line no-unused-vars
 function generateOutputString() {
-  outputString = '';
+  let outputString = '';
   let code = '';
 
   switch (settings.outputFormat) {
