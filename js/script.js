@@ -424,7 +424,6 @@ function placeImage(_image) {
   }
   ctx.restore();
 
-  // Make sure the image is black and white
   if (settings.conversionFunction === ConversionFunctions.horizontal1bit
     || settings.conversionFunction === ConversionFunctions.vertical1bit) {
     // eslint-disable-next-line no-undef
@@ -443,23 +442,21 @@ function placeImage(_image) {
     if (settings.rotation === 90) {
       canvas.width = settings.screenHeight;
       canvas.height = settings.screenWidth;
-      ctx.setTransform(1, 0, 0, 1, canvas.width, 0); // set the scale and position
-      ctx.rotate(Math.PI / 2); // set the rotation
+      ctx.setTransform(1, 0, 0, 1, canvas.width, 0);
+      ctx.rotate(Math.PI / 2);
       ctx.drawImage(clone, 0, 0);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
     } else if (settings.rotation === 180) {
-      ctx.setTransform(1, 0, 0, 1, canvas.width, canvas.height); // set the scale and position
-      ctx.rotate(Math.PI); // set the rotation
+      ctx.setTransform(1, 0, 0, 1, canvas.width, canvas.height);
+      ctx.rotate(Math.PI);
       ctx.drawImage(clone, 0, 0);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
     } else if (settings.rotation === 270) {
       canvas.width = settings.screenHeight;
       canvas.height = settings.screenWidth;
-      ctx.setTransform(1, 0, 0, 1, 0, canvas.height); // set the scale and position
-      ctx.rotate(Math.PI * 1.5); // set the rotation
+      ctx.setTransform(1, 0, 0, 1, 0, canvas.height);
+      ctx.rotate(Math.PI * 1.5);
       ctx.drawImage(clone, 0, 0);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
   const flipHorizontal = settings.flipHorizontally ? -1 : 1;
