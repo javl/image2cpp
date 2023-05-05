@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /* eslint-disable radix */
 /* eslint-disable max-len */
 /* eslint-disable no-plusplus */
@@ -27,11 +26,11 @@ let allSameSizeButton;
 
 function bitswap(b) {
   if (settings.bitswap) {
-    // eslint-disable-next-line no-param-reassign, no-bitwise, no-mixed-operators
+    // eslint-disable-next-line no-bitwise, no-mixed-operators, no-param-reassign
     b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
-    // eslint-disable-next-line no-param-reassign, no-bitwise, no-mixed-operators
+    // eslint-disable-next-line no-bitwise, no-mixed-operators, no-param-reassign
     b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
-    // eslint-disable-next-line no-param-reassign, no-bitwise, no-mixed-operators
+    // eslint-disable-next-line no-bitwise, no-mixed-operators, no-param-reassign
     b = (b & 0xAA) >> 1 | (b & 0x55) << 1;
   }
   return b;
@@ -157,7 +156,6 @@ const ConversionFunctions = {
     return stringFromBytes;
   },
   // Output the image as a string for rgb888 displays (horizontally)
-  // eslint-disable-next-line no-unused-vars
   horizontal888(data, canvasWidth) {
     let stringFromBytes = '';
     let outputIndex = 0;
@@ -193,7 +191,6 @@ const ConversionFunctions = {
     return stringFromBytes;
   },
   // Output the alpha mask as a string for horizontally drawing displays
-  // eslint-disable-next-line no-unused-vars
   horizontalAlpha(data, canvasWidth) {
     let stringFromBytes = '';
     let outputIndex = 0;
@@ -266,7 +263,6 @@ function Images() {
 }
 
 const images = new Images();
-let output = '';
 // Filetypes accepted by the file picker
 // const fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
 // Variable name, when "arduino code" is required
@@ -341,8 +337,8 @@ function placeImage(_image) {
         imgH,
       );
       break;
-    case 2: // Fit (make as large as possible without changing ratio)
-      // eslint-disable-next-line no-case-declarations
+    case 2: {
+      // Fit (make as large as possible without changing ratio)
       const useRatio = Math.min(canvas.width / imgW, canvas.height / imgH);
       if (settings.centerHorizontally) {
         offsetX = Math.round((canvas.width - imgW * useRatio) / 2);
@@ -363,6 +359,7 @@ function placeImage(_image) {
         imgH * useRatio,
       );
       break;
+    }
     case 3: // Stretch x+y (make as large as possible without keeping ratio)
       ctx.drawImage(
         img,
@@ -551,7 +548,8 @@ function listToImageHorizontal(list, canvas) {
     if (!binString.valid) {
       // eslint-disable-next-line no-alert
       alert('Something went wrong converting the string. Make sure there are no comments in your input?');
-      console.log('invalid hexToBinary: ', binString.s);
+      // eslint-disable-next-line no-console
+      console.error('invalid hexToBinary: ', binString.s);
       return;
     }
     binString = binString.result;
@@ -566,20 +564,18 @@ function listToImageHorizontal(list, canvas) {
         widthCounter = 0;
       }
       // skip 'artifact' pixels due to rounding up to a byte
-      if (widthCounter >= canvas.width) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      let color = 0;
-      if (binString.charAt(k) === '1') {
-        color = 255;
-      }
-      imgData.data[index] = color;
-      imgData.data[index + 1] = color;
-      imgData.data[index + 2] = color;
-      imgData.data[index + 3] = 255;
+      if (widthCounter < canvas.width) {
+        let color = 0;
+        if (binString.charAt(k) === '1') {
+          color = 255;
+        }
+        imgData.data[index] = color;
+        imgData.data[index + 1] = color;
+        imgData.data[index + 2] = color;
+        imgData.data[index + 3] = 255;
 
-      index += 4;
+        index += 4;
+      }
     }
   }
 
@@ -620,7 +616,8 @@ function listToImageVertical(list, canvas) {
     if (!binString.valid) {
       // eslint-disable-next-line no-alert
       alert('Something went wrong converting the string. Did you forget to remove any comments from the input?');
-      console.log('invalid hexToBinary: ', binString.s);
+      // eslint-disable-next-line no-console
+      console.error('invalid hexToBinary: ', binString.s);
       return;
     }
     binString = binString.result;
@@ -745,7 +742,7 @@ function handleImageSelection(evt) {
 
   for (let i = 0; files[i]; i++) {
     // Only process image files.
-    if (!files[i].type.match('image.*')) {
+    if (files[i].type.match('image.*')) {
       onlyImagesFileError.style.display = 'block';
       // eslint-disable-next-line no-continue
       continue;
@@ -1031,17 +1028,17 @@ function generateOutputString() {
   }
 
   document.getElementById('code-output').value = outputString;
-  output = outputString;
   document.getElementById('copy-button').disabled = false;
 }
 
+// Copy the final output to the clipboard
 // eslint-disable-next-line no-unused-vars
 function copyOutput() {
-  navigator.clipboard.writeText(output);
+  navigator.clipboard.writeText(document.getElementById('code-output').value);
 }
 
 // eslint-disable-next-line no-unused-vars
-function downloadFile() {
+function downloadBinFile() {
   let raw = [];
   images.each((image) => {
     const data = imageToString(image)
