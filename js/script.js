@@ -742,7 +742,7 @@ function handleImageSelection(evt) {
 
   for (let i = 0; files[i]; i++) {
     // Only process image files.
-    if (files[i].type.match('image.*')) {
+    if (!files[i].type.match('image.*')) {
       onlyImagesFileError.style.display = 'block';
       // eslint-disable-next-line no-continue
       continue;
