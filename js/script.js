@@ -473,29 +473,30 @@ function placeImage(_image) {
   }
 }
 
-function update() {
-  images.each((image) => { placeImage(image); });
+// Handle drawing each of our images
+function updateAllImages() {
+  images.each((image) => {
+    placeImage(image);
+  });
 }
 
 // Easy way to update settings controlled by a textfield
 function updateInteger(fieldName) {
   settings[fieldName] = parseInt(document.getElementById(fieldName).value);
-  update();
+  updateAllImages();
 }
 
 // Easy way to update settings controlled by a checkbox
-// eslint-disable-next-line no-unused-vars
 function updateBoolean(fieldName) {
   settings[fieldName] = document.getElementById(fieldName).checked;
-  update();
+  updateAllImages();
 }
 
 // Convert hex to binary
 function hexToBinary(s) {
   let i;
   let ret = '';
-  // lookup table for easier conversion. "0" characters are
-  // padded for "1" to "7"
+  // lookup table for easier conversion. "0" characters are padded for "1" to "7"
   const lookupTable = {
     0: '0000',
     1: '0001',
@@ -533,7 +534,7 @@ function hexToBinary(s) {
 
 // get the type (in arduino code) of the output image
 // this is a bit of a hack, it's better to make this a property of the conversion function (should probably turn it into objects)
-function getType() {
+function getImageType() {
   if (settings.conversionFunction === ConversionFunctions.horizontal565) {
     return 'uint16_t';
   } if (settings.conversionFunction === ConversionFunctions.horizontal888) {
@@ -546,9 +547,7 @@ function getType() {
 function listToImageHorizontal(list, canvas) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   const imgData = ctx.createImageData(canvas.width, canvas.height);
-
   let index = 0;
 
   // round the width up to the next byte
@@ -560,7 +559,7 @@ function listToImageHorizontal(list, canvas) {
     let binString = hexToBinary(list[i]);
     if (!binString.valid) {
       // eslint-disable-next-line no-alert
-      alert('Something went wrong converting the string. Did you forget to remove any comments from the input?');
+      alert('Something went wrong converting the string. Make sure there are no comments in your input?');
       console.log('invalid hexToBinary: ', binString.s);
       return;
     }
@@ -795,7 +794,7 @@ function handleImageSelection(evt) {
           settings.screenWidth = img.width;
           w.oninput = () => {
             canvas.width = this.value;
-            update();
+            updateAllImages();
             updateInteger('screenWidth');
           };
 
@@ -809,7 +808,7 @@ function handleImageSelection(evt) {
           settings.screenHeight = img.height;
           h.oninput = () => {
             canvas.height = this.value;
-            update();
+            updateAllImages();
             updateInteger('screenHeight');
           };
 
@@ -856,7 +855,7 @@ function handleImageSelection(evt) {
                 el.style.display = 'block';
               });
             }
-            update();
+            updateAllImages();
           };
 
           rb.onclick = removeButtonOnClick;
@@ -931,7 +930,7 @@ function generateOutputString() {
 
         const varname = getIdentifier() + image.glyph.replace(/[^a-zA-Z0-9]/g, '_');
         varQuickArray.push(varname);
-        code = `${comment}const ${getType()} ${varname} [] PROGMEM = {\n${code}};\n`;
+        code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
         outputString += code;
       });
       // --
@@ -939,7 +938,7 @@ function generateOutputString() {
       // --
       outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
       outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
-      outputString += `const ${getType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+      outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
       // --
       break;
     }
@@ -955,7 +954,7 @@ function generateOutputString() {
 
       outputString = outputString.replace(/,\s*$/, '');
 
-      outputString = `const ${getType()} ${
+      outputString = `const ${getImageType()} ${
         +getIdentifier()
       } [] PROGMEM = {`
             + `\n${outputString}\n};`;
@@ -1129,7 +1128,7 @@ function updateRadio(fieldName) {
       settings[fieldName] = radioGroup[i].value;
     }
   }
-  update();
+  updateAllImages();
 }
 
 window.onload = () => {
