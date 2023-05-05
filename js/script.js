@@ -23,7 +23,6 @@ const settings = {
   rotation: 0,
 };
 
-let outputString = '';
 let allSameSizeButton;
 
 function bitswap(b) {
@@ -1097,6 +1096,7 @@ function updateOutputFormat(elm) {
     arduino.style.display = 'block';
     removeZeroesCommasContainer.style.display = 'none';
     settings.removeZeroesCommas = false;
+    document.getElementById('removeZeroesCommas').checked = false;
   } else {
     arduino.style.display = 'none';
     removeZeroesCommasContainer.style.display = 'table-row';
