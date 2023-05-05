@@ -873,10 +873,9 @@ function handleImageSelection(evt) {
         placeImage(images.last());
         allSameSize(images, files);
       };
-      console.log('file', file);
-      // img.src = e.target.result;
       img.src = file.target.result;
     };
+    reader.name = files[i].name;
     reader.readAsDataURL(files[i]);
   }
 }
