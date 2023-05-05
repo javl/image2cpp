@@ -753,130 +753,130 @@ function handleImageSelection(evt) {
 
     const reader = new FileReader();
 
-    // eslint-disable-next-line no-loop-func
-    reader.onload = (function (file) {
-      return (e) => {
-        // Render thumbnail.
-        const img = new Image();
+    reader.onload = (file) => {
+      // eslint-disable-next-line no-param-reassign
+      file.name = reader.name;
+      // Render thumbnail.
+      const img = new Image();
 
-        img.onload = () => {
-          const fileInputColumnEntry = document.createElement('div');
-          fileInputColumnEntry.className = 'file-input-entry';
+      img.onload = () => {
+        const fileInputColumnEntry = document.createElement('div');
+        fileInputColumnEntry.className = 'file-input-entry';
 
-          const fileInputColumnEntryLabel = document.createElement('span');
-          fileInputColumnEntryLabel.textContent = file.name;
+        const fileInputColumnEntryLabel = document.createElement('span');
+        fileInputColumnEntryLabel.textContent = file.name;
 
-          const fileInputColumnEntryRemoveButton = document.createElement('button');
-          fileInputColumnEntryRemoveButton.className = 'remove-button';
-          fileInputColumnEntryRemoveButton.innerHTML = 'remove';
+        const fileInputColumnEntryRemoveButton = document.createElement('button');
+        fileInputColumnEntryRemoveButton.className = 'remove-button';
+        fileInputColumnEntryRemoveButton.innerHTML = 'remove';
 
-          const canvas = document.createElement('canvas');
+        const canvas = document.createElement('canvas');
 
-          const imageEntry = document.createElement('li');
-          imageEntry.setAttribute('data-img', file.name);
+        const imageEntry = document.createElement('li');
+        imageEntry.setAttribute('data-img', file.name);
 
-          const w = document.createElement('input');
-          w.type = 'number';
-          w.name = 'width';
-          w.id = 'screenWidth';
-          w.min = 0;
-          w.className = 'size-input';
-          w.value = img.width;
-          settings.screenWidth = img.width;
-          w.oninput = () => {
-            canvas.width = this.value;
-            updateAllImages();
-            updateInteger('screenWidth');
-          };
-
-          const h = document.createElement('input');
-          h.type = 'number';
-          h.name = 'height';
-          h.id = 'screenHeight';
-          h.min = 0;
-          h.className = 'size-input';
-          h.value = img.height;
-          settings.screenHeight = img.height;
-          h.oninput = () => {
-            canvas.height = this.value;
-            updateAllImages();
-            updateInteger('screenHeight');
-          };
-
-          const gil = document.createElement('span');
-          gil.innerHTML = 'glyph';
-          gil.className = 'file-info';
-
-          const gi = document.createElement('input');
-          gi.type = 'text';
-          gi.name = 'glyph';
-          gi.className = 'glyph-input';
-          gi.onchange = () => {
-            const image = images.get(img);
-            image.glyph = gi.value;
-          };
-
-          const fn = document.createElement('span');
-          fn.className = 'file-info';
-          fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
-          fn.innerHTML += '<br />';
-
-          const rb = document.createElement('button');
-          rb.className = 'remove-button';
-          rb.innerHTML = 'remove';
-
-          const fileInputColumn = document.getElementById('file-input-column');
-          const imageSizeSettings = document.getElementById('image-size-settings');
-          const canvasContainer = document.getElementById('images-canvas-container');
-          allSameSizeButton = document.getElementById('all-same-size');
-
-          const removeButtonOnClick = () => {
-            const image = images.get(img);
-            canvasContainer.removeChild(image.canvas);
-            images.remove(image);
-            imageSizeSettings.removeChild(imageEntry);
-
-            fileInputColumn.removeChild(fileInputColumnEntry);
-            if (imageSizeSettings.children.length === 1) {
-              allSameSizeButton.style.display = 'none';
-            }
-            if (images.length() === 0) {
-              noFileSelected.forEach((el) => {
-                // eslint-disable-next-line no-param-reassign
-                el.style.display = 'block';
-              });
-            }
-            updateAllImages();
-          };
-
-          rb.onclick = removeButtonOnClick;
-          fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
-
-          fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
-          fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
-          fileInputColumn.appendChild(fileInputColumnEntry);
-
-          imageEntry.appendChild(fn);
-          imageEntry.appendChild(w);
-          imageEntry.appendChild(document.createTextNode(' x '));
-          imageEntry.appendChild(h);
-          imageEntry.appendChild(gil);
-          imageEntry.appendChild(gi);
-          imageEntry.appendChild(rb);
-
-          imageSizeSettings.appendChild(imageEntry);
-
-          canvas.width = img.width;
-          canvas.height = img.height;
-          canvasContainer.appendChild(canvas);
-
-          images.push(img, canvas, file.name.split('.')[0]);
-          placeImage(images.last());
-          allSameSize(images, files);
+        const w = document.createElement('input');
+        w.type = 'number';
+        w.name = 'width';
+        w.id = 'screenWidth';
+        w.min = 0;
+        w.className = 'size-input';
+        w.value = img.width;
+        settings.screenWidth = img.width;
+        w.oninput = () => {
+          canvas.width = this.value;
+          updateAllImages();
+          updateInteger('screenWidth');
         };
-        img.src = e.target.result;
+
+        const h = document.createElement('input');
+        h.type = 'number';
+        h.name = 'height';
+        h.id = 'screenHeight';
+        h.min = 0;
+        h.className = 'size-input';
+        h.value = img.height;
+        settings.screenHeight = img.height;
+        h.oninput = () => {
+          canvas.height = this.value;
+          updateAllImages();
+          updateInteger('screenHeight');
+        };
+
+        const gil = document.createElement('span');
+        gil.innerHTML = 'glyph';
+        gil.className = 'file-info';
+
+        const gi = document.createElement('input');
+        gi.type = 'text';
+        gi.name = 'glyph';
+        gi.className = 'glyph-input';
+        gi.onchange = () => {
+          const image = images.get(img);
+          image.glyph = gi.value;
+        };
+
+        const fn = document.createElement('span');
+        fn.className = 'file-info';
+        fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
+        fn.innerHTML += '<br />';
+
+        const rb = document.createElement('button');
+        rb.className = 'remove-button';
+        rb.innerHTML = 'remove';
+
+        const fileInputColumn = document.getElementById('file-input-column');
+        const imageSizeSettings = document.getElementById('image-size-settings');
+        const canvasContainer = document.getElementById('images-canvas-container');
+
+        const removeButtonOnClick = () => {
+          const image = images.get(img);
+          canvasContainer.removeChild(image.canvas);
+          images.remove(image);
+          imageSizeSettings.removeChild(imageEntry);
+
+          fileInputColumn.removeChild(fileInputColumnEntry);
+          if (imageSizeSettings.children.length === 1) {
+            document.getElementById('all-same-size').style.display = 'none';
+          }
+          if (images.length() === 0) {
+            noFileSelected.forEach((el) => {
+              // eslint-disable-next-line no-param-reassign
+              el.style.display = 'block';
+            });
+          }
+          updateAllImages();
+        };
+
+        rb.onclick = removeButtonOnClick;
+        fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
+
+        fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
+        fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
+        fileInputColumn.appendChild(fileInputColumnEntry);
+
+        imageEntry.appendChild(fn);
+        imageEntry.appendChild(w);
+        imageEntry.appendChild(document.createTextNode(' x '));
+        imageEntry.appendChild(h);
+        imageEntry.appendChild(gil);
+        imageEntry.appendChild(gi);
+        imageEntry.appendChild(rb);
+
+        imageSizeSettings.appendChild(imageEntry);
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvasContainer.appendChild(canvas);
+
+        images.push(img, canvas, file.name.split('.')[0]);
+        placeImage(images.last());
+        allSameSize(images, files);
       };
-    }(files[i]));
+      console.log('file', file);
+      // img.src = e.target.result;
+      img.src = file.target.result;
+    };
     reader.readAsDataURL(files[i]);
   }
 }
@@ -1125,6 +1125,7 @@ function updateRadio(fieldName) {
 }
 
 window.onload = () => {
+  allSameSizeButton = document.getElementById('all-same-size');
   document.getElementById('copy-button').disabled = true;
 
   // Add events to the file input button
@@ -1132,7 +1133,6 @@ window.onload = () => {
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
 
-  allSameSizeButton = document.getElementById('all-same-size');
   // The variable to hold our images. Global so we can easily reuse it when the
   // user updates the settings (change canvas size, scale, invert, etc)
 
