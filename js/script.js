@@ -22,8 +22,6 @@ const settings = {
   rotation: 0,
 };
 
-let allSameSizeButton;
-
 function bitswap(b) {
   if (settings.bitswap) {
     // eslint-disable-next-line no-bitwise, no-mixed-operators, no-param-reassign
@@ -695,25 +693,21 @@ function handleTextInput(drawMode) {
   }
 }
 
-function allSameSize(_images, files) {
-  if (_images.length() > 1 && _images.length() === files.length) {
-    // multiple images settings container
-    // var imageSizeSettings = document.getElementById("image-size-settings");
+// eslint-disable-next-line no-unused-vars
+function allSameSize() {
+  if (images.length() > 1) {
     const inputs = document.querySelectorAll('#image-size-settings input');
     // all images same size button
-    allSameSizeButton.onclick = () => {
-      for (let i = 2; i < inputs.length; i++) {
-        if (inputs[i].name === 'width') {
-          inputs[i].value = inputs[0].value;
-          inputs[i].oninput();
-        }
-        if (inputs[i].name === 'height') {
-          inputs[i].value = inputs[1].value;
-          inputs[i].oninput();
-        }
+    for (let i = 2; i < inputs.length; i++) {
+      if (inputs[i].name === 'width') {
+        inputs[i].value = inputs[0].value;
+        inputs[i].oninput();
       }
-    };
-    allSameSizeButton.style.display = 'block';
+      if (inputs[i].name === 'height') {
+        inputs[i].value = inputs[1].value;
+        inputs[i].oninput();
+      }
+    }
   }
 }
 
@@ -833,7 +827,7 @@ function handleImageSelection(evt) {
           imageSizeSettings.removeChild(imageEntry);
 
           fileInputColumn.removeChild(fileInputColumnEntry);
-          if (imageSizeSettings.children.length === 1) {
+          if (imageSizeSettings.children.length <= 1) {
             document.getElementById('all-same-size').style.display = 'none';
           }
           if (images.length() === 0) {
@@ -867,8 +861,11 @@ function handleImageSelection(evt) {
         canvasContainer.appendChild(canvas);
 
         images.push(img, canvas, file.name.split('.')[0]);
+        if (images.length() > 1) {
+          document.getElementById('all-same-size').style.display = 'block';
+        }
         placeImage(images.last());
-        allSameSize(images, files);
+        // allSameSize(images, files);
       };
       img.src = file.target.result;
     };
@@ -1121,7 +1118,6 @@ function updateRadio(fieldName) {
 }
 
 window.onload = () => {
-  allSameSizeButton = document.getElementById('all-same-size');
   document.getElementById('copy-button').disabled = true;
 
   // Add events to the file input button
