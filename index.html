@@ -11,8 +11,8 @@
 <head>
   <meta charset="UTF-8">
   <title>image2cpp</title>
-  <script src="./js/dithering.js"></script>
-  <script src="./js/script.js"></script>
+  <script src="./js/dithering.js" defer></script>
+  <script src="./js/script.js" defer></script>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -289,7 +289,7 @@
       <section class="sub-section">
         <button type="button" class="generate-button" onclick="generateOutputString()">Generate code</button>
         <button type="button" id = "copy-button" onclick="copyOutput()">Copy Output</button>
-        <button type="button" id = "download-button" onclick="downloadFile()">Download as binary file (.bin)</button>
+        <button type="button" id = "download-button" onclick="downloadBinFile()">Download as binary file (.bin)</button>
         <textarea id="code-output" class="code-output"></textarea>
       </section>
     </section>
