@@ -865,7 +865,6 @@ function handleImageSelection(evt) {
           document.getElementById('all-same-size').style.display = 'block';
         }
         placeImage(images.last());
-        // allSameSize(images, files);
       };
       img.src = file.target.result;
     };
