@@ -39,10 +39,9 @@ function bitswap(b) {
 
 const ConversionFunctions = {
   // Output the image as a string for horizontally drawing displays
-  // eslint-disable-next-line no-unused-vars
-  horizontal1bit(data, canvasWidth, canvasHeight) {
+  horizontal1bit(data, canvasWidth) {
+    let stringFromBytes = '';
     let outputIndex = 0;
-
     let byteIndex = 7;
     let number = 0;
 
@@ -69,14 +68,14 @@ const ConversionFunctions = {
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
         if (!settings.removeZeroesCommas) {
-          outputString += `0x${byteSet}, `;
+          stringFromBytes += `0x${byteSet}, `;
         } else {
-          outputString += byteSet;
+          stringFromBytes += byteSet;
         }
         outputIndex++;
         if (outputIndex >= 16) {
           if (!settings.removeZeroesCommas) {
-            outputString += '\n';
+            stringFromBytes += '\n';
           }
           outputIndex = 0;
         }
@@ -84,14 +83,14 @@ const ConversionFunctions = {
         byteIndex = 7;
       }
     }
-    return outputString;
+    return stringFromBytes;
   },
 
   // Output the image as a string for vertically drawing displays
   // eslint-disable-next-line no-unused-vars
-  vertical1bit(data, canvasWidth, canvasHeight) {
+  vertical1bit(data, canvasWidth) {
+    let stringFromBytes = '';
     let outputIndex = 0;
-
     for (let p = 0; p < Math.ceil(settings.screenHeight / 8); p++) {
       for (let x = 0; x < settings.screenWidth; x++) {
         let byteIndex = 7;
@@ -108,23 +107,24 @@ const ConversionFunctions = {
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
         if (!settings.removeZeroesCommas) {
-          outputString += `0x${byteSet.toString(16)}, `;
+          stringFromBytes += `0x${byteSet.toString(16)}, `;
         } else {
-          outputString += byteSet.toString(16);
+          stringFromBytes += byteSet.toString(16);
         }
         outputIndex++;
         if (outputIndex >= 16) {
-          outputString += '\n';
+          stringFromBytes += '\n';
           outputIndex = 0;
         }
       }
     }
-    return outputString;
+    return stringFromBytes;
   },
 
   // Output the image as a string for 565 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
-  horizontal565(data, canvasWidth, canvasHeight) {
+  horizontal565(data, canvasWidth) {
+    let stringFromBytes = '';
     let outputIndex = 0;
 
     // format is RGBA, so move 4 steps per pixel
@@ -143,22 +143,23 @@ const ConversionFunctions = {
       let byteSet = bitswap(rgb).toString(16);
       while (byteSet.length < 4) { byteSet = `0${byteSet}`; }
       if (!settings.removeZeroesCommas) {
-        outputString += `0x${byteSet}, `;
+        stringFromBytes += `0x${byteSet}, `;
       } else {
-        outputString += byteSet;
+        stringFromBytes += byteSet;
       }
       // add newlines every 16 bytes
       outputIndex++;
       if (outputIndex >= 16) {
-        outputString += '\n';
+        stringFromBytes += '\n';
         outputIndex = 0;
       }
     }
-    return outputString;
+    return stringFromBytes;
   },
   // Output the image as a string for rgb888 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
-  horizontal888(data, canvasWidth, canvasHeight) {
+  horizontal888(data, canvasWidth) {
+    let stringFromBytes = '';
     let outputIndex = 0;
 
     // format is RGBA, so move 4 steps per pixel
@@ -177,25 +178,25 @@ const ConversionFunctions = {
       let byteSet = bitswap(rgb).toString(16);
       while (byteSet.length < 8) { byteSet = `0${byteSet}`; }
       if (!settings.removeZeroesCommas) {
-        outputString += `0x${byteSet}, `;
+        stringFromBytes += `0x${byteSet}, `;
       } else {
-        outputString += byteSet;
+        stringFromBytes += byteSet;
       }
 
       // add newlines every 16 bytes
       outputIndex++;
       if (outputIndex >= canvasWidth) {
-        outputString += '\n';
+        stringFromBytes += '\n';
         outputIndex = 0;
       }
     }
-    return outputString;
+    return stringFromBytes;
   },
   // Output the alpha mask as a string for horizontally drawing displays
   // eslint-disable-next-line no-unused-vars
-  horizontalAlpha(data, canvasWidth, canvasHeight) {
+  horizontalAlpha(data, canvasWidth) {
+    let stringFromBytes = '';
     let outputIndex = 0;
-
     let byteIndex = 7;
     let number = 0;
 
@@ -219,20 +220,20 @@ const ConversionFunctions = {
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
         if (!settings.removeZeroesCommas) {
-          outputString += `0x${byteSet}, `;
+          stringFromBytes += `0x${byteSet}, `;
         } else {
-          outputString += byteSet;
+          stringFromBytes += byteSet;
         }
         outputIndex++;
         if (outputIndex >= 16) {
-          outputString += '\n';
+          stringFromBytes += '\n';
           outputIndex = 0;
         }
         number = 0;
         byteIndex = 7;
       }
     }
-    return outputString;
+    return stringFromBytes;
   },
 };
 settings.conversionFunction = ConversionFunctions.horizontal1bit;
@@ -413,7 +414,6 @@ function placeImage(_image) {
   }
   ctx.restore();
 
-  outputString = '';
   if (settings.conversionFunction === ConversionFunctions.horizontal1bit
     || settings.conversionFunction === ConversionFunctions.vertical1bit) {
     // eslint-disable-next-line no-undef
@@ -477,6 +477,7 @@ function updateInteger(fieldName) {
 }
 
 // Easy way to update settings controlled by a checkbox
+// eslint-disable-next-line no-unused-vars
 function updateBoolean(fieldName) {
   settings[fieldName] = document.getElementById(fieldName).checked;
   updateAllImages();
@@ -887,7 +888,7 @@ function imageToString(image) {
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const { data } = imageData;
-  return settings.conversionFunction(data, canvas.width, canvas.height);
+  return settings.conversionFunction(data, canvas.width);
 }
 
 // Get the custom arduino output variable name, if any
@@ -1085,6 +1086,7 @@ function updateOutputFormat(elm) {
   const adafruitGfx = document.getElementById('adafruit-gfx-settings');
   const arduino = document.getElementById('arduino-identifier');
   const removeZeroesCommasContainer = document.getElementById('remove-zeroes-commas-container');
+  document.getElementById('code-output').value = '';
 
   for (let i = 0; i < caption.children.length; i++) {
     caption.children[i].style.display = 'none';
