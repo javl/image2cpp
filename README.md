@@ -7,7 +7,7 @@ Alternatively you can also enter a byte array as input to turn it back into an i
 
 Did you find this tool useful? Feel free to support my open source software:
 
-![GitHub Sponsor](https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub)
+[![GitHub Sponsor](https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub)](https://github.com/sponsors/javl)
 
 
 ### Running the tool
