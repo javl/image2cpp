@@ -1,3 +1,5 @@
+> Why I created the fork? The Gh sponser badge was sticking out and wasn;t loading. Fixed it.
+
 ## image2cpp
 
 Use this tool online at http://javl.github.io/image2cpp/
