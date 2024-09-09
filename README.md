@@ -25,7 +25,7 @@ I wrote the code with my 128x64 pixel monochrome OLED display in mind, but it sh
 ### Credit
 Initial code by [javl](https://github.com/javl) with aditional code by (in alphabetical order):
 * [akumpf](https://github.com/akumpf)
-* [Daniyal Warraich](https://github.com/Daniyal-Warraich)
+* [Daniyal Warraich](https://github.com/daniyalw)
 * [davidalim](https://github.com/davidalim)
 * [dotcypress](https://github.com/dotcypress)
 * [Harry48225](https://github.com/harry48225)
