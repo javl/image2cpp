@@ -1,297 +1,354 @@
-<!--
-  "image2cpp"
-  Original utility by:
-  https://jaspervanloenen.com
-
-  This is the 2nd revision of the modified version by:
-  https://wiredolphin.net
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>image2cpp</title>
-  <script src="./js/dithering.js" defer></script>
-  <script src="./js/script.js" defer></script>
-  <link rel="stylesheet" href="./css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>image2cpp - Convert Images to Arduino Code</title>
+    <meta name="description" content="Convert images into byte arrays for use with monochrome displays on Arduino or Raspberry Pi. Process images locally in your browser.">
+    <meta name="keywords" content="image conversion, Arduino, Raspberry Pi, OLED display, byte array, image processing">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="./js/dithering.js" defer></script>
+    <script src="./js/script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
-<body>
-  <div class="wrapper">
-    <section class="section">
-      <h1>image2cpp</h1>
-      <p><strong>image2cpp</strong> is a simple tool to change images into byte arrays (or arrays back into an images) for use with (monochrome) displays such as OLEDs on your Arduino or Raspberry Pi.<br>
-        It was originally made to work with the Adafruit OLED library (for which your can find an example sketch for Arduino <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>) but
-        has been expanded by the community to be useful in all kind of (embedded) projects.</p>
-      <p>More info (and credits) can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you can report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
-      <p class="sp-block">
-        Did you find this tool useful? Feel free to support my open source software on Github<br />
-        <a href="https://github.com/sponsors/javl" target="_blank">
-          <img src="https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub" alt="GitHub Sponsor">
-        </a>
 
-      </p>
-    </section>
 
-    <section class="section bottom-divider">
-      <section class="sub-section">
-        <div class="column" id="file-input-column">
-          <h2 class="sub-section-title">1. Select image</h2>
-          <div class="note upload-note">All processing is done locally in your browser; your images are not uploaded or stored anywhere online.</div>
-          <input type="file" id="file-input" name="file-input" multiple/><br />
-        </div>
-        <div class="column column-center">
-          <h2 class="sub-section-title">or</h2>
-        </div>
-        <div class="column column-right">
-          <h2 class="sub-section-title">1. Paste byte array</h2>
-          <textarea id="byte-input" class="byte-input"></textarea><br />
-          <div class="text-input-size">
-            <input type="number" min="0" id="text-input-width" class="size-input" value="128" /> x
-            <input type="number" min="0" id="text-input-height" class="size-input" value="64" /> px
+
+    <script>
+
+    // ... (previous code remains unchanged)
+
+function handleImageSelection(evt) {
+  const files = Array.from(evt.target.files);
+  files.sort((a, b) => a.name > b.name);
+
+  const onlyImagesFileError = document.getElementById('only-images-file-error');
+  onlyImagesFileError.classList.add('hidden');
+
+  const noFileSelected = document.querySelectorAll('.no-file-selected');
+  if (files.length > 0) {
+    noFileSelected.forEach(el => el.classList.add('hidden'));
+  } else {
+    noFileSelected.forEach(el => el.classList.remove('hidden'));
+  }
+
+  for (let i = 0; files[i]; i++) {
+    if (!files[i].type.match('image.*')) {
+      onlyImagesFileError.classList.remove('hidden');
+      continue;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (file) => {
+      file.name = reader.name;
+      const img = new Image();
+
+      img.onload = () => {
+        const fileInputColumn = document.getElementById('file-input');
+        const imageSizeSettings = document.getElementById('image-size-settings');
+        const canvasContainer = document.getElementById('images-canvas-container');
+
+        // Create file input entry
+        const fileInputEntry = document.createElement('div');
+        fileInputEntry.className = 'mb-2';
+        fileInputEntry.innerHTML = `
+          <span class="mr-2">${file.name}</span>
+          <button class="remove-button bg-red-500 text-white px-2 py-1 rounded text-sm">Remove</button>
+        `;
+        fileInputColumn.parentNode.insertBefore(fileInputEntry, fileInputColumn.nextSibling);
+
+        // Create image size settings entry
+        const imageEntry = document.createElement('li');
+        imageEntry.setAttribute('data-img', file.name);
+        imageEntry.innerHTML = `
+          <span class="block mb-1">${file.name} (file resolution: ${img.width} x ${img.height})</span>
+          <div class="flex items-center space-x-2">
+            <input type="number" name="width" class="w-20 px-2 py-1 border rounded" value="${img.width}">
+            <span>x</span>
+            <input type="number" name="height" class="w-20 px-2 py-1 border rounded" value="${img.height}">
+            <span>glyph</span>
+            <input type="text" name="glyph" class="w-20 px-2 py-1 border rounded">
+            <button class="remove-button bg-red-500 text-white px-2 py-1 rounded text-sm">Remove</button>
           </div>
-          <div>
-            <button onclick="handleTextInput('horizontal')">Read as horizontal</button>
-            <button onclick="handleTextInput('vertical')">Read as vertical</button>
-          </div>
-          <div class="note">Read images appear at step 3 below</div>
-        </div>
-      </section>
-    </section>
+        `;
+        imageSizeSettings.appendChild(imageEntry);
 
-    <section class="section bottom-divider">
-      <h2>2. Image Settings</h2>
-      <section class="sub-section">
-        <div class="table">
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.className = 'border m-2';
+        canvasContainer.appendChild(canvas);
 
-          <div class="table-row">
-            <div class="table-cell"><label>Canvas size(s): </label></div>
-            <div class="table-cell">
-              <ul id="image-size-settings"></ul>
-              <div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
-              <div class="no-file-selected" class="msg">No files selected</div>
-              <button id="all-same-size" onclick="allSameSize()">Apply first image size to all images</button>
-            </div>
-          </div>
+        // Set up event listeners for remove buttons
+        const removeButtons = imageEntry.querySelectorAll('.remove-button');
+        removeButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            canvasContainer.removeChild(canvas);
+            imageSizeSettings.removeChild(imageEntry);
+            fileInputColumn.parentNode.removeChild(fileInputEntry);
+            images.remove(images.get(img));
+            if (imageSizeSettings.children.length <= 1) {
+              document.getElementById('all-same-size').classList.add('hidden');
+            }
+            if (images.length() === 0) {
+              noFileSelected.forEach(el => el.classList.remove('hidden'));
+            }
+            updateAllImages();
+          });
+        });
 
-          <div class="table-row">
-            <div class="table-cell"><label>Background color:</label></div>
-            <div class="table-cell">
-              <input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked="checked" onchange="updateRadio('backgroundColor')"/>
-              <label for="backgroundColorWhite" class="smallLabel">White</label>
-              <input id="backgroundColorBlack" type="radio" name="backgroundColor" value="black" onchange="updateRadio('backgroundColor')"/>
-              <label for="backgroundColorBlack" class="smallLabel">Black</label>
-              <input id="backgroundColorTransparent" type="radio" name="backgroundColor" value="transparent" onchange="updateRadio('backgroundColor')"/>
-              <label for="backgroundColorTransparent" class="smallLabel">Transparent</label>
-            </div>
-          </div>
+        // Set up event listeners for width and height inputs
+        const widthInput = imageEntry.querySelector('input[name="width"]');
+        const heightInput = imageEntry.querySelector('input[name="height"]');
+        widthInput.addEventListener('input', () => {
+          canvas.width = parseInt(widthInput.value);
+          updateAllImages();
+          updateInteger('screenWidth');
+        });
+        heightInput.addEventListener('input', () => {
+          canvas.height = parseInt(heightInput.value);
+          updateAllImages();
+          updateInteger('screenHeight');
+        });
 
-          <div class="table-row">
-            <div class="table-cell"><label for="invertColors">Invert image colors</label></div>
-            <div class="table-cell">
-              <input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" />
-            </div>
-          </div>
+        // Set up event listener for glyph input
+        const glyphInput = imageEntry.querySelector('input[name="glyph"]');
+        glyphInput.addEventListener('change', () => {
+          const image = images.get(img);
+          image.glyph = glyphInput.value;
+        });
 
-          <div class="table-row">
-            <div class="table-cell"><label for="ditheringMode">Dithering: </label></div>
-            <div class="table-cell">
-              <select id="ditheringMode" onchange="updateInteger('ditheringMode')">
-                  <option value="0">Binary</option>
-                  <option value="1">Bayer</option>
-                  <option value="2">Floyd-Steinberg</option>
-                  <option value="3">Atkinson</option>
-              </select>
-            </div>
-          </div>
+        images.push(img, canvas, file.name.split('.')[0]);
+        if (images.length() > 1) {
+          document.getElementById('all-same-size').classList.remove('hidden');
+        }
+        placeImage(images.last());
+      };
+      img.src = file.target.result;
+    };
+    reader.name = files[i].name;
+    reader.readAsDataURL(files[i]);
+  }
+}
 
-          <div class="table-row">
-            <div class="table-cell"><label for="ditheringThreshold">Brightness / alpha threshold: </label></div>
-            <div class="table-cell">
-              <input id="ditheringThreshold" class="size-input" type="number" min="0" max="255" name="ditheringThreshold" oninput="updateInteger('ditheringThreshold')" value="128"/>
-              <div class="note">
-                <i>0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead.</i></div>
-            </div>
-          </div>
+// ... (rest of the code remains unchanged)
 
-          <div class="table-row">
-            <div class="table-cell"><label for="scale">Scaling:</label></div>
-            <div class="table-cell">
-              <select id="scale" name="scale" onchange="updateInteger('scale')">
-                <option value="1">original size</option>
-                <option value="2">scale to fit, keeping proportions</option>
-                <option value="3">stretch to fill canvas</option>
-                <option value="4">stretch to fill canvas horizontally</option>
-                <option value="5">stretch to fill canvas vertically</option>
-              </select>
-            </div>
-          </div>
 
-          <div class="table-row">
-            <div class="table-cell"><label>Center image:</label></div>
-            <div class="table-cell">
-              <input id="centerHorizontally" type="checkbox" onchange="updateBoolean('centerHorizontally')" />
-              <label for="centerHorizontally">horizontally</label>
-              <input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
-              <label for="centerVertically">vertically</label>
-            </div>
-          </div>
+    </script>
 
-          <div class="table-row">
-            <div class="table-cell"></div>
-            <div class="table-cell">
-              <i class="note">Centering the image only works when using a canvas larger than the original image.</i>
-            </div>
-          </div>
 
-          <div class="table-row">
-            <div class="table-cell"><label for="rotation">Rotate image:</label></div>
-            <div class="table-cell">
-              <select id="rotation" name="rotation" onchange="updateInteger('rotation')">
-                <option value="0">0</option>
-                <option value="90">90</option>
-                <option value="180">180</option>
-                <option value="270">270</option>
-              </select>
-              <label for="rotation">degrees</label>
-            </div>
-          </div>
 
-          <div class="table-row">
-            <div class="table-cell"><label>Flip image:</label></div>
-            <div class="table-cell">
-              <input id="flipHorizontally" type="checkbox" onchange="updateBoolean('flipHorizontally')" />
-              <label for="flipHorizontally">horizontally</label>
-              <input id="flipVertically" type="checkbox" onchange="updateBoolean('flipVertically')" />
-              <label for="flipVertically">vertically</label>
-            </div>
-          </div>
+<body class="bg-gray-100 text-gray-800 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4">image2cpp</h1>
+            <p class="text-xl mb-4">Convert images to byte arrays for Arduino and Raspberry Pi projects</p>
+            <p class="text-sm text-gray-600">All processing is done locally in your browser. Your images are not uploaded or stored online.</p>
+        </header>
 
-        </div>
-      </section>
-    </section>
-
-    <section class="section bottom-divider">
-      <h2>3. Preview</h2>
-      <section class="sub-section">
-        <div class="no-file-selected" class="msg">No files selected</div>
-        <div id="images-canvas-container"></div>
-      </section>
-    </section>
-
-    <section class="section">
-      <h2>4. Output</h2>
-      <section class="sub-section">
-        <div class="table">
-          <div class="table-row">
-            <div class="table-cell"><label for="outputFormat">Code output format</label></div>
-            <div class="table-cell">
-              <select id="outputFormat" name="outputFormat" onchange="updateOutputFormat(this)">
-                <option value="plain">Plain bytes</option>
-                <option value="arduino">Arduino code</option>
-                <option value="arduino_single">Arduino code, single bitmap</option>
-                <option value="adafruit_gfx">Adafruit GFXbitmapFont</option>
-              </select>
-              <div id="format-caption-container">
-                <div data-caption="arduino">
-                  Adds some extra Arduino code around the output for easy copy-paste into
-                  <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">this example</a>.
-                  If multiple images are loaded, generates a byte array for each and appends a counter to the identifier.
-                </div>
-                <div data-caption="arduino_single">
-                  Adds some extra Arduino code around the output for easy copy-paste.
-                  If multiple images are loaded, generates a single byte array.
-                </div>
-                <div data-caption="adafruit_gfx">
-                  Creates a <code>GFXbitmapFont</code> formatted ouput. Used by a modified version of the Adafruit GFX library.
-                  GitHub project and example <a href="https://github.com/wiredolphin/Adafruit-GFX-Library/tree/bitmap-font" target="_blank">here</a>.
-                  <br />
-                  <i>First ASCII character</i> value is used only if a glyph identifier of length equal to 1 is not provided for each image. The value itself will be incremented by 1 for each glyph.
-                </div>
-              </div>
-              <div id="extra-settings-container">
-                <div id="adafruit-gfx-settings" class="table nested-table">
-                  <div class="table-row">
-                    <div class="table-cell"><label>First ASCII character (dec):</label></div>
-                    <div class="table-cell">
-                      <input id="first-ascii-char" class="text-input" type="text" name="first-ascii-char" onchange="" value="48"/>
+        <main>
+            <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4">1. Select Image or Paste Byte Array</h2>
+                <div class="flex flex-wrap -mx-2">
+                    <div class="w-full md:w-1/2 px-2 mb-4">
+                        <label for="file-input" class="block text-sm font-medium text-gray-700 mb-2">Upload Image(s)</label>
+                        <input type="file" id="file-input" name="file-input" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        <div id="only-images-file-error" class="mt-2 text-red-600 text-sm hidden">Only image files are allowed</div>
+                        <div class="no-file-selected mt-2 text-gray-600 text-sm">No files selected</div>
                     </div>
-                  </div>
-                  <div class="table-row">
-                    <div class="table-cell"><label>x advance:</label></div>
-                    <div class="table-cell">
-                      <input id="x-advance" class="text-input" type="text" name="x-advance" onchange="" value="0"/>
+                    <div class="w-full md:w-1/2 px-2 mb-4">
+                        <label for="byte-input" class="block text-sm font-medium text-gray-700 mb-2">Paste Byte Array</label>
+                        <textarea id="byte-input" class="w-full h-32 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" placeholder="Paste your byte array here..."></textarea>
+                        <div class="flex items-center mt-2">
+                            <input type="number" id="text-input-width" class="w-20 px-2 py-1 mr-2 border rounded" value="128" />
+                            <span class="mr-2">x</span>
+                            <input type="number" id="text-input-height" class="w-20 px-2 py-1 mr-4 border rounded" value="64" />
+                            <button onclick="handleTextInput('horizontal')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2">Read as horizontal</button>
+                            <button onclick="handleTextInput('vertical')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Read as vertical</button>
+                        </div>
                     </div>
-                  </div>
                 </div>
-                <div id="arduino-identifier" class="table nested-table">
-                  <div class="table-row">
-                    <div class="table-cell"><label>Identifier/Prefix:</label></div>
-                    <div class="table-cell">
-                      <input id="identifier" class="text-input" type="text" name="identifier" onchange="" value="epd_bitmap_"/>
+            </section>
+
+            <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4">2. Image Settings</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Canvas Size(s)</h3>
+                        <ul id="image-size-settings" class="space-y-2"></ul>
+                        <button id="all-same-size" onclick="allSameSize()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Apply first image size to all images</button>
                     </div>
-                  </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Background Color</h3>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked class="form-radio text-blue-600" onchange="updateRadio('backgroundColor')">
+                                <span class="ml-2">White</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input id="backgroundColorBlack" type="radio" name="backgroundColor" value="black" class="form-radio text-blue-600" onchange="updateRadio('backgroundColor')">
+                                <span class="ml-2">Black</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input id="backgroundColorTransparent" type="radio" name="backgroundColor" value="transparent" class="form-radio text-blue-600" onchange="updateRadio('backgroundColor')">
+                                <span class="ml-2">Transparent</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Image Options</h3>
+                        <label class="inline-flex items-center">
+                            <input id="invertColors" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('invertColors')">
+                            <span class="ml-2">Invert image colors</span>
+                        </label>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Dithering</h3>
+                        <select id="ditheringMode" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" onchange="updateInteger('ditheringMode')">
+                            <option value="0">Binary</option>
+                            <option value="1">Bayer</option>
+                            <option value="2">Floyd-Steinberg</option>
+                            <option value="3">Atkinson</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Brightness / Alpha Threshold</h3>
+                        <input id="ditheringThreshold" type="number" min="0" max="255" value="128" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" oninput="updateInteger('ditheringThreshold')">
+                        <p class="mt-1 text-sm text-gray-600">0 - 255; determines the threshold for white/black or opaque/transparent pixels</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Scaling</h3>
+                        <select id="scale" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" onchange="updateInteger('scale')">
+                            <option value="1">Original size</option>
+                            <option value="2">Scale to fit, keeping proportions</option>
+                            <option value="3">Stretch to fill canvas</option>
+                            <option value="4">Stretch to fill canvas horizontally</option>
+                            <option value="5">Stretch to fill canvas vertically</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Image Positioning</h3>
+                        <label class="inline-flex items-center mr-4">
+                            <input id="centerHorizontally" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('centerHorizontally')">
+                            <span class="ml-2">Center horizontally</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input id="centerVertically" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('centerVertically')">
+                            <span class="ml-2">Center vertically</span>
+                        </label>
+                        <p class="mt-1 text-sm text-gray-600">Centering only works when using a canvas larger than the original image</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Rotate Image</h3>
+                        <select id="rotation" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" onchange="updateInteger('rotation')">
+                            <option value="0">0 degrees</option>
+                            <option value="90">90 degrees</option>
+                            <option value="180">180 degrees</option>
+                            <option value="270">270 degrees</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium mb-2">Flip Image</h3>
+                        <label class="inline-flex items-center mr-4">
+                            <input id="flipHorizontally" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('flipHorizontally')">
+                            <span class="ml-2">Flip horizontally</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input id="flipVertically" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('flipVertically')">
+                            <span class="ml-2">Flip vertically</span>
+                        </label>
+                    </div>
                 </div>
-              </div>
-            </div>
-          </div>
+            </section>
 
-          <div class="table-row">
-            <div class="table-cell"><label>Draw mode:</label></div>
-            <div class="table-cell">
-              <select id="drawMode" name="drawMode" onchange="updateDrawMode(this)">
-                <option value="horizontal1bit">Horizontal - 1 bit per pixel</option>
-                <option value="vertical1bit">Vertical - 1 bit per pixel</option>
-                <option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
-                <option value="horizontalAlpha">Horizontal - 1 bit per pixel alpha map</option>
-                <option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888</option>
-                <option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888)</option>
-              </select>
+            <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4">3. Preview</h2>
+                <div class="no-file-selected text-gray-600">No files selected</div>
+                <div id="images-canvas-container" class="flex flex-wrap -mx-2"></div>
+            </section>
 
-              <div class="note">
-                <i>If your image looks all messed up on your display, like the image below, try using a different mode.</i>
-              </div>
-              <img class="inlineImg"
-                src="data:image/jpeg;base64,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"
-              width="150" height="64" alt="" />
+            <section class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-semibold mb-4">4. Output</h2>
+                <div class="mb-4">
+                    <label for="outputFormat" class="block text-sm font-medium text-gray-700 mb-2">Code Output Format</label>
+                    <select id="outputFormat" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" onchange="updateOutputFormat(this)">
+                        <option value="plain">Plain bytes</option>
+                        <option value="arduino">Arduino code</option>
+                        <option value="arduino_single">Arduino code, single bitmap</option>
+                        <option value="adafruit_gfx">Adafruit GFXbitmapFont</option>
+                    </select>
+                </div>
+                <div id="format-caption-container" class="mb-4 text-sm text-gray-600"></div>
+                <div id="extra-settings-container" class="mb-4">
+                    <div id="adafruit-gfx-settings" class="hidden">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="first-ascii-char" class="block text-sm font-medium text-gray-700 mb-2">First ASCII character (dec)</label>
+                                <input id="first-ascii-char" type="text" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" value="48">
+                            </div>
+                            <div>
+                                <label for="x-advance" class="block text-sm font-medium text-gray-700 mb-2">X advance</label>
+                                <input id="x-advance" type="text" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="arduino-identifier" class="hidden">
+                        <label for="identifier" class="block text-sm font-medium text-gray-700 mb-2">Identifier/Prefix</label>
+                        <input id="identifier" type="text" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" value="epd_bitmap_">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="drawMode" class="block text-sm font-medium text-gray-700 mb-2">Draw Mode</label>
+                    <select id="drawMode" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" onchange="updateDrawMode(this)">
+                        <option value="horizontal1bit">Horizontal - 1 bit per pixel</option>
+                        <option value="vertical1bit">Vertical - 1 bit per pixel</option>
+                        <option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
+                        <option value="horizontalAlpha">Horizontal - 1 bit per pixel alpha map</option>
+                        <option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888)</option>
+                    </select>
+                    <p class="mt-1 text-sm text-gray-600">If your image looks messed up on your display, try using a different mode</p>
+                </div>
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input id="bitswap" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('bitswap')">
+                        <span class="ml-2">Swap bits in byte (useful for u8g2 library)</span>
+                    </label>
+                </div>
+                <div id="remove-zeroes-commas-container" class="mb-4">
+                    <label class="inline-flex items-center">
+                        <input id="removeZeroesCommas" type="checkbox" class="form-checkbox text-blue-600" onchange="updateBoolean('removeZeroesCommas')">
+                        <span class="ml-2">Remove '0x' and commas from output</span>
+                    </label>
+                </div>
+                <div class="flex space-x-4 mb-4">
+                    <button type="button" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="generateOutputString()">
+                        Generate Code
+                    </button>
+                    <button type="button" id="copy-button" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" onclick="copyOutput()" disabled>
+                        Copy Output
+                    </button>
+                    <button type="button" id="download-button" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50" onclick="downloadBinFile()">
+                        Download as Binary File (.bin)
+                    </button>
+                </div>
+                <textarea id="code-output" class="w-full h-64 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500" readonly></textarea>
+            </section>
+        </main>
 
-            </div>
-          </div>
-
-          <div class="table-row">
-            <div class="table-cell"><label for="bitswap">Swap bits in byte:</label></div>
-            <div class="table-cell">
-              <input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')">
-              <label for="bitswap">swap</label>
-            </div>
-          </div>
-
-          <div class="table-row">
-            <div class="table-cell"></div>
-            <div class="table-cell">
-              <i class="note">Useful when working with the u8g2 library.</i>
-            </div>
-          </div>
+        <footer class="mt-12 text-center text-gray-600">
+            <p>Created by <a href="https://github.com/javl/image2cpp" target="_blank" class="text-blue-600 hover:underline">javl</a> | Modified by <a href="https://wiredolphin.net" target="_blank" class="text-blue-600 hover:underline">wiredolphin</a></p>
+            <p class="mt-2">
+                <a href="https://github.com/sponsors/javl" target="_blank" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-300">
+                    <i class="fab fa-github mr-2"></i>Sponsor on GitHub
+                </a>
+            </p>
+        </footer>
+    </div>
 
 
-          <div class="table-row" id="remove-zeroes-commas-container">
-            <div class="table-cell"><label>Extra formatting options:</label></div>
-            <div class="table-cell">
-              <input id="removeZeroesCommas" type="checkbox" onchange="updateBoolean('removeZeroesCommas')"/>
-              <label for="removeZeroesCommas">Remove '0x' and commas from output</label>
-            </div>
-          </div>
-        </div>
 
-      </section>
-
-      <section class="sub-section">
-        <button type="button" class="generate-button" onclick="generateOutputString()">Generate code</button>
-        <button type="button" id = "copy-button" onclick="copyOutput()">Copy Output</button>
-        <button type="button" id = "download-button" onclick="downloadBinFile()">Download as binary file (.bin)</button>
-        <textarea id="code-output" class="code-output"></textarea>
-      </section>
-    </section>
-  </div>
 
 </body>
 </html>

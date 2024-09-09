@@ -1,11 +1,14 @@
 # app.py
 from flask import Flask, request, render_template
+from flask_cors import CORS
 from PIL import Image
 import io
 import base64
 import numpy as np
+import requests
 
 app = Flask(__name__)
+CORS(app)  # This will enable CORS for all routes
 
 def image_to_byte_array(image, threshold=128, mode='horizontal'):
     width, height = image.size
@@ -72,15 +75,20 @@ def index():
 
 @app.route('/convert', methods=['POST'])
 def convert_image():
-    if 'image' not in request.files:
-        return "No image file provided", 400
-
-    image_file = request.files['image']
     threshold = int(request.form.get('threshold', 128))
     mode = request.form.get('mode', 'horizontal')
 
     try:
-        image = Image.open(image_file).convert('L')  # Convert to grayscale
+        if 'image' in request.files:
+            image_file = request.files['image']
+            image = Image.open(image_file).convert('L')
+        elif 'image_url' in request.form:
+            image_url = request.form['image_url']
+            response = requests.get(image_url)
+            image = Image.open(io.BytesIO(response.content)).convert('L')
+        else:
+            return "No image file or URL provided", 400
+
         byte_array = image_to_byte_array(image, threshold, mode)
 
         # Format the byte array as a C-style array
