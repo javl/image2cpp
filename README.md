@@ -41,6 +41,19 @@ To use the Python backend:
    ```
 3. Open `http://localhost:5000` in your browser.
 
+## Screenshots 
+
+### Python App
+
+![image](https://github.com/user-attachments/assets/47d77ecf-8f5f-4adc-b236-4200f211de27)
+
+
+### HTML App
+
+![image](https://github.com/user-attachments/assets/a3fd0ad7-9e7e-4740-a903-22fcbea73794)
+
+
+
 ## 🖥️ Example Arduino Code
 
 Find a simple Arduino example sketch [here](https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino).
