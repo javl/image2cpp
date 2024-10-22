@@ -11,6 +11,8 @@ Did you find this tool useful? Feel free to support my open source software:
 
 [![GitHub Sponsor](https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub)](https://github.com/sponsors/javl)
 
+[![BMC](https://www.buymeacoffee.com/assets/img/custom_images/white_img.png)](https://www.buymeacoffee.com/javl)
+
 
 ### Running the tool
 You don't need any special dependencies / internet connection; all the necessary parts sit in a single .html file. So just open this index.html page in a (recent) browser to run the tool.
