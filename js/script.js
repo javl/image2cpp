@@ -936,7 +936,7 @@ function generateOutputString() {
       outputString = outputString.replace(/,\s*$/, '');
 
       outputString = `const ${getImageType()} ${
-        +getIdentifier()
+        getIdentifier()
       } [] PROGMEM = {`
             + `\n${outputString}\n};`;
       break;
