@@ -1060,6 +1060,7 @@ function updateDrawMode(elm) {
   if (conversionFunction) {
     settings.conversionFunction = conversionFunction;
   }
+  updateAllImages();
 }
 
 // Updates Arduino code check-box
