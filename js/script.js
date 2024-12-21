@@ -948,7 +948,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = `\t// '${image.glyph}, ${image.canvas.width}x${image.canvas.height}px\n`;
+        comment = `\t// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
         outputString += comment + code;
         if (image.glyph.length === 1) {
           useGlyphs++;
