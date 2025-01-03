@@ -35,6 +35,7 @@ Initial code by [javl](https://github.com/javl) with aditional code by (in alpha
 * [jochenderwae](https://github.com/jochenderwae)
 * [plewka](https://github.com/plewka)
 * [Sebski123](https://github.com/Sebski123)
+* [slimer37](https://github.com/slimer37)
 * [whoisnian](https://github.com/whoisnian)
 * [wiredolphin](https://github.com/wiredolphin).
 
