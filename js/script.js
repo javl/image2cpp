@@ -285,8 +285,8 @@ function placeImage(_image) {
   const ctx = canvas.getContext('2d');
 
   // reset canvas size
-  canvas.width = settings.screenWidth;
-  canvas.height = settings.screenHeight;
+  canvas.width = Number.isFinite(settings.screenWidth) && settings.screenWidth > 0 ? settings.screenWidth : 1;
+  canvas.height = Number.isFinite(settings.screenHeight) && settings.screenHeight > 0 ? settings.screenHeight : 1;
   // eslint-disable-next-line no-param-reassign
   _image.ctx = ctx;
   ctx.save();
