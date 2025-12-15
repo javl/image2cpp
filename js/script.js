@@ -917,7 +917,7 @@ function generateOutputString() {
         outputString += code;
       });
 
-      varQuickArray.sort();
+      //varQuickArray.sort();
       outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
       outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
       outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
