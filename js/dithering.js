@@ -53,7 +53,7 @@ function dithering(ctx, width, height, threshold, typeIndex) {
       const map = Math.floor((imageData.data[currentPixel] + bayerThresholdMap[x % 4][y % 4]) / 2);
       imageData.data[currentPixel] = (map < threshold) ? 0 : 255;
     } else if (type === 'floydsteinberg') {
-      // Floydaâ‚¬"Steinberg dithering algorithm
+      // Floyd-Steinberg dithering algorithm
       newPixel = imageData.data[currentPixel] < 129 ? 0 : 255;
       err = Math.floor((imageData.data[currentPixel] - newPixel) / 16);
       imageData.data[currentPixel] = newPixel;
