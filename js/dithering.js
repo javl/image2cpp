@@ -41,7 +41,7 @@ function dithering(ctx, width, height, threshold, typeIndex) {
   let newPixel; let
     err;
 
-  for (let currentPixel = 0; currentPixel <= imageDataLength; currentPixel += 4) {
+  for (let currentPixel = 0; currentPixel < imageDataLength; currentPixel += 4) {
     if (type === 'binary') {
       // No dithering
       imageData.data[currentPixel] = imageData.data[currentPixel] < threshold ? 0 : 255;
