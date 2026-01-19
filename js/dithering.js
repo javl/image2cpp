@@ -32,7 +32,7 @@ function dithering(ctx, width, height, threshold, typeIndex) {
   const imageDataLength = imageData.data.length;
 
   // Greyscale luminance (sets r pixels to luminance of rgb)
-  for (let i = 0; i <= imageDataLength; i += 4) {
+  for (let i = 0; i < imageDataLength; i += 4) {
     imageData.data[i] =
       Math.floor(lumR[imageData.data[i]] + lumG[imageData.data[i + 1]] + lumB[imageData.data[i + 2]]);
   }
