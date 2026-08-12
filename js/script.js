@@ -582,8 +582,10 @@ function listToImageHorizontal(list, canvas) {
   // we want to scale / invert, etc.
   ctx.putImageData(imgData, 0, 0);
   const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
   img.src = canvas.toDataURL('image/png');
-  images.first().img = img;
 }
 
 // Quick and effective way to draw single pixels onto the canvas
@@ -644,8 +646,10 @@ function listToImageVertical(list, canvas) {
   // Save the canvas contents inside the img object. This way we can
   // reuse the img object when we want to scale / invert, etc.
   const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
   img.src = canvas.toDataURL('image/png');
-  images.first().img = img;
 }
 
 // Handle inserting an image by pasting code
@@ -665,7 +669,7 @@ function handleTextInput(drawMode) {
   canvasContainer.appendChild(canvas);
 
   const image = new Image();
-  images.setByIndex(0, { img: image, canvas });
+  images.setByIndex(0, { img: image, canvas, ctx: canvas.getContext('2d') });
 
   let input = document.getElementById('byte-input').value;
 
