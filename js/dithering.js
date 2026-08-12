@@ -96,7 +96,7 @@ function canvas2bytes(canvas, type = 'bw') {
     for (let y = 0; y < canvas.height; y++) {
       const index = (canvas.width * 4 * y) + x * 4;
       if (type !== 'bwr') {
-        buffer.push(imageData.data[index] > 0 && imageData.data[index + 1] === 0 && imageData.data[index + 2] === 0 ? 1 : 0);
+        buffer.push(imageData.data[index] > 0 && imageData.data[index + 1] > 0 && imageData.data[index + 2] > 0 ? 1 : 0);
       } else {
         buffer.push(imageData.data[index] > 0 && imageData.data[index + 1] === 0 && imageData.data[index + 2] === 0 ? 1 : 0);
       }
@@ -111,7 +111,7 @@ function canvas2bytes(canvas, type = 'bw') {
 }
 
 function getColorDistance(rgba1, rgba2) {
-  const [r1, g1, b1] = rgba1;
+  const [r1, b1, g1] = rgba1;
   const [r2, b2, g2] = rgba2;
 
   const rm = (r1 + r2) / 2;
@@ -205,11 +205,6 @@ function ditheringCanvasByPalette(canvas, palette, type) {
       updatePixelErr(imageData.data, currentPixel + 4 * w, err, 1);
       updatePixelErr(imageData.data, currentPixel + 4 * w + 4, err, 1);
       updatePixelErr(imageData.data, currentPixel + 8 * w, err, 1);
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-}elErr(imageData.data, currentPixel + 8 * w, err, 1);
     }
   }
   ctx.putImageData(imageData, 0, 0);
