@@ -915,7 +915,7 @@ function generateOutputString() {
         const comment = `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
-        const varname = getIdentifier() + image.glyph.replace(/[^a-zA-Z0-9]/g, '_');
+        const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
         varQuickArray.push(varname);
         code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
         outputString += code;
