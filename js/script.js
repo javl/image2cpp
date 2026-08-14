@@ -582,8 +582,10 @@ function listToImageHorizontal(list, canvas) {
   // we want to scale / invert, etc.
   ctx.putImageData(imgData, 0, 0);
   const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
   img.src = canvas.toDataURL('image/png');
-  images.first().img = img;
 }
 
 // Quick and effective way to draw single pixels onto the canvas
@@ -644,8 +646,10 @@ function listToImageVertical(list, canvas) {
   // Save the canvas contents inside the img object. This way we can
   // reuse the img object when we want to scale / invert, etc.
   const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
   img.src = canvas.toDataURL('image/png');
-  images.first().img = img;
 }
 
 // Handle inserting an image by pasting code
@@ -665,7 +669,7 @@ function handleTextInput(drawMode) {
   canvasContainer.appendChild(canvas);
 
   const image = new Image();
-  images.setByIndex(0, { img: image, canvas });
+  images.setByIndex(0, { img: image, canvas, ctx: canvas.getContext('2d') });
 
   let input = document.getElementById('byte-input').value;
 
@@ -673,14 +677,15 @@ function handleTextInput(drawMode) {
   input = input.replace(/const\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, '');
   input = input.replace(/\};|\{/g, '');
 
-  // Convert newlines to comma (helps to remove comments later)
+  // Remove comments (while newlines are still newlines, so the whole
+  // comment is dropped even if it contains a comma, e.g. "// 'name', 8x8px")
+  input = input.replace(/\/\/.*$/gm, '');
+  // Convert newlines to comma
   input = input.replace(/\r\n|\r|\n/g, ',');
   // Convert multiple commas in a row into a single one
   input = input.replace(/,{2,}/g, ',');
   // Remove whitespace
   input = input.replace(/\s/g, '');
-  // Remove comments
-  input = input.replace(/\/\/(.+?),/g, '');
   // Remove "0x"
   input = input.replace(/0[xX]/g, '');
   // Split into list
@@ -775,7 +780,7 @@ function handleImageSelection(evt) {
         w.value = img.width;
         settings.screenWidth = img.width;
         w.oninput = () => {
-          canvas.width = this.value;
+          canvas.width = w.value;
           updateAllImages();
           updateInteger('screenWidth');
         };
@@ -789,7 +794,7 @@ function handleImageSelection(evt) {
         h.value = img.height;
         settings.screenHeight = img.height;
         h.oninput = () => {
-          canvas.height = this.value;
+          canvas.height = h.value;
           updateAllImages();
           updateInteger('screenHeight');
         };
@@ -885,7 +890,7 @@ function imageToString(image) {
 // Get the custom arduino output variable name, if any
 function getIdentifier() {
   const vn = document.getElementById('identifier');
-  return vn && vn.value.length ? vn.value : identifier;
+  return (vn && vn.value.length) ? vn.value : identifier;
 }
 
 // Output the image string to the textfield
@@ -910,7 +915,7 @@ function generateOutputString() {
         const comment = `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
-        const varname = getIdentifier() + image.glyph.replace(/[^a-zA-Z0-9]/g, '_');
+        const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
         varQuickArray.push(varname);
         code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
         outputString += code;
@@ -918,8 +923,8 @@ function generateOutputString() {
 
       varQuickArray.sort();
       outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
-      outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
-      outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+      outputString += `const int ${getIdentifier()}_allArray_LEN = ${varQuickArray.length};\n`;
+      outputString += `const ${getImageType()}* ${getIdentifier()}_allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
       break;
     }
 
