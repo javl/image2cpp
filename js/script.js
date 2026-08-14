@@ -890,7 +890,7 @@ function imageToString(image) {
 // Get the custom arduino output variable name, if any
 function getIdentifier() {
   const vn = document.getElementById('identifier');
-  return vn && vn.value.length ? vn.value : identifier;
+  return (vn && vn.value.length) ? vn.value : identifier;
 }
 
 // Output the image string to the textfield
