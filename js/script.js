@@ -779,7 +779,7 @@ function handleImageSelection(evt) {
         w.value = img.width;
         settings.screenWidth = img.width;
         w.oninput = () => {
-          canvas.width = this.value;
+          canvas.width = w.value;
           updateAllImages();
           updateInteger('screenWidth');
         };
@@ -793,7 +793,7 @@ function handleImageSelection(evt) {
         h.value = img.height;
         settings.screenHeight = img.height;
         h.oninput = () => {
-          canvas.height = this.value;
+          canvas.height = h.value;
           updateAllImages();
           updateInteger('screenHeight');
         };
