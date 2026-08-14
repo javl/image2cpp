@@ -3,34 +3,26 @@
   --primary: #006b58;
   --primary-container: #1abc9c;
   --on-primary: #ffffff;
-  /* --on-primary-container: #004538; */
   --on-primary-container: #e5fff7;
   --secondary: #4e6073;
   --on-secondary: #ffffff;
-  --on-secondary-container: #526478;
   --background: #f7f9fb;
-  --surface: #f7f9fb;
   --surface-container-lowest: #ffffff;
   --surface-container-low: #f2f4f6;
   --surface-container: #eceef0;
   --surface-container-high: #e6e8ea;
-  --surface-container-highest: #e0e3e5;
   --on-surface: #191c1e;
   --on-surface-variant: #3c4a45;
   --on-background: #191c1e;
   --text-muted: #64748b;
   --border-subtle: #e2e8f0;
-  --outline: #6c7a75;
   --outline-variant: #bbcac3;
-  /* --editor-bg: #1e1e1e; */
   --editor-bg: #ffffff;
   --error: #ba1a1a;
 
   /* Radii */
-  --radius: 0.125rem;
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
-  --radius-full: 0.75rem;
 
   /* Fonts */
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -351,12 +343,6 @@ code {
 
 .column {
   float: left;
-}
-
-.column-center {
-  min-width: 120px;
-  text-align: center;
-  color: var(--text-muted);
 }
 
 .column-right {
@@ -801,20 +787,16 @@ input[type="file"]::file-selector-button {
   --on-primary-container: #e5fff7;
   --secondary: #b5c8df;
   --on-secondary: #17293b;
-  --on-secondary-container: #cfe2f9;
   --background: #0f1416;
-  --surface: #0f1416;
   --surface-container-lowest: #171d1f;
   --surface-container-low: #1a2124;
   --surface-container: #22282b;
   --surface-container-high: #2a3033;
-  --surface-container-highest: #343a3d;
   --on-surface: #e0e3e5;
   --on-surface-variant: #c3d0c9;
   --on-background: #e0e3e5;
   --text-muted: #8a9a94;
   --border-subtle: #2d3133;
-  --outline: #8a938f;
   --outline-variant: #414a47;
   --editor-bg: #0b0e0f;
 }

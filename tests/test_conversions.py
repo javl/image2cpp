@@ -43,7 +43,15 @@ BASE_SETTINGS = {
     "flipHorizontally": False,
     "flipVertically": False,
     "bitswap": False,
-    "removeZeroesCommas": False,
+    "prefix": "0x",
+    "separator": ", ",
+}
+
+OUTPUT_FORMAT_IDS = {
+    "plain": "outputFormatPlain",
+    "arduino": "outputFormatArduino",
+    "arduino_single": "outputFormatArduinoSingle",
+    "adafruit_gfx": "outputFormatAdafruitGfx",
 }
 
 # (scenario name, overrides on top of BASE_SETTINGS, optional canvas resize)
@@ -69,7 +77,7 @@ SCENARIOS = [
     ("dithering_threshold_low", {"ditheringThreshold": 64}, None),
     ("dithering_threshold_high", {"ditheringThreshold": 200}, None),
     ("bitswap", {"bitswap": True}, None),
-    ("remove_zeroes_commas", {"removeZeroesCommas": True}, None),
+    ("remove_zeroes_commas", {"prefix": "", "separator": ""}, None),
     # scale=1 (original) on a canvas larger than the image so the
     # background actually shows through in the margins.
     ("background_white_larger_canvas", {"backgroundColor": "white"}, (48, 40)),
@@ -116,7 +124,10 @@ def reset_canvas_size(page, width, height):
 
 def apply_settings(page, settings):
     page.select_option("#drawMode", settings["drawMode"])
-    page.select_option("#outputFormat", settings["outputFormat"])
+    # Selecting an output format resets prefix/separator to their defaults
+    # (updateOutputFormat() in script.js), so this must run before those two
+    # fields are filled in below.
+    page.check(f"#{OUTPUT_FORMAT_IDS[settings['outputFormat']]}")
     page.check(f"#backgroundColor{settings['backgroundColor'].capitalize()}")
     set_checkbox(page, "#invertColors", settings["invertColors"])
     page.select_option("#ditheringMode", str(settings["ditheringMode"]))
@@ -128,8 +139,8 @@ def apply_settings(page, settings):
     set_checkbox(page, "#flipHorizontally", settings["flipHorizontally"])
     set_checkbox(page, "#flipVertically", settings["flipVertically"])
     set_checkbox(page, "#bitswap", settings["bitswap"])
-    if settings["outputFormat"] == "plain":
-        set_checkbox(page, "#removeZeroesCommas", settings["removeZeroesCommas"])
+    page.fill("#prefix", settings["prefix"])
+    page.fill("#separator", settings["separator"])
 
 
 def set_checkbox(page, selector, checked):
@@ -154,14 +165,14 @@ def run_scenario(page, name, overrides, resize):
 def roundtrip_eligible(settings):
     """Only plain-format, non-bitswapped 1-bit output is re-importable via the
     "Paste byte array" box: other draw modes aren't supported by the parser,
-    and bitswap/removeZeroesCommas mangle the byte stream so it can't be read
-    back (bitswap reorders bits with no importer to undo it; removeZeroesCommas
-    drops the separators the parser splits on)."""
+    bitswap mangles the byte stream with no importer to undo it, and the
+    parser splits bytes on commas, so a separator without one (e.g. the
+    empty string used to strip formatting) can't be read back."""
     return (
         settings["drawMode"] in ("horizontal1bit", "vertical1bit")
         and settings["outputFormat"] == "plain"
         and not settings["bitswap"]
-        and not settings["removeZeroesCommas"]
+        and "," in settings["separator"]
     )
 
 
@@ -173,7 +184,7 @@ def run_roundtrip(page, output, draw_mode, width, height):
     page.goto(INDEX_HTML.as_uri())
     # window.onload defaults outputFormat to "arduino"; force it back to plain
     # to match the format the scenario was exported in.
-    page.select_option("#outputFormat", "plain")
+    page.check(f"#{OUTPUT_FORMAT_IDS['plain']}")
     page.fill("#byte-input", output)
     page.fill("#text-input-width", str(width))
     page.fill("#text-input-height", str(height))

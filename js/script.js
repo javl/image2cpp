@@ -860,7 +860,6 @@ function handleImageSelection(evt) {
         fn.className = 'file-info file-name';
         fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
 
-
         fn.appendChild(rb);
 
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
