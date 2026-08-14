@@ -91,6 +91,7 @@ body {
   color: var(--secondary);
   font-weight: 500;
   font-size: 14px;
+  text-decoration: underline;
 }
 
 .topnav-links a:hover {
@@ -136,7 +137,7 @@ body {
 .layout {
   display: flex;
   gap: 32px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: auto;
   padding: 32px 24px 64px;
   align-items: flex-start;
@@ -592,7 +593,7 @@ input[type="file"]::file-selector-button {
 .file-input-entry {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
 .file-info {
@@ -635,7 +636,7 @@ input[type="file"]::file-selector-button {
 #images-canvas-container canvas {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-lg);
-  background: var(--editor-bg);
+  background: var(--primary-container);
   margin: 10px 15px 10px 0;
   padding: 4px;
 }
