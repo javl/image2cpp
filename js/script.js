@@ -639,6 +639,21 @@ function listToImageVertical(list, canvas) {
   img.src = canvas.toDataURL('image/png');
 }
 
+// Set width/height preset for byte array text input
+// eslint-disable-next-line no-unused-vars
+function setTextInputSize(width, height) {
+  document.getElementById('text-input-width').value = width;
+  document.getElementById('text-input-height').value = height;
+}
+
+// Show/hide the "no images" error and report whether images are available
+function checkImagesAvailable() {
+  const error = document.getElementById('no-images-error');
+  const hasImages = images.length() > 0;
+  error.style.display = hasImages ? 'none' : 'block';
+  return hasImages;
+}
+
 // Handle inserting an image by pasting code
 // eslint-disable-next-line no-unused-vars
 function handleTextInput(drawMode) {
@@ -677,6 +692,13 @@ function handleTextInput(drawMode) {
   input = input.replace(/0[xX]/g, '');
   // Split into list
   const list = input.split(',');
+
+  if (list.length === 1 && list[0] === '') {
+    // eslint-disable-next-line no-alert
+    const errorEl = document.getElementById('text-input-error');
+    errorEl.style.display = 'block';
+    return;
+  }
 
   if (drawMode === 'horizontal') {
     listToImageHorizontal(list, canvas);
@@ -726,6 +748,12 @@ function handleImageSelection(evt) {
     });
   }
 
+  if (files.length > 0) {
+    document.getElementById('continue-note').style.display = 'block';
+  } else {
+    document.getElementById('continue-note').style.display = 'none';
+  }
+
   for (let i = 0; files[i]; i++) {
     // Only process image files.
     if (!files[i].type.match('image.*')) {
@@ -751,7 +779,7 @@ function handleImageSelection(evt) {
 
         const fileInputColumnEntryRemoveButton = document.createElement('button');
         fileInputColumnEntryRemoveButton.className = 'remove-button';
-        fileInputColumnEntryRemoveButton.innerHTML = 'remove';
+        fileInputColumnEntryRemoveButton.innerHTML = 'remove image';
 
         const canvas = document.createElement('canvas');
 
@@ -799,15 +827,7 @@ function handleImageSelection(evt) {
           image.glyph = gi.value;
         };
 
-        const fn = document.createElement('span');
-        fn.className = 'file-info file-name';
-        fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
-
-        const rb = document.createElement('button');
-        rb.className = 'remove-button';
-        rb.innerHTML = 'remove';
-
-        const fileInputColumn = document.getElementById('file-input-column');
+        const fileInputColumn = document.getElementById('file-input-column-items');
         const imageSizeSettings = document.getElementById('image-size-settings');
         const canvasContainer = document.getElementById('images-canvas-container');
 
@@ -822,6 +842,7 @@ function handleImageSelection(evt) {
             document.getElementById('all-same-size').style.display = 'none';
           }
           if (images.length() === 0) {
+            document.getElementById('file-input').value = '';
             noFileSelected.forEach((el) => {
               // eslint-disable-next-line no-param-reassign
               el.style.display = 'block';
@@ -830,7 +851,18 @@ function handleImageSelection(evt) {
           updateAllImages();
         };
 
+        const rb = document.createElement('button');
+        rb.className = 'remove-button';
+        rb.innerHTML = 'remove image';
         rb.onclick = removeButtonOnClick;
+
+        const fn = document.createElement('span');
+        fn.className = 'file-info file-name';
+        fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
+
+
+        fn.appendChild(rb);
+
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
 
         fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
@@ -843,7 +875,6 @@ function handleImageSelection(evt) {
         imageEntry.appendChild(h);
         imageEntry.appendChild(gil);
         imageEntry.appendChild(gi);
-        imageEntry.appendChild(rb);
 
         imageSizeSettings.appendChild(imageEntry);
 
@@ -856,6 +887,7 @@ function handleImageSelection(evt) {
           document.getElementById('all-same-size').style.display = 'block';
         }
         placeImage(images.last());
+        checkImagesAvailable();
       };
       img.src = file.target.result;
     };
@@ -883,6 +915,8 @@ function getIdentifier() {
 // Output the image string to the textfield
 // eslint-disable-next-line no-unused-vars
 function generateOutputString() {
+  if (!checkImagesAvailable()) return;
+
   let outputString = '';
   let code = '';
 
@@ -1018,17 +1052,24 @@ function generateOutputString() {
   }
 
   document.getElementById('code-output').value = outputString;
-  document.getElementById('copy-button').disabled = false;
 }
 
 // Copy the final output to the clipboard
 // eslint-disable-next-line no-unused-vars
 function copyOutput() {
-  navigator.clipboard.writeText(document.getElementById('code-output').value);
+  if (!checkImagesAvailable()) return;
+
+  const output = document.getElementById('code-output');
+  if (!output.value) {
+    generateOutputString();
+  }
+  navigator.clipboard.writeText(output.value);
 }
 
 // eslint-disable-next-line no-unused-vars
 function downloadBinFile() {
+  if (!checkImagesAvailable()) return;
+
   let raw = [];
   images.each((image) => {
     const data = imageToString(image)
@@ -1102,12 +1143,11 @@ function updateRadio(fieldName) {
 }
 
 window.onload = () => {
-  document.getElementById('copy-button').disabled = true;
-
   // Add events to the file input button
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
-  document.getElementById('outputFormat').value = 'arduino';
-  document.getElementById('outputFormat').onchange();
+  const outputFormatArduino = document.getElementById('outputFormatArduino');
+  outputFormatArduino.checked = true;
+  outputFormatArduino.onchange();
 };

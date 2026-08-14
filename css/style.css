@@ -438,6 +438,11 @@ code {
   max-width: 320px;
 }
 
+#continue-note {
+  display: none;
+  margin-top: 30px;
+}
+
 .msg {
   font-size: 16px;
   color: var(--text-muted);
@@ -495,6 +500,12 @@ input[type="radio"] {
   line-height: 22px;
   resize: vertical;
 }
+#text-input-error {
+  color: var(--error);
+  font-size: 14px;
+  margin-top: 8px;
+  display: none;
+}
 
 .text-input-size {
   margin: 8px 0;
@@ -504,6 +515,21 @@ input[type="radio"] {
 
 .size-input {
   width: 72px;
+}
+
+.sub-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sub-field:first-child {
+  margin-top: 0;
+}
+
+.sub-field-label {
+  min-width: 160px;
 }
 
 .glyph-input {
@@ -542,7 +568,7 @@ button:active {
 input[type="file"] {
   background: var(--surface-container);
   color: var(--on-surface-variant);
-  border: 2px dashed var(--outline-variant);
+  /* border: 2px dashed var(--outline-variant); */
   border-radius: var(--radius-lg);
   font-size: 14px;
   padding: 16px 20px;
@@ -589,6 +615,9 @@ input[type="file"]::file-selector-button {
   color: var(--on-surface-variant);
 }
 
+#no-images-error {
+  margin-bottom: 10px;
+}
 /* ---- File info / size list ---- */
 
 .file-input-entry {
@@ -652,9 +681,9 @@ input[type="file"]::file-selector-button {
 .code-output {
   height: 400px;
   width: 100%;
-  margin-top: 16px;
+  /* margin-top: 16px; */
   background: var(--editor-bg);
-  color: #dcdcaa;
+  color: #000000;
   border: 1px solid var(--on-surface-variant);
   border-radius: var(--radius-xl);
   font-family: var(--font-mono);
