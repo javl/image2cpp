@@ -3,12 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <title>image2cpp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="./js/dithering.js" defer></script>
   <script src="./js/script.js" defer></script>
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-  <div class="wrapper">
+  <header class="topnav">
+    <div class="topnav-inner">
+      <div class="topnav-left">
+        <span class="brand">image2cpp</span>
+        <nav class="topnav-links">
+          <a href="https://github.com/javl/image2cpp" target="_blank">GitHub Repository</a>
+        </nav>
+      </div>
+      <div class="topnav-right">
+        <button class="icon-btn" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <span class="theme-icon-dark">&#9789;</span>
+          <span class="theme-icon-light">&#9788;</span>
+        </button>
+        <button class="btn-reset" onclick="location.reload()">Reset page</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <a href="#step-1" class="sidebar-link" data-step="step-1"><span class="sidebar-num">1</span>Select Image</a>
+        <a href="#step-2" class="sidebar-link" data-step="step-2"><span class="sidebar-num">2</span>Settings</a>
+        <a href="#step-3" class="sidebar-link" data-step="step-3"><span class="sidebar-num">3</span>Preview</a>
+        <a href="#step-4" class="sidebar-link" data-step="step-4"><span class="sidebar-num">4</span>Output</a>
+      </nav>
+    </aside>
+
+    <main class="wrapper">
     <section class="section">
       <h1>image2cpp</h1>
       <p><strong>image2cpp</strong> is a simple tool to change images into byte arrays (or arrays back into an images) for use with (monochrome) displays such as OLEDs on your Arduino or Raspberry Pi.<br>
@@ -17,20 +48,16 @@
       <p>More info (and credits) can be found in the <a href="https://github.com/javl/image2cpp" target="_blank">Github repository</a>. This is also where you can report any <a href="https://github.com/javl/image2cpp/issues" target="_blank">issues</a> you might come across.</p>
       <p class="sp-block">
         Did you find this tool useful? Feel free to support my open source software on Github, especially if used commercially.<br />
-        <a href="https://github.com/sponsors/javl" target="_blank">
-          <img src="https://img.shields.io/github/sponsors/javl?label=Sponsor&logo=GitHub" alt="GitHub Sponsor">
-        </a>
-        <a href="https://www.buymeacoffee.com/javl" target="_blank" rel="noopener">
-          <img decoding="async" class="" style="height: 34px; width: 123px;" src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee">
-        </a>
-
+        <a href="https://github.com/sponsors/javl"><img src="https://camo.githubusercontent.com/7fcc34127227d7a0293435c20a74bce4bf3eb26d86f6c5000aa620da147223dd/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f5f2d73706f6e736f725f6f6e5f4769746875622d626c75653f6c6f676f3d676974687562" alt="GitHub Sponsor" data-canonical-src="https://img.shields.io/badge/_-sponsor_on_Github-blue?logo=github" style="max-width: 100%;"></a>
+        <a href="https://www.buymeacoffee.com/javl" rel="nofollow"><img src="https://camo.githubusercontent.com/0eeabd01753f37f754419d1b3f1b9fd755b1653c23283c8c8b17b1fbb18191e4/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f4275795f4d655f615f436f666665652d6f72616e67653f6c6f676f3d6275796d6561636f66666565" alt="BMC" data-canonical-src="https://img.shields.io/badge/Buy_Me_a_Coffee-orange?logo=buymeacoffee" style="max-width: 100%;"></a>
       </p>
     </section>
 
-    <section class="section bottom-divider">
+    <section class="section step bottom-divider" id="step-1">
+      <div class="step-num">1</div>
       <section class="sub-section">
         <div class="column" id="file-input-column">
-          <h2 class="sub-section-title">1. Select image</h2>
+          <h2 class="sub-section-title">Select image</h2>
           <div class="note upload-note">All processing is done locally in your browser; your images are not uploaded or stored anywhere online.</div>
           <input type="file" id="file-input" name="file-input" multiple/><br />
         </div>
@@ -38,7 +65,7 @@
           <h2 class="sub-section-title">or</h2>
         </div>
         <div class="column column-right">
-          <h2 class="sub-section-title">1. Paste byte array</h2>
+          <h2 class="sub-section-title">Paste byte array</h2>
           <textarea id="byte-input" class="byte-input"></textarea><br />
           <div class="text-input-size">
             <input type="number" min="0" id="text-input-width" class="size-input" value="128" /> x
@@ -53,8 +80,9 @@
       </section>
     </section>
 
-    <section class="section bottom-divider">
-      <h2>2. Image Settings</h2>
+    <section class="section step bottom-divider" id="step-2">
+      <div class="step-num">2</div>
+      <h2>Image Settings</h2>
       <section class="sub-section">
         <div class="table">
 
@@ -131,7 +159,7 @@
             </div>
           </div>
 
-          <div class="table-row">
+          <div class="table-row note-row">
             <div class="table-cell"></div>
             <div class="table-cell">
               <i class="note">Centering the image only works when using a canvas larger than the original image.</i>
@@ -165,16 +193,18 @@
       </section>
     </section>
 
-    <section class="section bottom-divider">
-      <h2>3. Preview</h2>
+    <section class="section step bottom-divider" id="step-3">
+      <div class="step-num">3</div>
+      <h2>Preview</h2>
       <section class="sub-section">
         <div class="no-file-selected" class="msg">No files selected</div>
         <div id="images-canvas-container"></div>
       </section>
     </section>
 
-    <section class="section">
-      <h2>4. Output</h2>
+    <section class="section step" id="step-4">
+      <div class="step-num">4</div>
+      <h2>Output</h2>
       <section class="sub-section">
         <div class="table">
           <div class="table-row">
@@ -286,7 +316,35 @@
         <textarea id="code-output" class="code-output"></textarea>
       </section>
     </section>
+    </main>
   </div>
 
+  <script>
+    // Dark mode toggle (persisted)
+    (function () {
+      var root = document.documentElement;
+      var stored = localStorage.getItem('theme');
+      if (stored) root.setAttribute('data-theme', stored);
+      var btn = document.getElementById('theme-toggle');
+      if (btn) btn.addEventListener('click', function () {
+        var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+      });
+
+      // Sidebar scrollspy
+      var links = Array.prototype.slice.call(document.querySelectorAll('.sidebar-link'));
+      var steps = links.map(function (l) { return document.getElementById(l.dataset.step); });
+      function onScroll() {
+        var pos = window.scrollY + 120;
+        var active = 0;
+        steps.forEach(function (s, i) { if (s && s.offsetTop <= pos) active = i; });
+        links.forEach(function (l, i) { l.classList.toggle('active', i === active); });
+        steps.forEach(function (s, i) { if (s) s.classList.toggle('active', i === active); });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 </body>
 </html>

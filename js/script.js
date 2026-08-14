@@ -808,9 +808,8 @@ function handleImageSelection(evt) {
         };
 
         const fn = document.createElement('span');
-        fn.className = 'file-info';
+        fn.className = 'file-info file-name';
         fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
-        fn.innerHTML += '<br />';
 
         const rb = document.createElement('button');
         rb.className = 'remove-button';
