@@ -3,7 +3,8 @@
   --primary: #006b58;
   --primary-container: #1abc9c;
   --on-primary: #ffffff;
-  --on-primary-container: #004538;
+  /* --on-primary-container: #004538; */
+  --on-primary-container: #e5fff7;
   --secondary: #4e6073;
   --on-secondary: #ffffff;
   --on-secondary-container: #526478;
@@ -21,7 +22,8 @@
   --border-subtle: #e2e8f0;
   --outline: #6c7a75;
   --outline-variant: #bbcac3;
-  --editor-bg: #1e1e1e;
+  /* --editor-bg: #1e1e1e; */
+  --editor-bg: #ffffff;
   --error: #ba1a1a;
 
   /* Radii */
@@ -129,7 +131,6 @@ body {
 
 .btn-reset {
   margin: 0;
-  color: #fff;
 }
 
 /* ---- Layout: sidebar + main ---- */
