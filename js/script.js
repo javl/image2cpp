@@ -677,14 +677,15 @@ function handleTextInput(drawMode) {
   input = input.replace(/const\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, '');
   input = input.replace(/\};|\{/g, '');
 
-  // Convert newlines to comma (helps to remove comments later)
+  // Remove comments (while newlines are still newlines, so the whole
+  // comment is dropped even if it contains a comma, e.g. "// 'name', 8x8px")
+  input = input.replace(/\/\/.*$/gm, '');
+  // Convert newlines to comma
   input = input.replace(/\r\n|\r|\n/g, ',');
   // Convert multiple commas in a row into a single one
   input = input.replace(/,{2,}/g, ',');
   // Remove whitespace
   input = input.replace(/\s/g, '');
-  // Remove comments
-  input = input.replace(/\/\/(.+?),/g, '');
   // Remove "0x"
   input = input.replace(/0[xX]/g, '');
   // Split into list
