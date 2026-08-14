@@ -128,6 +128,7 @@ body {
 
 .btn-reset {
   margin: 0;
+  color: #fff;
 }
 
 /* ---- Layout: sidebar + main ---- */
@@ -341,6 +342,11 @@ code {
 
 /* ---- Multi-column (select image row) ---- */
 
+.input-methods-row {
+  display: flex;
+  align-items: flex-start;
+}
+
 .column {
   float: left;
 }
@@ -353,6 +359,7 @@ code {
 
 .column-right {
   float: right;
+  margin-left: auto;
 }
 
 /* ---- Table layout for settings ---- */
@@ -728,10 +735,15 @@ input[type="file"]::file-selector-button {
     display: none;
   }
 
+  .input-methods-row {
+    flex-direction: column;
+  }
+
   .column,
   .column-right {
     float: none;
     width: 100%;
+    margin-left: 0;
   }
 
   .byte-input {
