@@ -14,10 +14,12 @@ const settings = {
   backgroundColor: 'white',
   scale: 1,
   drawMode: 'horizontal',
-  removeZeroesCommas: false,
+  prefix: '0x',
   ditheringThreshold: 128,
   ditheringMode: 0,
   outputFormat: 'plain',
+  separator: ', ',
+  outputComments: true,
   invertColors: false,
   rotation: 0,
 };
@@ -64,16 +66,10 @@ const ConversionFunctions = {
       if (byteIndex < 0) {
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet}, `;
-        } else {
-          stringFromBytes += byteSet;
-        }
+        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
         outputIndex++;
         if (outputIndex >= 16) {
-          if (!settings.removeZeroesCommas) {
-            stringFromBytes += '\n';
-          }
+          stringFromBytes += '\n';
           outputIndex = 0;
         }
         number = 0;
@@ -103,11 +99,7 @@ const ConversionFunctions = {
         }
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet.toString(16)}, `;
-        } else {
-          stringFromBytes += byteSet.toString(16);
-        }
+        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
         outputIndex++;
         if (outputIndex >= 16) {
           stringFromBytes += '\n';
@@ -139,11 +131,7 @@ const ConversionFunctions = {
 
       let byteSet = bitswap(rgb).toString(16);
       while (byteSet.length < 4) { byteSet = `0${byteSet}`; }
-      if (!settings.removeZeroesCommas) {
-        stringFromBytes += `0x${byteSet}, `;
-      } else {
-        stringFromBytes += byteSet;
-      }
+      stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
       // add newlines every 16 bytes
       outputIndex++;
       if (outputIndex >= 16) {
@@ -173,11 +161,7 @@ const ConversionFunctions = {
 
       let byteSet = bitswap(rgb).toString(16);
       while (byteSet.length < 8) { byteSet = `0${byteSet}`; }
-      if (!settings.removeZeroesCommas) {
-        stringFromBytes += `0x${byteSet}, `;
-      } else {
-        stringFromBytes += byteSet;
-      }
+      stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
 
       // add newlines every 16 bytes
       outputIndex++;
@@ -214,11 +198,7 @@ const ConversionFunctions = {
       if (byteIndex < 0) {
         let byteSet = bitswap(number).toString(16);
         if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet}, `;
-        } else {
-          stringFromBytes += byteSet;
-        }
+        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
         outputIndex++;
         if (outputIndex >= 16) {
           stringFromBytes += '\n';
@@ -475,6 +455,13 @@ function updateInteger(fieldName) {
 // eslint-disable-next-line no-unused-vars
 function updateBoolean(fieldName) {
   settings[fieldName] = document.getElementById(fieldName).checked;
+  updateAllImages();
+}
+
+// Easy way to update settings controlled by a text input
+// eslint-disable-next-line no-unused-vars
+function updateString(fieldName) {
+  settings[fieldName] = document.getElementById(fieldName).value;
   updateAllImages();
 }
 
@@ -912,7 +899,7 @@ function generateOutputString() {
 
         code = `\t${code.split('\n').join('\n\t')}\n`;
         // const variableCount = images.length() > 1 ? count++ : '';
-        const comment = `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
+        const comment = settings.outputComments ? `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n` : '';
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
         const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
@@ -922,7 +909,12 @@ function generateOutputString() {
       });
 
       varQuickArray.sort();
-      outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
+      if (outputString.length > 0) {
+        outputString += '\n';
+      }
+      if (settings.outputComments) {
+        outputString += `// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
+      }
       outputString += `const int ${getIdentifier()}_allArray_LEN = ${varQuickArray.length};\n`;
       outputString += `const ${getImageType()}* ${getIdentifier()}_allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
       break;
@@ -933,7 +925,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = `\t// '${image.glyph}, ${image.canvas.width}x${image.canvas.height}px\n`;
+        comment = settings.outputComments ? `\t// '${image.glyph}, ${image.canvas.width}x${image.canvas.height}px\n` : '';
         outputString += comment + code;
       });
 
@@ -952,7 +944,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = `\t// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
+        comment = settings.outputComments ? `\t// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n` : '';
         outputString += comment + code;
         if (image.glyph.length === 1) {
           useGlyphs++;
@@ -988,7 +980,7 @@ function generateOutputString() {
         if (image !== images.last()) {
           code += ',';
         }
-        code += `// '${image.glyph}'\n`;
+        code += settings.outputComments ? `// '${image.glyph}'\n` : '\n';
         offset += image.canvas.width;
       });
       code += '};\n';
@@ -1011,7 +1003,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         let comment = '';
-        if (image.glyph) {
+        if (image.glyph && settings.outputComments) {
           comment = (`// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`);
         }
         if (image.img !== images.first().img) {
@@ -1073,7 +1065,6 @@ function updateOutputFormat(elm) {
   let caption = document.getElementById('format-caption-container');
   const adafruitGfx = document.getElementById('adafruit-gfx-settings');
   const arduino = document.getElementById('arduino-identifier');
-  const removeZeroesCommasContainer = document.getElementById('remove-zeroes-commas-container');
   document.getElementById('code-output').value = '';
 
   for (let i = 0; i < caption.children.length; i++) {
@@ -1082,15 +1073,13 @@ function updateOutputFormat(elm) {
   caption = document.querySelector(`div[data-caption='${elm.value}']`);
   if (caption) caption.style.display = 'block';
 
-  if (elm.value !== 'plain') {
-    arduino.style.display = 'block';
-    removeZeroesCommasContainer.style.display = 'none';
-    settings.removeZeroesCommas = false;
-    document.getElementById('removeZeroesCommas').checked = false;
-  } else {
-    arduino.style.display = 'none';
-    removeZeroesCommasContainer.style.display = 'table-row';
-  }
+  arduino.style.display = elm.value !== 'plain' ? 'block' : 'none';
+
+  settings.prefix = '0x';
+  document.getElementById('prefix').value = '0x';
+  settings.separator = ', ';
+  document.getElementById('separator').value = ', ';
+
   if (elm.value === 'adafruit_gfx') {
     adafruitGfx.style.display = 'block';
   } else {
