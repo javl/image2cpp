@@ -323,6 +323,11 @@
                 <label for="separator" class="sub-field-label">Separator between bytes:</label>
                 <input id="separator" class="size-input" type="text" value=", " oninput="updateString('separator')"/>
               </div>
+              <div class="sub-field">
+                <label for="bytesPerRow" class="sub-field-label">Bytes per row:</label>
+                <input id="bytesPerRow" class="size-input" type="number" min="0" value="16" oninput="updateInteger('bytesPerRow')"/>
+                <i class="note">Set to 0 to wrap using the image's width instead, e.g. an 8px wide image adds a newline every 8th byte.</i>
+              </div>
             </div>
           </div>
         </div>

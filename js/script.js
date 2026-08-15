@@ -23,6 +23,7 @@ const settings = {
   invertColors: false,
   rotation: 0,
   esp32Format: false,
+  bytesPerRow: 16,
 };
 
 function bitswap(b) {
@@ -37,11 +38,17 @@ function bitswap(b) {
   return b;
 }
 
+// settings.bytesPerRow of 0 means "wrap using the image's width instead",
+// so a 8px-wide image gets a newline every 8 bytes.
+function resolveWrapWidth(canvasWidth) {
+  return settings.bytesPerRow > 0 ? settings.bytesPerRow : canvasWidth;
+}
+
 // Accumulates formatted bytes (prefix/value/separator, wrapped every
 // wrapWidth bytes) so our ConversionFunctions can use this formatting.
-// wrapWidth defaults to 16 bytes per line; horizontal888 wraps
-// once per image row (canvasWidth) instead.
-function makeByteWriter(wrapWidth = 16) {
+// horizontal888 always wraps once per image row (canvasWidth) regardless
+// of settings.bytesPerRow.
+function makeByteWriter(wrapWidth) {
   let out = '';
   let count = 0;
   return {
@@ -87,7 +94,7 @@ function packBitsHorizontal(data, canvasWidth, writer, sampleAt) {
 const ConversionFunctions = {
   // Output the image as a string for horizontally drawing displays
   horizontal1bit(data, canvasWidth) {
-    const writer = makeByteWriter();
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
     const avgRgb = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
     packBitsHorizontal(data, canvasWidth, writer, avgRgb);
     return writer.result();
@@ -95,7 +102,7 @@ const ConversionFunctions = {
 
   // Output the image as a string for vertically drawing displays
   vertical1bit(data, canvasWidth, canvasHeight) {
-    const writer = makeByteWriter();
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
     for (let p = 0; p < Math.ceil(canvasHeight / 8); p++) {
       for (let x = 0; x < canvasWidth; x++) {
         let byteIndex = 7;
@@ -118,7 +125,7 @@ const ConversionFunctions = {
   // Output the image as a string for 565 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
   horizontal565(data, canvasWidth) {
-    const writer = makeByteWriter();
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
       const r = data[index];
@@ -149,7 +156,7 @@ const ConversionFunctions = {
   },
   // Output the alpha mask as a string for horizontally drawing displays
   horizontalAlpha(data, canvasWidth) {
-    const writer = makeByteWriter();
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
     packBitsHorizontal(data, canvasWidth, writer, (d, i) => d[i + 3]);
     return writer.result();
   },
@@ -885,7 +892,7 @@ function generateOutputString() {
         code = `\t${code.split('\n').join('\n\t')}\n`;
         // const variableCount = images.length() > 1 ? count++ : '';
         const comment = glyphComment(image);
-        bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
+        bytesUsed += code.split('\n').length * resolveWrapWidth(image.canvas.width);
 
         const varname = getIdentifier() + (image.glyph ? `${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
         varQuickArray.push(varname);
