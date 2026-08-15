@@ -171,7 +171,11 @@ const CONVERSION_BYTES_PER_VALUE = new Map([
 // An images collection with helper methods
 function Images() {
   const collection = [];
-  this.push = (img, canvas, glyph) => { collection.push({ img, canvas, glyph }); };
+  this.push = (img, canvas, glyph, width, height) => {
+    collection.push({
+      img, canvas, glyph, width, height,
+    });
+  };
   this.remove = (image) => {
     const i = collection.indexOf(image);
     if (i !== -1) collection.splice(i, 1);
@@ -217,9 +221,11 @@ function placeImage(_image) {
   const { canvas } = _image;
   const ctx = canvas.getContext('2d');
 
-  // reset canvas size
-  canvas.width = Number.isFinite(settings.screenWidth) && settings.screenWidth > 0 ? settings.screenWidth : 1;
-  canvas.height = Number.isFinite(settings.screenHeight) && settings.screenHeight > 0 ? settings.screenHeight : 1;
+  // reset canvas size (falls back to the canvas' current size for images,
+  // like a re-imported byte array, that aren't tracked in the image list
+  // with their own width/height)
+  canvas.width = Number.isFinite(_image.width) && _image.width > 0 ? _image.width : canvas.width;
+  canvas.height = Number.isFinite(_image.height) && _image.height > 0 ? _image.height : canvas.height;
   // eslint-disable-next-line no-param-reassign
   _image.ctx = ctx;
   ctx.save();
@@ -358,8 +364,8 @@ function placeImage(_image) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (settings.rotation === 90) {
-      canvas.width = settings.screenHeight;
-      canvas.height = settings.screenWidth;
+      canvas.width = clone.height;
+      canvas.height = clone.width;
       ctx.setTransform(1, 0, 0, 1, canvas.width, 0);
       ctx.rotate(Math.PI / 2);
       ctx.drawImage(clone, 0, 0);
@@ -368,8 +374,8 @@ function placeImage(_image) {
       ctx.rotate(Math.PI);
       ctx.drawImage(clone, 0, 0);
     } else if (settings.rotation === 270) {
-      canvas.width = settings.screenHeight;
-      canvas.height = settings.screenWidth;
+      canvas.width = clone.height;
+      canvas.height = clone.width;
       ctx.setTransform(1, 0, 0, 1, 0, canvas.height);
       ctx.rotate(Math.PI * 1.5);
       ctx.drawImage(clone, 0, 0);
@@ -399,6 +405,7 @@ function updateAllImages() {
 }
 
 // Easy way to update settings controlled by a textfield
+// eslint-disable-next-line no-unused-vars
 function updateInteger(fieldName) {
   settings[fieldName] = parseInt(document.getElementById(fieldName).value);
   updateAllImages();
@@ -730,11 +737,10 @@ function handleImageSelection(evt) {
         w.min = 1;
         w.className = 'size-input';
         w.value = img.width;
-        settings.screenWidth = img.width;
         w.oninput = () => {
-          canvas.width = w.value;
-          updateAllImages();
-          updateInteger('screenWidth');
+          const image = images.get(img);
+          image.width = parseInt(w.value, 10);
+          placeImage(image);
         };
 
         const h = document.createElement('input');
@@ -744,11 +750,10 @@ function handleImageSelection(evt) {
         h.min = 1;
         h.className = 'size-input';
         h.value = img.height;
-        settings.screenHeight = img.height;
         h.oninput = () => {
-          canvas.height = h.value;
-          updateAllImages();
-          updateInteger('screenHeight');
+          const image = images.get(img);
+          image.height = parseInt(h.value, 10);
+          placeImage(image);
         };
 
         const gil = document.createElement('span');
@@ -759,7 +764,8 @@ function handleImageSelection(evt) {
         gi.type = 'text';
         gi.name = 'glyph';
         gi.className = 'glyph-input';
-        gi.value = file.name.split('.')[0];
+        const [fileName] = file.name.split('.');
+        gi.value = fileName;
         gi.onchange = () => {
           const image = images.get(img);
           image.glyph = gi.value;
@@ -820,7 +826,7 @@ function handleImageSelection(evt) {
         canvas.height = img.height;
         canvasContainer.appendChild(canvas);
 
-        images.push(img, canvas, file.name.split('.')[0]);
+        images.push(img, canvas, file.name.split('.')[0], img.width, img.height);
         if (images.length() > 1) {
           document.getElementById('all-same-size').style.display = 'block';
         }
@@ -895,8 +901,8 @@ function generateOutputString() {
         const storageNote = settings.esp32Format ? '' : ' in PROGMEM';
         outputString += `// Array of all bitmaps for convenience. (Total bytes used to store images${storageNote} = ${bytesUsed})\n`;
       }
-      outputString += `const int ${getIdentifier()}_allArray_LEN = ${varQuickArray.length};\n`;
-      outputString += `const ${getImageType()}* ${getIdentifier()}_allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+      outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
+      outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
       break;
     }
 

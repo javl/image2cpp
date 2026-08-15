@@ -272,6 +272,32 @@ def run_roundtrip(page, output, draw_mode, width, height):
     return page.input_value("#code-output")
 
 
+def run_multi_image_independent_sizes(page):
+    """Each image in a multi-image upload keeps its own canvas size; setting
+    one image's width/height must not resize any other image's canvas.
+    Regression test for a bug where every canvas was forced to the size of
+    the first uploaded image."""
+    page.goto(INDEX_HTML.as_uri())
+    page.set_input_files("#file-input", [str(TEST_IMAGE), str(TEST_IMAGE)])
+    page.wait_for_function("document.querySelectorAll('#image-size-settings li').length === 2")
+
+    page.fill("#image-size-settings li:nth-child(1) input[name='width']", "50")
+    page.fill("#image-size-settings li:nth-child(1) input[name='height']", "60")
+    page.fill("#image-size-settings li:nth-child(2) input[name='width']", "20")
+    page.fill("#image-size-settings li:nth-child(2) input[name='height']", "10")
+
+    sizes = page.evaluate(
+        "[images.getByIndex(0).canvas.width, images.getByIndex(0).canvas.height,"
+        " images.getByIndex(1).canvas.width, images.getByIndex(1).canvas.height]"
+    )
+    expected = [50, 60, 20, 10]
+    if sizes != expected:
+        print("FAIL   multi_image_independent_sizes")
+        return [f"multi_image_independent_sizes: expected canvas sizes {expected}, got {sizes}"]
+    print("ok     multi_image_independent_sizes")
+    return []
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -364,19 +390,23 @@ def main():
                 page.set_input_files("#file-input", str(TEST_IMAGE))
                 page.wait_for_selector("#image-size-settings li")
 
+        if not args.update:
+            failures.extend(run_multi_image_independent_sizes(page))
+
         browser.close()
 
     if args.update:
         print(f"\nWrote {len(SCENARIOS)} golden files to {GOLDEN_DIR}")
         return
 
+    total = len(SCENARIOS) + 1
     if failures:
-        print(f"\n{len(failures)} of {len(SCENARIOS)} scenarios failed:")
+        print(f"\n{len(failures)} of {total} scenarios failed:")
         for f in failures:
             print(f"  - {f}")
         sys.exit(1)
 
-    print(f"\nAll {len(SCENARIOS)} scenarios match golden output.")
+    print(f"\nAll {total} scenarios match golden output.")
 
 
 if __name__ == "__main__":
