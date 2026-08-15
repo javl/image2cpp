@@ -344,7 +344,7 @@ code {
 .input-methods-row {
   display: flex;
   align-items: space-between;
-  gap: 10px;
+  gap: 20px;
 }
 
 .input-methods-row .column {
@@ -353,11 +353,13 @@ code {
 
 .column {
   float: left;
+  border-right: 1px solid var(--border-subtle);
 }
 
 .column-right {
   float: right;
   margin-left: auto;
+  border-right: none;
 }
 
 /* ---- Table layout for settings ---- */
