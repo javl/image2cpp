@@ -524,8 +524,9 @@ function hexListToBits(list) {
 }
 
 function reportInvalidByteArray(s) {
-  // eslint-disable-next-line no-alert
-  alert('Something went wrong converting the string. Make sure there are no comments in your input.');
+  const errorEl = document.getElementById('text-input-error');
+  errorEl.textContent = 'Something went wrong converting the string. Make sure there are no comments in your input.';
+  errorEl.style.display = 'block';
   // eslint-disable-next-line no-console
   console.error('invalid hexToBinary: ', s);
 }
@@ -684,8 +685,8 @@ function handleTextInput(drawMode) {
   const list = input.split(',');
 
   if (list.length === 1 && list[0] === '') {
-    // eslint-disable-next-line no-alert
     const errorEl = document.getElementById('text-input-error');
+    errorEl.textContent = 'Byte array is empty or invalid. Make sure there are no comments in your input.';
     errorEl.style.display = 'block';
     return;
   }
