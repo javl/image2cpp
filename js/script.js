@@ -24,6 +24,7 @@ const settings = {
   rotation: 0,
   esp32Format: false,
   bytesPerRow: 16,
+  showAsciiPreview: false,
 };
 
 function bitswap(b) {
@@ -47,7 +48,8 @@ function resolveWrapWidth(canvasWidth) {
 // Accumulates formatted bytes (prefix/value/separator, wrapped every
 // wrapWidth bytes) so our ConversionFunctions can use this formatting.
 // horizontal888 always wraps once per image row (canvasWidth) regardless
-// of settings.bytesPerRow.
+// of settings.bytesPerRow. When settings.showAsciiPreview is on, wrapWidth
+// is ignored in favor of explicit endRow() calls (see makeAsciiRowTracker).
 function makeByteWriter(wrapWidth) {
   let out = '';
   let count = 0;
@@ -56,12 +58,39 @@ function makeByteWriter(wrapWidth) {
       const byteSet = bitswap(value).toString(16).padStart(hexWidth, '0');
       out += `${settings.prefix}${byteSet}${settings.separator}`;
       count++;
-      if (count >= wrapWidth) {
+      if (!settings.showAsciiPreview && count >= wrapWidth) {
         out += '\n';
         count = 0;
       }
     },
+    // Ends the current line early with a dot/hash ascii-art comment for the
+    // row of pixels just written. Only called when settings.showAsciiPreview
+    // is on, so it always wins over wrapWidth-based wrapping.
+    endRow(asciiRow) {
+      out += `// ${asciiRow.split('').join(' ')}\n`;
+      count = 0;
+    },
     result() { return out; },
+  };
+}
+
+// Builds a per-image-row ascii-art tracker (. for off, # for on) used
+// when settings.showAsciiPreview is on. Call once per pixel with the same
+// `index` used to read that pixel's channel data; flushes to the writer as
+// a comment at the end of each image row, mirroring the row-boundary math
+// packBitsHorizontal uses to flush partial bytes.
+function makeAsciiRowTracker(canvasWidth, dataLength) {
+  let row = '';
+  return (index, isOn, writer) => {
+    if (!settings.showAsciiPreview) return;
+    row += isOn ? '#' : '.';
+    const pixelIndex = index / 4;
+    const isRowEnd = pixelIndex !== 0 && ((pixelIndex + 1) % canvasWidth) === 0;
+    const isImageEnd = index === dataLength - 4;
+    if (isRowEnd || isImageEnd) {
+      writer.endRow(row);
+      row = '';
+    }
   };
 }
 
@@ -71,8 +100,10 @@ function makeByteWriter(wrapWidth) {
 function packBitsHorizontal(data, canvasWidth, writer, sampleAt) {
   let byteIndex = 7;
   let number = 0;
+  const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
   for (let index = 0; index < data.length; index += 4) {
-    if (sampleAt(data, index) > settings.ditheringThreshold) {
+    const isOn = sampleAt(data, index) > settings.ditheringThreshold;
+    if (isOn) {
       number += 2 ** byteIndex;
     }
     byteIndex--;
@@ -88,6 +119,8 @@ function packBitsHorizontal(data, canvasWidth, writer, sampleAt) {
       number = 0;
       byteIndex = 7;
     }
+
+    trackAscii(index, isOn, writer);
   }
 }
 
@@ -126,6 +159,7 @@ const ConversionFunctions = {
   // eslint-disable-next-line no-unused-vars
   horizontal565(data, canvasWidth) {
     const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
+    const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
       const r = data[index];
@@ -135,6 +169,7 @@ const ConversionFunctions = {
       // eslint-disable-next-line no-bitwise
       const rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | ((b & 0b11111000) >> 3);
       writer.push(rgb, 4);
+      trackAscii(index, (r + g + b) / 3 > settings.ditheringThreshold, writer);
     }
     return writer.result();
   },
@@ -142,6 +177,7 @@ const ConversionFunctions = {
   // image row per output line
   horizontal888(data, canvasWidth) {
     const writer = makeByteWriter(canvasWidth);
+    const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
       // Split into RGB and pack into a single 24-bit value (MSB first)
@@ -151,6 +187,7 @@ const ConversionFunctions = {
       // eslint-disable-next-line no-bitwise
       const rgb = (r << 16) | (g << 8) | (b);
       writer.push(rgb, 8);
+      trackAscii(index, (r + g + b) / 3 > settings.ditheringThreshold, writer);
     }
     return writer.result();
   },
@@ -870,6 +907,16 @@ function glyphComment(image, indent = '') {
   return `${indent}// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
 }
 
+// Removes the trailing separator comma left after the last byte value.
+// When settings.showAsciiPreview is on, the string always ends with a
+// dot/hash ascii-art comment line instead (see makeAsciiRowTracker), so the
+// comma sits just before that comment rather than at the true end.
+function stripTrailingComma(str) {
+  return settings.showAsciiPreview
+    ? str.replace(/,(\s*\/\/[^\n]*)\n?\s*$/, '$1')
+    : str.replace(/,\s*$/, '');
+}
+
 // Output the image string to the textfield
 // eslint-disable-next-line no-unused-vars
 function generateOutputString() {
@@ -887,7 +934,7 @@ function generateOutputString() {
         code = imageToString(image);
 
         // Trim whitespace from end and remove trailing comma
-        code = code.replace(/,\s*$/, '');
+        code = stripTrailingComma(code);
 
         code = `\t${code.split('\n').join('\n\t')}\n`;
         // const variableCount = images.length() > 1 ? count++ : '';
@@ -922,7 +969,7 @@ function generateOutputString() {
         outputString += comment + code;
       });
 
-      outputString = outputString.replace(/,\s*$/, '');
+      outputString = stripTrailingComma(outputString);
 
       outputString = `const ${getImageType()} ${
         getIdentifier()
@@ -944,7 +991,7 @@ function generateOutputString() {
         }
       });
 
-      outputString = outputString.replace(/,\s*$/, '');
+      outputString = stripTrailingComma(outputString);
       outputString = `const ${getByteType()} ${
         getIdentifier()
       }Bitmap`
@@ -1003,7 +1050,7 @@ function generateOutputString() {
         outputString += code;
       });
       // Trim whitespace from end and remove trailing comma
-      outputString = outputString.replace(/,\s*$/g, '');
+      outputString = stripTrailingComma(outputString);
     }
   }
 

@@ -46,6 +46,8 @@ BASE_SETTINGS = {
     "prefix": "0x",
     "separator": ", ",
     "esp32Format": False,
+    "bytesPerRow": 16,
+    "showAsciiPreview": False,
 }
 
 OUTPUT_FORMAT_IDS = {
@@ -104,6 +106,27 @@ SCENARIOS = [
     ("dithering_threshold_low", {"ditheringThreshold": 64}, None),
     ("dithering_threshold_high", {"ditheringThreshold": 200}, None),
     ("bitswap", {"bitswap": True}, None),
+    ("ascii_preview", {"showAsciiPreview": True}, None),
+    (
+        "ascii_preview_bytes_per_row_ignored",
+        {"showAsciiPreview": True, "bytesPerRow": 3},
+        None,
+    ),
+    (
+        "ascii_preview_horizontal565",
+        {"showAsciiPreview": True, "drawMode": "horizontal565"},
+        None,
+    ),
+    (
+        "ascii_preview_horizontal888",
+        {"showAsciiPreview": True, "drawMode": "horizontal888"},
+        None,
+    ),
+    (
+        "ascii_preview_arduino",
+        {"showAsciiPreview": True, "outputFormat": "arduino"},
+        None,
+    ),
     ("remove_zeroes_commas", {"prefix": "", "separator": ""}, None),
     # scale=1 (original) on a canvas larger than the image so the
     # background actually shows through in the margins.
@@ -207,6 +230,8 @@ def apply_settings(page, settings):
     set_checkbox(page, "#bitswap", settings["bitswap"])
     page.fill("#prefix", settings["prefix"])
     page.fill("#separator", settings["separator"])
+    page.fill("#bytesPerRow", str(settings["bytesPerRow"]))
+    set_checkbox(page, "#showAsciiPreview", settings["showAsciiPreview"])
     # esp32Format checkbox only exists in the DOM (visible) for non-plain
     # output formats; plain output has no type/PROGMEM declarations to affect.
     if settings["outputFormat"] != "plain":
@@ -237,12 +262,18 @@ def roundtrip_eligible(settings):
     "Paste byte array" box: other draw modes aren't supported by the parser,
     bitswap mangles the byte stream with no importer to undo it, and the
     parser splits bytes on commas, so a separator without one (e.g. the
-    empty string used to strip formatting) can't be read back."""
+    empty string used to strip formatting) can't be read back. showAsciiPreview
+    and a non-default bytesPerRow are excluded too: run_roundtrip reloads a
+    fresh page and never restores those two, so the re-exported text would use
+    default formatting and not textually match the original even though the
+    underlying pixel data round-trips fine."""
     return (
         settings["drawMode"] in ("horizontal1bit", "vertical1bit")
         and settings["outputFormat"] == "plain"
         and not settings["bitswap"]
         and "," in settings["separator"]
+        and not settings["showAsciiPreview"]
+        and settings["bytesPerRow"] == BASE_SETTINGS["bytesPerRow"]
     )
 
 

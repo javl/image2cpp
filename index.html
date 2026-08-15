@@ -328,6 +328,11 @@
                 <input id="bytesPerRow" class="size-input" type="number" min="0" value="16" oninput="updateInteger('bytesPerRow')"/>
                 <i class="note">Set to 0 to wrap using the image's width instead, e.g. an 8px wide image adds a newline every 8th byte.</i>
               </div>
+              <div class="sub-field">
+                <input id="showAsciiPreview" type="checkbox" onchange="updateBoolean('showAsciiPreview')">
+                <label for="showAsciiPreview">Show ascii preview behind output</label>
+                <i class="note">Adds a dot/hash ascii-art comment after each row of bytes. Forces one image row per output line, regardless of "Bytes per row".</i>
+              </div>
             </div>
           </div>
         </div>
