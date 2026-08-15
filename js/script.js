@@ -884,6 +884,13 @@ function getIdentifier() {
   return (vn && vn.value.length) ? vn.value : identifier;
 }
 
+// Builds the "// 'glyph', WxHpx" comment line placed before each image's
+// byte array, or '' when comments are disabled. Indent is prefixed when given.
+function glyphComment(image, indent = '') {
+  if (!settings.outputComments) return '';
+  return `${indent}// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
+}
+
 // Output the image string to the textfield
 // eslint-disable-next-line no-unused-vars
 function generateOutputString() {
@@ -905,7 +912,7 @@ function generateOutputString() {
 
         code = `\t${code.split('\n').join('\n\t')}\n`;
         // const variableCount = images.length() > 1 ? count++ : '';
-        const comment = settings.outputComments ? `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n` : '';
+        const comment = glyphComment(image);
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
         const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
@@ -931,7 +938,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = settings.outputComments ? `\t// '${image.glyph}, ${image.canvas.width}x${image.canvas.height}px\n` : '';
+        comment = glyphComment(image, '\t');
         outputString += comment + code;
       });
 
@@ -950,7 +957,7 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = settings.outputComments ? `\t// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n` : '';
+        comment = glyphComment(image, '\t');
         outputString += comment + code;
         if (image.glyph.length === 1) {
           useGlyphs++;
@@ -1008,10 +1015,7 @@ function generateOutputString() {
     default: { // plain
       images.each((image) => {
         code = imageToString(image);
-        let comment = '';
-        if (image.glyph && settings.outputComments) {
-          comment = (`// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`);
-        }
+        let comment = image.glyph ? glyphComment(image) : '';
         if (image.img !== images.first().img) {
           comment = `\n${comment}`;
         }
