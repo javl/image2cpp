@@ -343,7 +343,12 @@ code {
 
 .input-methods-row {
   display: flex;
-  align-items: flex-start;
+  align-items: space-between;
+  gap: 10px;
+}
+
+.input-methods-row .column {
+  width: 50%;
 }
 
 .column {

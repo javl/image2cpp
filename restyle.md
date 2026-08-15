@@ -175,7 +175,7 @@
 </div>
 </div>
 <div class="flex-1">
-<label class="block font-label-mono text-label-mono text-primary mb-2">Or Paste Byte Array</label>
+<label class="block font-label-mono text-label-mono text-primary mb-2">Or Paste Existing Byte Array</label>
 <textarea class="w-full h-[180px] bg-surface-container text-on-surface-variant font-code-block text-code-block p-4 rounded-lg border-none focus:ring-2 focus:ring-primary focus:outline-none resize-none" placeholder="0xFF, 0x00, 0xAA..."></textarea>
 </div>
 </div>
