@@ -45,6 +45,7 @@ BASE_SETTINGS = {
     "bitswap": False,
     "prefix": "0x",
     "separator": ", ",
+    "esp32Format": False,
 }
 
 OUTPUT_FORMAT_IDS = {
@@ -64,6 +65,18 @@ SCENARIOS = [
     ("output_arduino", {"outputFormat": "arduino"}, None),
     ("output_arduino_single", {"outputFormat": "arduino_single"}, None),
     ("output_adafruit_gfx", {"outputFormat": "adafruit_gfx"}, None),
+    ("output_arduino_esp32", {"outputFormat": "arduino", "esp32Format": True}, None),
+    (
+        "output_arduino_single_esp32",
+        {"outputFormat": "arduino_single", "esp32Format": True},
+        None,
+    ),
+    ("output_adafruit_gfx_esp32", {"outputFormat": "adafruit_gfx", "esp32Format": True}, None),
+    (
+        "output_arduino_esp32_565",
+        {"outputFormat": "arduino", "drawMode": "horizontal565", "esp32Format": True},
+        None,
+    ),
     ("invert_colors", {"invertColors": True}, None),
     ("flip_horizontal", {"flipHorizontally": True}, None),
     ("flip_vertical", {"flipVertically": True}, None),
@@ -194,6 +207,10 @@ def apply_settings(page, settings):
     set_checkbox(page, "#bitswap", settings["bitswap"])
     page.fill("#prefix", settings["prefix"])
     page.fill("#separator", settings["separator"])
+    # esp32Format checkbox only exists in the DOM (visible) for non-plain
+    # output formats; plain output has no type/PROGMEM declarations to affect.
+    if settings["outputFormat"] != "plain":
+        set_checkbox(page, "#esp32Format", settings["esp32Format"])
 
 
 def set_checkbox(page, selector, checked):

@@ -290,6 +290,13 @@
                       <input id="identifier" class="text-input" type="text" name="identifier" value="epd_bitmap"/>
                     </div>
                   </div>
+                  <div class="table-row">
+                    <div class="table-cell"><label for="esp32Format">ESP32 formatting:</label></div>
+                    <div class="table-cell">
+                      <input id="esp32Format" type="checkbox" onchange="updateBoolean('esp32Format')" />
+                      <i class="note">Uses <code>uint8_t</code> instead of <code>unsigned char</code> and drops <code>PROGMEM</code>, which is a no-op on ESP32.</i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -22,6 +22,7 @@ const settings = {
   outputComments: true,
   invertColors: false,
   rotation: 0,
+  esp32Format: false,
 };
 
 function bitswap(b) {
@@ -432,6 +433,13 @@ function hexToBinary(s) {
   return { valid: true, result: ret };
 }
 
+// The plain byte type, independent of drawMode (used by output formats,
+// like adafruit_gfx, that are always byte-packed regardless of the current
+// conversion function).
+function getByteType() {
+  return settings.esp32Format ? 'uint8_t' : 'unsigned char';
+}
+
 // get the type (in arduino code) of the output image
 // this is a bit of a hack, it's better to make this a property of the conversion function (should probably turn it into objects)
 function getImageType() {
@@ -440,7 +448,14 @@ function getImageType() {
   } if (settings.conversionFunction === ConversionFunctions.horizontal888) {
     return 'unsigned long';
   }
-  return 'unsigned char';
+  return getByteType();
+}
+
+// PROGMEM is an AVR-ism: it's a no-op on ESP32 (flash is memory-mapped
+// there), so the ESP32 output toggle drops it instead of emitting a keyword
+// that does nothing.
+function progmemKeyword() {
+  return settings.esp32Format ? '' : ' PROGMEM';
 }
 
 // Use the horizontally oriented list to draw the image
@@ -870,7 +885,7 @@ function generateOutputString() {
 
         const varname = getIdentifier() + (image.glyph ? `_${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
         varQuickArray.push(varname);
-        code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
+        code = `${comment}const ${getImageType()} ${varname} []${progmemKeyword()} = {\n${code}};\n`;
         outputString += code;
       });
 
@@ -879,7 +894,8 @@ function generateOutputString() {
         outputString += '\n';
       }
       if (settings.outputComments) {
-        outputString += `// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
+        const storageNote = settings.esp32Format ? '' : ' in PROGMEM';
+        outputString += `// Array of all bitmaps for convenience. (Total bytes used to store images${storageNote} = ${bytesUsed})\n`;
       }
       outputString += `const int ${getIdentifier()}_allArray_LEN = ${varQuickArray.length};\n`;
       outputString += `const ${getImageType()}* ${getIdentifier()}_allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
@@ -899,7 +915,7 @@ function generateOutputString() {
 
       outputString = `const ${getImageType()} ${
         getIdentifier()
-      } [] PROGMEM = {`
+      } []${progmemKeyword()} = {`
             + `\n${outputString}\n};`;
       break;
     }
@@ -918,14 +934,14 @@ function generateOutputString() {
       });
 
       outputString = outputString.replace(/,\s*$/, '');
-      outputString = `const unsigned char ${
+      outputString = `const ${getByteType()} ${
         getIdentifier()
       }Bitmap`
-            + ' [] PROGMEM = {'
+            + ` []${progmemKeyword()} = {`
             + `\n${outputString}\n};\n\n`
             + `const GFXbitmapGlyph ${
               getIdentifier()
-            }Glyphs [] PROGMEM = {\n`;
+            }Glyphs []${progmemKeyword()} = {\n`;
 
       let firstAschiiChar = document.getElementById('first-ascii-char').value;
       const xAdvance = parseInt(document.getElementById('x-advance').value);
@@ -955,7 +971,7 @@ function generateOutputString() {
       // GFXbitmapFont
       outputString += `\nconst GFXbitmapFont ${
         getIdentifier()
-      }Font PROGMEM = {\n`
+      }Font${progmemKeyword()} = {\n`
             + `\t(uint8_t *)${
               getIdentifier()}Bitmap,\n`
             + `\t(GFXbitmapGlyph *)${
