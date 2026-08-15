@@ -347,13 +347,17 @@ code {
   gap: 20px;
 }
 
-.input-methods-row .column {
+.input-methods-row .column-left {
+  width: 50%;
+}
+.input-methods-row .column-right {
   width: 50%;
 }
 
-.column {
+.column-left {
   float: left;
   border-right: 1px solid var(--border-subtle);
+  padding-right: 12px;
 }
 
 .column-right {
@@ -851,7 +855,7 @@ input[type="file"]::file-selector-button {
     flex-direction: column;
   }
 
-  .column,
+  .column-left,
   .column-right {
     float: none;
     width: 100%;
