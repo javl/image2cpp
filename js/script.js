@@ -198,8 +198,6 @@ function Images() {
 const images = new Images();
 // Filetypes accepted by the file picker
 // const fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
-// Variable name, when "arduino code" is required
-const identifier = 'myBitmap';
 
 // Invert the colors of the canvas
 function invert(canvas, ctx) {
@@ -849,7 +847,7 @@ function imageToString(image) {
 // Get the custom arduino output variable name, if any
 function getIdentifier() {
   const vn = document.getElementById('identifier');
-  return (vn && vn.value.length) ? vn.value : identifier;
+  return (vn && vn.value.length) ? vn.value : '';
 }
 
 // Builds the "// 'glyph', WxHpx" comment line placed before each image's
@@ -883,7 +881,7 @@ function generateOutputString() {
         const comment = glyphComment(image);
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
-        const varname = getIdentifier() + (image.glyph ? `_${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
+        const varname = getIdentifier() + (image.glyph ? `${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
         varQuickArray.push(varname);
         code = `${comment}const ${getImageType()} ${varname} []${progmemKeyword()} = {\n${code}};\n`;
         outputString += code;
