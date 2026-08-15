@@ -155,6 +155,18 @@ const ConversionFunctions = {
 };
 settings.conversionFunction = ConversionFunctions.horizontal1bit;
 
+// Bytes per output value for each conversion function, matching the
+// hexWidth passed to writer.push() in that function (hexWidth / 2).
+// Needed by downloadBinFile() to reconstruct the true byte stream instead
+// of truncating multi-byte values (565/888) down to a single byte.
+const CONVERSION_BYTES_PER_VALUE = new Map([
+  [ConversionFunctions.horizontal1bit, 1],
+  [ConversionFunctions.vertical1bit, 1],
+  [ConversionFunctions.horizontal565, 2],
+  [ConversionFunctions.horizontal888, 4],
+  [ConversionFunctions.horizontalAlpha, 1],
+]);
+
 // An images collection with helper methods
 function Images() {
   const collection = [];
@@ -983,20 +995,37 @@ function copyOutput() {
   navigator.clipboard.writeText(output.value);
 }
 
+// Rebuilds the true byte stream for the current images/conversion mode by
+// re-splitting each formatted output value (which may be 1, 2 or 4 bytes
+// wide, depending on drawMode) back into its individual bytes, most-
+// significant first. Exposed standalone so it can be exercised directly in
+// tests without going through a real browser file download.
+function computeBinData() {
+  const bytesPerValue = CONVERSION_BYTES_PER_VALUE.get(settings.conversionFunction) || 1;
+  const raw = [];
+  images.each((image) => {
+    const values = imageToString(image)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((token) => parseInt(token, 16));
+    values.forEach((value) => {
+      // Split back into individual bytes, most-significant first, matching
+      // the left-to-right digit order produced by toString(16).padStart().
+      for (let shift = (bytesPerValue - 1) * 8; shift >= 0; shift -= 8) {
+        // eslint-disable-next-line no-bitwise
+        raw.push((value >> shift) & 0xff);
+      }
+    });
+  });
+  return new Uint8Array(raw);
+}
+
 // eslint-disable-next-line no-unused-vars
 function downloadBinFile() {
   if (!checkImagesAvailable()) return;
 
-  let raw = [];
-  images.each((image) => {
-    const data = imageToString(image)
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((byte) => parseInt(byte, 16));
-    raw = raw.concat(data);
-  });
-  const data = new Uint8Array(raw);
+  const data = computeBinData();
   const a = document.createElement('a');
   a.style = 'display: none';
   document.body.appendChild(a);

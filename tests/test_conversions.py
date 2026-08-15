@@ -129,6 +129,45 @@ SCENARIOS = [
     ),
 ]
 
+# Bytes per output value per drawMode, mirroring CONVERSION_BYTES_PER_VALUE in
+# js/script.js. Used to verify downloadBinFile()'s byte stream (via the
+# computeBinData() helper) matches the hex values shown in the text output,
+# instead of the multi-byte values (565/888) getting truncated to one byte.
+BYTES_PER_VALUE = {
+    "horizontal1bit": 1,
+    "vertical1bit": 1,
+    "horizontal565": 2,
+    "horizontal888": 4,
+    "horizontalAlpha": 1,
+}
+
+# Scenario names to also verify against computeBinData(); restricted to ones
+# using the default plain/comma-separated output (outputFormat and separator
+# untouched), since that's the format downloadBinFile's parser expects.
+BIN_CHECK_NAMES = {
+    "default",
+    "draw_mode_vertical1bit",
+    "draw_mode_horizontal565",
+    "draw_mode_horizontal888",
+    "draw_mode_horizontal_alpha",
+    "rotate_90_horizontal565",
+    "rotate_90_horizontal888",
+    "rotate_90_horizontal_alpha",
+}
+
+
+def expected_bin_bytes(output, draw_mode):
+    """Reconstruct the byte stream a correct downloadBinFile() should produce
+    from the plain-format hex text output, expanding each value back to its
+    full byte width (MSB first) instead of assuming one byte per value."""
+    bytes_per_value = BYTES_PER_VALUE[draw_mode]
+    values = (int(tok, 16) for tok in re.findall(r"0x[0-9a-fA-F]+", output))
+    result = []
+    for value in values:
+        for shift in range((bytes_per_value - 1) * 8, -1, -8):
+            result.append((value >> shift) & 0xFF)
+    return result
+
 
 def reset_canvas_size(page, width, height):
     """Set canvas size through the real width/height text inputs."""
@@ -271,6 +310,15 @@ def main():
                 continue
 
             print(f"ok     {name}")
+
+            if name in BIN_CHECK_NAMES:
+                expected_bytes = expected_bin_bytes(output, settings["drawMode"])
+                actual_bytes = page.evaluate("Array.from(computeBinData())")
+                if actual_bytes != expected_bytes:
+                    failures.append(f"{name}: bin data mismatch")
+                    print(f"FAIL   {name} (bin)")
+                else:
+                    print(f"ok     {name} (bin)")
 
             if roundtrip_eligible(settings):
                 width, height = resize or (NATIVE_WIDTH, NATIVE_HEIGHT)
