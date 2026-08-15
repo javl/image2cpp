@@ -32,6 +32,7 @@
   <div class="layout">
     <aside class="sidebar">
       <nav class="sidebar-nav">
+        <a href="#step-0" class="sidebar-link" data-step="step-0">About and support</a>
         <a href="#step-1" class="sidebar-link" data-step="step-1"><span class="sidebar-num">1</span>Select Image</a>
         <a href="#step-2" class="sidebar-link" data-step="step-2"><span class="sidebar-num">2</span>Settings</a>
         <a href="#step-3" class="sidebar-link" data-step="step-3"><span class="sidebar-num">3</span>Preview</a>
@@ -40,7 +41,7 @@
     </aside>
 
     <main class="wrapper">
-    <section class="section">
+    <section class="section step" id="step-0">
       <h1>image2cpp</h1>
       <p><strong>image2cpp</strong> is a simple tool to convert images into byte arrays (and vice versa) for use with (monochrome) displays such as OLEDs on your Arduino or Raspberry Pi.<br>
         It was originally made to work with the Adafruit OLED library (for which your can find an example Arduino sketch <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>) but
@@ -65,13 +66,13 @@
           <div class="note" id="continue-note">Select more images or <a href="#step-2">continue to step 2</a></div>
         </div>
         <div class="column column-right">
-          <h2 class="sub-section-title">or paste byte array</h2>
-          <textarea id="byte-input" class="byte-input"></textarea><br />
+          <h2 class="sub-section-title">or paste existing byte array</h2>
+          <textarea id="byte-input" class="byte-input" placeholder="i.e. 0xff, 0x81, 0x0d, 0x8d, 0xb1, 0xb1, 0x80, 0xfc"></textarea><br />
           <div class="text-input-size">
             <input type="number" min="1" id="text-input-width" class="size-input" value="128" /> x
             <input type="number" min="1" id="text-input-height" class="size-input" value="64" /> px
           </div>
-          <div class="note">Set this to the size of your image.<br>Common sizes: <a href="#" class="size-preset" onclick="setTextInputSize(16, 16); return false;"><code>16x16</code></a>, <a href="#" class="size-preset" onclick="setTextInputSize(32, 32); return false;"><code>32x32</code></a>, <a href="#" class="size-preset" onclick="setTextInputSize(64, 48); return false;"><code>64x48</code></a>, <a href="#" class="size-preset" onclick="setTextInputSize(128, 32); return false;"><code>128x32</code></a>, <a href="#" class="size-preset" onclick="setTextInputSize(128, 64); return false;"><code>128x64</code></a>.</div>
+          <div class="note">Set this to the size of your image.<br>Common sizes: <a href="#" class="size-preset" onclick="setTextInputSize(16, 16); return false;"><code>16x16</code></a> <a href="#" class="size-preset" onclick="setTextInputSize(32, 32); return false;"><code>32x32</code></a> <a href="#" class="size-preset" onclick="setTextInputSize(64, 48); return false;"><code>64x48</code></a> <a href="#" class="size-preset" onclick="setTextInputSize(128, 32); return false;"><code>128x32</code></a> <a href="#" class="size-preset" onclick="setTextInputSize(128, 64); return false;"><code>128x64</code></a>.</div>
           <div>
             <button onclick="handleTextInput('horizontal')">Read as horizontal</button>
             <button onclick="handleTextInput('vertical')">Read as vertical</button>
@@ -86,9 +87,9 @@
       <div class="step-num">2</div>
       <h2>Image Settings</h2>
       <section class="sub-section">
-        <div class="table">
+        <div class="table settings-grid">
 
-          <div class="table-row">
+          <div class="table-row full-row">
             <div class="table-cell"><label>Canvas size(s): </label></div>
             <div class="table-cell">
               <ul id="image-size-settings"></ul>
@@ -165,13 +166,9 @@
               <label for="centerHorizontally">horizontally</label>
               <input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
               <label for="centerVertically">vertically</label>
-            </div>
-          </div>
-
-          <div class="table-row note-row">
-            <div class="table-cell"></div>
-            <div class="table-cell">
-              <i class="note">Centering the image only works when using a canvas larger than the original image.</i>
+              <div class="note">
+                <i>Centering the image only works when using a canvas larger than the original image.</i>
+              </div>
             </div>
           </div>
 

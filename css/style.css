@@ -19,6 +19,7 @@
   --outline-variant: #bbcac3;
   --editor-bg: #ffffff;
   --error: #ba1a1a;
+  --focus-ring: rgba(0, 107, 88, 0.25);
 
   /* Radii */
   --radius-lg: 0.25rem;
@@ -144,7 +145,7 @@ body {
   background: var(--surface-container-low);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: 24px 0;
+  /* padding: 24px 0; */
 }
 
 .sidebar-nav {
@@ -211,6 +212,10 @@ body {
   scroll-margin-top: 88px;
 }
 
+.section.first-step {
+
+}
+
 .step-num {
   position: absolute;
   left: 16px;
@@ -245,7 +250,7 @@ body {
   z-index: 1;
 }
 
-#step-4.step::before {
+#step-0.step::before, #step-4.step::before {
   display: none;
 }
 
@@ -396,6 +401,42 @@ code {
   margin: 0;
 }
 
+/* ---- Settings grid (step 2) ---- */
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px 32px;
+}
+
+.settings-grid.table {
+  margin: 8px 0 0;
+}
+
+.settings-grid .table-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-grid .table-row.full-row {
+  grid-column: 1 / -1;
+}
+
+.settings-grid .table-cell {
+  display: block;
+  padding: 0;
+}
+
+.settings-grid .table-cell:first-child {
+  width: auto;
+  padding-right: 0;
+}
+
+.settings-grid .table-cell:last-child {
+  width: auto;
+}
+
 .nested-table .table-cell {
   color: var(--text-muted);
   font-size: 0.9em;
@@ -465,7 +506,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(0, 107, 88, 0.25);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 select {
@@ -676,7 +717,7 @@ input[type="file"]::file-selector-button {
   width: 100%;
   /* margin-top: 16px; */
   background: var(--editor-bg);
-  color: #000000;
+  color: var(--on-surface);
   border: 1px solid var(--on-surface-variant);
   border-radius: var(--radius-xl);
   font-family: var(--font-mono);
@@ -689,7 +730,7 @@ input[type="file"]::file-selector-button {
 .code-output:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(0, 107, 88, 0.25);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* ---- Hidden by default (toggled via JS) ---- */
@@ -806,6 +847,7 @@ input[type="file"]::file-selector-button {
   --border-subtle: #2d3133;
   --outline-variant: #414a47;
   --editor-bg: #0b0e0f;
+  --focus-ring: rgba(78, 221, 187, 0.35);
 }
 
 :root[data-theme="dark"] .theme-icon-dark {
