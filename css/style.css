@@ -543,6 +543,20 @@ input[type="radio"] {
   display: none;
 }
 
+.text-input-preview-canvas {
+  display: none;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  /* background: var(--primary-container); */
+  margin: 10px 0;
+  /* padding: 4px; */
+  max-width: 100%;
+}
+
+#read-images-note {
+  display: none;
+}
+
 .text-input-size {
   margin: 8px 0;
   color: var(--on-surface-variant);
@@ -705,9 +719,9 @@ input[type="file"]::file-selector-button {
 #images-canvas-container canvas {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-lg);
-  background: var(--primary-container);
+  /* background: var(--primary-container); */
   margin: 10px 15px 10px 0;
-  padding: 4px;
+  /* padding: 4px; */
 }
 
 .inlineImg {

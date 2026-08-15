@@ -702,6 +702,17 @@ function handleTextInput(drawMode) {
       el.style.display = 'none';
     });
     checkImagesAvailable();
+
+    // Mirror the result onto a small preview canvas right below the
+    // buttons, so the pasted array is visible without scrolling to step 3.
+    const previewCanvas = document.getElementById('text-input-preview-canvas');
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+    previewCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    previewCanvas.style.display = 'block';
+
+    const readImagesNoteEl = document.getElementById('read-images-note');
+    readImagesNoteEl.style.display = 'block';
   }
 }
 
