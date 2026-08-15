@@ -702,7 +702,7 @@ function handleImageSelection(evt) {
         w.type = 'number';
         w.name = 'width';
         w.id = 'screenWidth';
-        w.min = 0;
+        w.min = 1;
         w.className = 'size-input';
         w.value = img.width;
         settings.screenWidth = img.width;
@@ -716,7 +716,7 @@ function handleImageSelection(evt) {
         h.type = 'number';
         h.name = 'height';
         h.id = 'screenHeight';
-        h.min = 0;
+        h.min = 1;
         h.className = 'size-input';
         h.value = img.height;
         settings.screenHeight = img.height;
