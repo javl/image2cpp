@@ -548,7 +548,7 @@ function listToImageHorizontal(list, canvas) {
   const decoded = hexListToBits(list);
   if (!decoded.valid) {
     reportInvalidByteArray(decoded.s);
-    return;
+    return false;
   }
 
   const imgData = ctx.createImageData(canvas.width, canvas.height);
@@ -577,6 +577,7 @@ function listToImageHorizontal(list, canvas) {
 
   ctx.putImageData(imgData, 0, 0);
   commitCanvasToFirstImage(canvas);
+  return true;
 }
 
 // Quick and effective way to draw single pixels onto the canvas
@@ -600,7 +601,7 @@ function listToImageVertical(list, canvas) {
   const decoded = hexListToBits(list);
   if (!decoded.valid) {
     reportInvalidByteArray(decoded.s);
-    return;
+    return false;
   }
 
   let page = 0;
@@ -623,6 +624,7 @@ function listToImageVertical(list, canvas) {
   }
 
   commitCanvasToFirstImage(canvas);
+  return true;
 }
 
 // Set width/height preset for byte array text input
@@ -688,10 +690,17 @@ function handleTextInput(drawMode) {
     return;
   }
 
-  if (drawMode === 'horizontal') {
-    listToImageHorizontal(list, canvas);
-  } else {
-    listToImageVertical(list, canvas);
+  const success = drawMode === 'horizontal'
+    ? listToImageHorizontal(list, canvas)
+    : listToImageVertical(list, canvas);
+
+  if (success) {
+    document.getElementById('text-input-error').style.display = 'none';
+    document.querySelectorAll('.no-file-selected').forEach((el) => {
+      // eslint-disable-next-line no-param-reassign
+      el.style.display = 'none';
+    });
+    checkImagesAvailable();
   }
 }
 
