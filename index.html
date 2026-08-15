@@ -295,15 +295,6 @@
             </div>
           </div>
 
-          <div class="table-row">
-            <div class="table-cell"><label for="bitswap">Swap bits in byte:</label></div>
-            <div class="table-cell">
-              <input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')">
-              <label for="bitswap">swap</label>
-              <i class="note">Swap between MSB and LSB. Useful when working with the u8g2 library.</i>
-            </div>
-          </div>
-
           <div class="table-row" id="prefix-separator-container">
             <div class="table-cell"><label>Extra formatting options:</label></div>
             <div class="table-cell">
@@ -311,6 +302,12 @@
                 <input id="outputComments" type="checkbox" checked onchange="updateBoolean('outputComments')">
                 <label for="outputComments">Add comments to code output</label>
               </div>
+              <div class="sub-field">
+                <input id="bitswap" type="checkbox" onchange="updateBoolean('bitswap')">
+                <label for="bitswap">Swap bits in bytes</label>
+                <i class="note">MSB -> LSB. Useful when working with the u8g2 library.</i>
+              </div>
+
               <div class="sub-field">
                 <label for="prefix" class="sub-field-label">Byte prefix:</label>
                 <input id="prefix" class="size-input" type="text" value="0x" oninput="updateString('prefix')"/>
