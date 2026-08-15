@@ -93,15 +93,15 @@ const ConversionFunctions = {
   },
 
   // Output the image as a string for vertically drawing displays
-  vertical1bit(data) {
+  vertical1bit(data, canvasWidth, canvasHeight) {
     const writer = makeByteWriter();
-    for (let p = 0; p < Math.ceil(settings.screenHeight / 8); p++) {
-      for (let x = 0; x < settings.screenWidth; x++) {
+    for (let p = 0; p < Math.ceil(canvasHeight / 8); p++) {
+      for (let x = 0; x < canvasWidth; x++) {
         let byteIndex = 7;
         let number = 0;
 
         for (let y = 7; y >= 0; y--) {
-          const index = ((p * 8) + y) * (settings.screenWidth * 4) + x * 4;
+          const index = ((p * 8) + y) * (canvasWidth * 4) + x * 4;
           const avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
           if (avg > settings.ditheringThreshold) {
             number += 2 ** byteIndex;
@@ -816,7 +816,7 @@ function imageToString(image) {
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const { data } = imageData;
-  return settings.conversionFunction(data, canvas.width);
+  return settings.conversionFunction(data, canvas.width, canvas.height);
 }
 
 // Get the custom arduino output variable name, if any
