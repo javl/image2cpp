@@ -36,54 +36,65 @@ function bitswap(b) {
   return b;
 }
 
+// Accumulates formatted bytes (prefix/value/separator, wrapped every
+// wrapWidth bytes) so our ConversionFunctions can use this formatting.
+// wrapWidth defaults to 16 bytes per line; horizontal888 wraps
+// once per image row (canvasWidth) instead.
+function makeByteWriter(wrapWidth = 16) {
+  let out = '';
+  let count = 0;
+  return {
+    push(value, hexWidth) {
+      const byteSet = bitswap(value).toString(16).padStart(hexWidth, '0');
+      out += `${settings.prefix}${byteSet}${settings.separator}`;
+      count++;
+      if (count >= wrapWidth) {
+        out += '\n';
+        count = 0;
+      }
+    },
+    result() { return out; },
+  };
+}
+
+// Shared by horizontal1bit/horizontalAlpha: pack 8 samples (one per pixel,
+// MSB first) into a byte, resetting early at the end of a row or the image
+// so a partial final byte is still zero-padded instead of dropped.
+function packBitsHorizontal(data, canvasWidth, writer, sampleAt) {
+  let byteIndex = 7;
+  let number = 0;
+  for (let index = 0; index < data.length; index += 4) {
+    if (sampleAt(data, index) > settings.ditheringThreshold) {
+      number += 2 ** byteIndex;
+    }
+    byteIndex--;
+
+    const isRowEnd = index !== 0 && (((index / 4) + 1) % canvasWidth) === 0;
+    const isImageEnd = index === data.length - 4;
+    if (isRowEnd || isImageEnd) {
+      byteIndex = -1;
+    }
+
+    if (byteIndex < 0) {
+      writer.push(number, 2);
+      number = 0;
+      byteIndex = 7;
+    }
+  }
+}
+
 const ConversionFunctions = {
   // Output the image as a string for horizontally drawing displays
   horizontal1bit(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-    let byteIndex = 7;
-    let number = 0;
-
-    // format is RGBA, so move 4 steps per pixel
-    for (let index = 0; index < data.length; index += 4) {
-      // Get the average of the RGB (we ignore A)
-      const avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
-      if (avg > settings.ditheringThreshold) {
-        number += 2 ** byteIndex;
-      }
-      byteIndex--;
-
-      // if this was the last pixel of a row or the last pixel of the
-      // image, fill up the rest of our byte with zeros so it always contains 8 bits
-      if ((index !== 0 && (((index / 4) + 1) % (canvasWidth)) === 0) || (index === data.length - 4)) {
-        // for(var i=byteIndex;i>-1;i--){
-        // number += Math.pow(2, i);
-        // }
-        byteIndex = -1;
-      }
-
-      // When we have the complete 8 bits, combine them into a hex value
-      if (byteIndex < 0) {
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
-        outputIndex++;
-        if (outputIndex >= 16) {
-          stringFromBytes += '\n';
-          outputIndex = 0;
-        }
-        number = 0;
-        byteIndex = 7;
-      }
-    }
-    return stringFromBytes;
+    const writer = makeByteWriter();
+    const avgRgb = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
+    packBitsHorizontal(data, canvasWidth, writer, avgRgb);
+    return writer.result();
   },
 
   // Output the image as a string for vertically drawing displays
-  // eslint-disable-next-line no-unused-vars
-  vertical1bit(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
+  vertical1bit(data) {
+    const writer = makeByteWriter();
     for (let p = 0; p < Math.ceil(settings.screenHeight / 8); p++) {
       for (let x = 0; x < settings.screenWidth; x++) {
         let byteIndex = 7;
@@ -97,118 +108,49 @@ const ConversionFunctions = {
           }
           byteIndex--;
         }
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
-        outputIndex++;
-        if (outputIndex >= 16) {
-          stringFromBytes += '\n';
-          outputIndex = 0;
-        }
+        writer.push(number, 2);
       }
     }
-    return stringFromBytes;
+    return writer.result();
   },
 
   // Output the image as a string for 565 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
   horizontal565(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-
+    const writer = makeByteWriter();
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
-      // Get the RGB values
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
-      // calculate the 565 color value
+      // Calculate the 565 color value
       // eslint-disable-next-line no-bitwise
       const rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | ((b & 0b11111000) >> 3);
-      // Split up the color value in two bytes
-      // const firstByte = (rgb >> 8) & 0xff;
-      // const secondByte = rgb & 0xff;
-
-      let byteSet = bitswap(rgb).toString(16);
-      while (byteSet.length < 4) { byteSet = `0${byteSet}`; }
-      stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
-      // add newlines every 16 bytes
-      outputIndex++;
-      if (outputIndex >= 16) {
-        stringFromBytes += '\n';
-        outputIndex = 0;
-      }
+      writer.push(rgb, 4);
     }
-    return stringFromBytes;
+    return writer.result();
   },
-  // Output the image as a string for rgb888 displays (horizontally)
+  // Output the image as a string for rgb888 displays (horizontally), one
+  // image row per output line
   horizontal888(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-
+    const writer = makeByteWriter(canvasWidth);
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
-      // Get the RGB values
+      // Split into RGB and pack into a single 24-bit value (MSB first)
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
-      // calculate the 565 color value
       // eslint-disable-next-line no-bitwise
       const rgb = (r << 16) | (g << 8) | (b);
-      // Split up the color value in two bytes
-      // const firstByte = (rgb >> 8) & 0xff;
-      // const secondByte = rgb & 0xff;
-
-      let byteSet = bitswap(rgb).toString(16);
-      while (byteSet.length < 8) { byteSet = `0${byteSet}`; }
-      stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
-
-      // add newlines every 16 bytes
-      outputIndex++;
-      if (outputIndex >= canvasWidth) {
-        stringFromBytes += '\n';
-        outputIndex = 0;
-      }
+      writer.push(rgb, 8);
     }
-    return stringFromBytes;
+    return writer.result();
   },
   // Output the alpha mask as a string for horizontally drawing displays
   horizontalAlpha(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-    let byteIndex = 7;
-    let number = 0;
-
-    // format is RGBA, so move 4 steps per pixel
-    for (let index = 0; index < data.length; index += 4) {
-      // Get alpha part of the image data
-      const alpha = data[index + 3];
-      if (alpha > settings.ditheringThreshold) {
-        number += 2 ** byteIndex;
-      }
-      byteIndex--;
-
-      // if this was the last pixel of a row or the last pixel of the
-      // image, fill up the rest of our byte with zeros so it always contains 8 bits
-      if ((index !== 0 && (((index / 4) + 1) % (canvasWidth)) === 0) || (index === data.length - 4)) {
-        byteIndex = -1;
-      }
-
-      // When we have the complete 8 bits, combine them into a hex value
-      if (byteIndex < 0) {
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        stringFromBytes += `${settings.prefix}${byteSet}${settings.separator}`;
-        outputIndex++;
-        if (outputIndex >= 16) {
-          stringFromBytes += '\n';
-          outputIndex = 0;
-        }
-        number = 0;
-        byteIndex = 7;
-      }
-    }
-    return stringFromBytes;
+    const writer = makeByteWriter();
+    packBitsHorizontal(data, canvasWidth, writer, (d, i) => d[i + 3]);
+    return writer.result();
   },
 };
 settings.conversionFunction = ConversionFunctions.horizontal1bit;
@@ -490,9 +432,49 @@ function getImageType() {
 }
 
 // Use the horizontally oriented list to draw the image
+// Validates and decodes a comma-split list of pasted hex byte strings into
+// one contiguous bit string (MSB first, each entry padded to a full byte).
+// Returns { valid: true, bits } or { valid: false, s } naming the bad entry.
+function hexListToBits(list) {
+  let bits = '';
+  for (let i = 0; i < list.length; i++) {
+    const binString = hexToBinary(list[i]);
+    if (!binString.valid) {
+      return binString;
+    }
+    bits += binString.result.length === 4 ? `${binString.result}0000` : binString.result;
+  }
+  return { valid: true, bits };
+}
+
+function reportInvalidByteArray(s) {
+  // eslint-disable-next-line no-alert
+  alert('Something went wrong converting the string. Make sure there are no comments in your input.');
+  // eslint-disable-next-line no-console
+  console.error('invalid hexToBinary: ', s);
+}
+
+// Save the canvas contents inside the (first) image object so it can be
+// reused when scaling/inverting/etc.
+function commitCanvasToFirstImage(canvas) {
+  const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
+  img.src = canvas.toDataURL('image/png');
+}
+
+// Use the horizontally oriented list to draw the image
 function listToImageHorizontal(list, canvas) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const decoded = hexListToBits(list);
+  if (!decoded.valid) {
+    reportInvalidByteArray(decoded.s);
+    return;
+  }
+
   const imgData = ctx.createImageData(canvas.width, canvas.height);
   let index = 0;
 
@@ -501,51 +483,24 @@ function listToImageHorizontal(list, canvas) {
   let widthCounter = 0;
 
   // Move the list into the imageData object
-  for (let i = 0; i < list.length; i++) {
-    let binString = hexToBinary(list[i]);
-    if (!binString.valid) {
-      // eslint-disable-next-line no-alert
-      alert('Something went wrong converting the string. Make sure there are no comments in your input?');
-      // eslint-disable-next-line no-console
-      console.error('invalid hexToBinary: ', binString.s);
-      return;
+  for (let k = 0; k < decoded.bits.length; k++, widthCounter++) {
+    // if we've counted enough bits, reset counter for next line
+    if (widthCounter >= widthRoundedUp) {
+      widthCounter = 0;
     }
-    binString = binString.result;
-    if (binString.length === 4) {
-      binString += '0000';
-    }
-
-    // Check if pixel is white or black
-    for (let k = 0; k < binString.length; k++, widthCounter++) {
-      // if we've counted enough bits, reset counter for next line
-      if (widthCounter >= widthRoundedUp) {
-        widthCounter = 0;
-      }
-      // skip 'artifact' pixels due to rounding up to a byte
-      if (widthCounter < canvas.width) {
-        let color = 0;
-        if (binString.charAt(k) === '1') {
-          color = 255;
-        }
-        imgData.data[index] = color;
-        imgData.data[index + 1] = color;
-        imgData.data[index + 2] = color;
-        imgData.data[index + 3] = 255;
-
-        index += 4;
-      }
+    // skip 'artifact' pixels due to rounding up to a byte
+    if (widthCounter < canvas.width) {
+      const color = decoded.bits.charAt(k) === '1' ? 255 : 0;
+      imgData.data[index] = color;
+      imgData.data[index + 1] = color;
+      imgData.data[index + 2] = color;
+      imgData.data[index + 3] = 255;
+      index += 4;
     }
   }
 
-  // Draw the image onto the canvas, then save the canvas contents
-  // inside the img object. This way we can reuse the img object when
-  // we want to scale / invert, etc.
   ctx.putImageData(imgData, 0, 0);
-  const img = new Image();
-  img.onload = () => {
-    images.first().img = img;
-  };
-  img.src = canvas.toDataURL('image/png');
+  commitCanvasToFirstImage(canvas);
 }
 
 // Quick and effective way to draw single pixels onto the canvas
@@ -566,50 +521,32 @@ function listToImageVertical(list, canvas) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const decoded = hexListToBits(list);
+  if (!decoded.valid) {
+    reportInvalidByteArray(decoded.s);
+    return;
+  }
+
   let page = 0;
   let x = 0;
   let y = 7;
 
   // Move the list into the imageData object
-  for (let i = 0; i < list.length; i++) {
-    let binString = hexToBinary(list[i]);
-    if (!binString.valid) {
-      // eslint-disable-next-line no-alert
-      alert('Something went wrong converting the string. Did you forget to remove any comments from the input?');
-      // eslint-disable-next-line no-console
-      console.error('invalid hexToBinary: ', binString.s);
-      return;
-    }
-    binString = binString.result;
-    if (binString.length === 4) {
-      binString += '0000';
-    }
-
-    // Check if pixel is white or black
-    for (let k = 0; k < binString.length; k++) {
-      let color = 0;
-      if (binString.charAt(k) === '1') {
-        color = 255;
-      }
-      drawPixel(ctx, x, (page * 8) + y, color);
-      y--;
-      if (y < 0) {
-        y = 7;
-        x++;
-        if (x >= settings.screenWidth) {
-          x = 0;
-          page++;
-        }
+  for (let k = 0; k < decoded.bits.length; k++) {
+    const color = decoded.bits.charAt(k) === '1' ? 255 : 0;
+    drawPixel(ctx, x, (page * 8) + y, color);
+    y--;
+    if (y < 0) {
+      y = 7;
+      x++;
+      if (x >= settings.screenWidth) {
+        x = 0;
+        page++;
       }
     }
   }
-  // Save the canvas contents inside the img object. This way we can
-  // reuse the img object when we want to scale / invert, etc.
-  const img = new Image();
-  img.onload = () => {
-    images.first().img = img;
-  };
-  img.src = canvas.toDataURL('image/png');
+
+  commitCanvasToFirstImage(canvas);
 }
 
 // Set width/height preset for byte array text input
