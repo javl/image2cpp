@@ -783,6 +783,11 @@ function handleImageSelection(evt) {
         const fileInputColumnEntry = document.createElement('div');
         fileInputColumnEntry.className = 'file-input-entry';
 
+        const fileInputColumnEntryThumb = document.createElement('img');
+        fileInputColumnEntryThumb.className = 'image-size-thumb';
+        fileInputColumnEntryThumb.src = img.src;
+        fileInputColumnEntryThumb.alt = file.name;
+
         const fileInputColumnEntryLabel = document.createElement('span');
         fileInputColumnEntryLabel.textContent = file.name;
 
@@ -794,6 +799,11 @@ function handleImageSelection(evt) {
 
         const imageEntry = document.createElement('li');
         imageEntry.setAttribute('data-img', file.name);
+
+        const thumb = document.createElement('img');
+        thumb.className = 'image-size-thumb';
+        thumb.src = img.src;
+        thumb.alt = file.name;
 
         const w = document.createElement('input');
         w.type = 'number';
@@ -874,16 +884,22 @@ function handleImageSelection(evt) {
 
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
 
+        fileInputColumnEntry.appendChild(fileInputColumnEntryThumb);
         fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
         fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
         fileInputColumn.appendChild(fileInputColumnEntry);
 
-        imageEntry.appendChild(fn);
-        imageEntry.appendChild(w);
-        imageEntry.appendChild(document.createTextNode(' x '));
-        imageEntry.appendChild(h);
-        imageEntry.appendChild(gil);
-        imageEntry.appendChild(gi);
+        const imageEntryDetails = document.createElement('div');
+        imageEntryDetails.className = 'image-size-details';
+        imageEntryDetails.appendChild(fn);
+        imageEntryDetails.appendChild(w);
+        imageEntryDetails.appendChild(document.createTextNode(' x '));
+        imageEntryDetails.appendChild(h);
+        imageEntryDetails.appendChild(gil);
+        imageEntryDetails.appendChild(gi);
+
+        imageEntry.appendChild(thumb);
+        imageEntry.appendChild(imageEntryDetails);
 
         imageSizeSettings.appendChild(imageEntry);
 

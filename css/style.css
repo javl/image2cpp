@@ -663,8 +663,8 @@ input[type="file"]::file-selector-button {
 .remove-button {
   margin: 0 0 0 10px;
   padding: 2px 8px;
-  background: var(--surface-container-high);
-  color: var(--on-surface-variant);
+  /* background: var(--surface-container-high); */
+  /* color: var(--on-surface-variant); */
 }
 
 #no-images-error {
@@ -674,8 +674,14 @@ input[type="file"]::file-selector-button {
 
 .file-input-entry {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   margin: 10px 0;
+}
+
+.file-input-entry span {
+  flex: 1;
+  min-width: 0;
 }
 
 .file-info {
@@ -704,10 +710,30 @@ input[type="file"]::file-selector-button {
 }
 
 #image-size-settings li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   margin: 6px 0;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: 8px 12px;
+}
+
+.image-size-thumb {
+  width: auto;
+  height: auto;
+  max-width: 100px;
+  max-height: 100px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md, 4px);
+  background: var(--surface-variant, #fff);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.image-size-details {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ---- Preview canvases ---- */
