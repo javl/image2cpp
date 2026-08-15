@@ -420,6 +420,10 @@ code {
   margin: 4px 0;
 }
 
+#glyph-name-note {
+  display: none;
+}
+
 .upload-note {
   max-width: 320px;
 }
@@ -519,7 +523,7 @@ input[type="radio"] {
 }
 
 .glyph-input {
-  width: 80px;
+  width: 300px;
   margin-left: 10px;
 }
 
@@ -639,6 +643,9 @@ input[type="file"]::file-selector-button {
 
 #image-size-settings li {
   margin: 6px 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
 }
 
 /* ---- Preview canvases ---- */

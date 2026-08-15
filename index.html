@@ -95,6 +95,9 @@
               <div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
               <div class="no-file-selected msg">Select one or more images at <a href="#step-1">step 1</a> first.</div>
               <button id="all-same-size" onclick="allSameSize()">Apply first image size to all images</button>
+              <div class="note" id="glyph-name-note">
+                <i>Glyph name is used to identify the image in the code.</i>
+              </div>
             </div>
           </div>
 
@@ -203,7 +206,7 @@
       <div class="step-num">3</div>
       <h2>Preview</h2>
       <section class="sub-section">
-        <div class="no-file-selected" class="msg">No files selected</div>
+        <div class="no-file-selected msg">No files selected</div>
         <div id="images-canvas-container"></div>
       </section>
     </section>
@@ -221,7 +224,6 @@
                 <option value="vertical1bit">Vertical - 1 bit per pixel</option>
                 <option value="horizontal565">Horizontal - 2 bytes per pixel (565)</option>
                 <option value="horizontalAlpha">Horizontal - 1 bit per pixel alpha map</option>
-                <option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888</option>
                 <option value="horizontal888">Horizontal - 3 bytes per pixel (rgb888)</option>
               </select>
 
@@ -271,13 +273,13 @@
                   <div class="table-row">
                     <div class="table-cell"><label>First ASCII character (dec):</label></div>
                     <div class="table-cell">
-                      <input id="first-ascii-char" class="text-input" type="text" name="first-ascii-char" onchange="" value="48"/>
+                      <input id="first-ascii-char" class="text-input" type="text" name="first-ascii-char" value="48"/>
                     </div>
                   </div>
                   <div class="table-row">
                     <div class="table-cell"><label>x advance:</label></div>
                     <div class="table-cell">
-                      <input id="x-advance" class="text-input" type="text" name="x-advance" onchange="" value="0"/>
+                      <input id="x-advance" class="text-input" type="text" name="x-advance" value="0"/>
                     </div>
                   </div>
                 </div>
@@ -285,7 +287,7 @@
                   <div class="table-row">
                     <div class="table-cell"><label>Identifier/Prefix:</label></div>
                     <div class="table-cell">
-                      <input id="identifier" class="text-input" type="text" name="identifier" onchange="" value="epd_bitmap"/>
+                      <input id="identifier" class="text-input" type="text" name="identifier" value="epd_bitmap"/>
                     </div>
                   </div>
                 </div>

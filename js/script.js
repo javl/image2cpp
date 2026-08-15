@@ -559,8 +559,10 @@ function setTextInputSize(width, height) {
 // Show/hide the "no images" error and report whether images are available
 function checkImagesAvailable() {
   const error = document.getElementById('no-images-error');
+  const glyphNameNote = document.getElementById('glyph-name-note');
   const hasImages = images.length() > 0;
   error.style.display = hasImages ? 'none' : 'block';
+  glyphNameNote.style.display = hasImages ? 'block' : 'none';
   return hasImages;
 }
 
@@ -725,13 +727,14 @@ function handleImageSelection(evt) {
         };
 
         const gil = document.createElement('span');
-        gil.innerHTML = 'glyph';
+        gil.innerHTML = 'glyph name';
         gil.className = 'file-info';
 
         const gi = document.createElement('input');
         gi.type = 'text';
         gi.name = 'glyph';
         gi.className = 'glyph-input';
+        gi.value = file.name.split('.')[0];
         gi.onchange = () => {
           const image = images.get(img);
           image.glyph = gi.value;
@@ -759,6 +762,7 @@ function handleImageSelection(evt) {
             });
           }
           updateAllImages();
+          checkImagesAvailable();
         };
 
         const rb = document.createElement('button');
@@ -852,7 +856,7 @@ function generateOutputString() {
         const comment = glyphComment(image);
         bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
 
-        const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
+        const varname = getIdentifier() + (image.glyph ? `_${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
         varQuickArray.push(varname);
         code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
         outputString += code;
