@@ -648,22 +648,6 @@ function checkImagesAvailable() {
 // Handle inserting an image by pasting code
 // eslint-disable-next-line no-unused-vars
 function handleTextInput(drawMode) {
-  const canvasContainer = document.getElementById('images-canvas-container');
-  const canvas = document.createElement('canvas');
-
-  canvas.width = parseInt(document.getElementById('text-input-width').value);
-  canvas.height = parseInt(document.getElementById('text-input-height').value);
-  settings.screenWidth = canvas.width;
-  settings.screenHeight = canvas.height;
-
-  if (canvasContainer.children.length) {
-    canvasContainer.removeChild(canvasContainer.firstChild);
-  }
-  canvasContainer.appendChild(canvas);
-
-  const image = new Image();
-  images.setByIndex(0, { img: image, canvas, ctx: canvas.getContext('2d') });
-
   let input = document.getElementById('byte-input').value;
 
   // Remove Arduino code
@@ -690,6 +674,22 @@ function handleTextInput(drawMode) {
     errorEl.style.display = 'block';
     return;
   }
+
+  const canvasContainer = document.getElementById('images-canvas-container');
+  const canvas = document.createElement('canvas');
+
+  canvas.width = parseInt(document.getElementById('text-input-width').value);
+  canvas.height = parseInt(document.getElementById('text-input-height').value);
+  settings.screenWidth = canvas.width;
+  settings.screenHeight = canvas.height;
+
+  if (canvasContainer.children.length) {
+    canvasContainer.removeChild(canvasContainer.firstChild);
+  }
+  canvasContainer.appendChild(canvas);
+
+  const image = new Image();
+  images.setByIndex(0, { img: image, canvas, ctx: canvas.getContext('2d') });
 
   const success = drawMode === 'horizontal'
     ? listToImageHorizontal(list, canvas)
