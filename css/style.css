@@ -168,7 +168,7 @@ body {
 .step-num {
   position: absolute;
   left: 16px;
-  top: 32px;
+  top: var(--space-4);
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -265,7 +265,7 @@ code {
   background: var(--surface-container-lowest);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: var(--space-7);
+  padding: var(--space-4);
 }
 
 /* First (intro) section: keep it flush/light */
