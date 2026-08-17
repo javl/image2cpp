@@ -25,6 +25,17 @@
   --radius-lg: 0.25rem;
   --radius-xl: 0.5rem;
 
+  /* Spacing scale (use these for margin/padding/gap instead of magic numbers) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+
   /* Fonts */
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -59,7 +70,7 @@ body {
   max-width: 1400px;
   margin: auto;
   height: 64px;
-  padding: 0 24px;
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -68,7 +79,7 @@ body {
 .topnav-left {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: var(--space-7);
 }
 
 .brand {
@@ -79,7 +90,7 @@ body {
 
 .topnav-links {
   display: flex;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .topnav-links a {
@@ -97,7 +108,7 @@ body {
 .topnav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .icon-btn {
@@ -130,10 +141,10 @@ body {
 
 .layout {
   display: flex;
-  gap: 32px;
+  gap: var(--space-7);
   max-width: 1400px;
   margin: auto;
-  padding: 32px 24px 64px;
+  padding: var(--space-7) var(--space-6) var(--space-9);
   align-items: flex-start;
 }
 
@@ -156,8 +167,8 @@ body {
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 24px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 500;
@@ -199,7 +210,7 @@ body {
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
   flex: 1;
   min-width: 0;
 }
@@ -212,9 +223,6 @@ body {
   scroll-margin-top: 88px;
 }
 
-.section.first-step {
-
-}
 
 .step-num {
   position: absolute;
@@ -254,6 +262,12 @@ body {
   display: none;
 }
 
+/* step-3 (Preview) lives as a pinned side panel next to Settings, not
+   inline in the vertical step flow, so it doesn't carry a connecting rail */
+#step-3.step::before {
+  display: none;
+}
+
 /* ---- Typography ---- */
 
 h1 {
@@ -262,7 +276,7 @@ h1 {
   letter-spacing: -0.02em;
   font-weight: 600;
   color: var(--primary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 h2 {
@@ -278,11 +292,11 @@ h2 {
   line-height: 16px;
   font-weight: 500;
   color: var(--primary);
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
 }
 
 p {
-  margin: 16px 0;
+  margin: var(--space-4) 0;
   color: var(--on-surface-variant);
 }
 
@@ -310,24 +324,24 @@ code {
   background: var(--surface-container-lowest);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: 32px;
+  padding: var(--space-7);
 }
 
 /* First (intro) section: keep it flush/light */
-.section:first-child {
+.section.first-step {
   background: transparent;
   border: none;
-  padding: 8px 0 0;
+  padding: var(--space-2) 0 0;
 }
 
 .section h2 {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 /* Legacy divider no longer needed; cards separate content */
 .bottom-divider {
   border-bottom: none;
-  padding-bottom: 32px;
+  padding-bottom: var(--space-7);
 }
 
 .sub-section {
@@ -339,12 +353,35 @@ code {
   width: 100%;
 }
 
+/* ---- Settings + live preview layout (step 2 + step 3) ----
+   Preview sits pinned next to Settings so the effect of dithering /
+   threshold / invert etc is visible without scrolling away from the
+   controls that change it. */
+
+.settings-preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.settings-preview-row #step-2 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-preview-row #step-3 {
+  flex: 0 0 300px;
+  width: 300px;
+  position: sticky;
+  top: 96px;
+}
+
 /* ---- Multi-column (select image row) ---- */
 
 .input-methods-row {
   display: flex;
   align-items: space-between;
-  gap: 20px;
+  gap: var(--space-5);
 }
 
 .input-methods-row .column-left {
@@ -355,14 +392,11 @@ code {
 }
 
 .column-left {
-  float: left;
   border-right: 1px solid var(--border-subtle);
-  padding-right: 12px;
+  padding-right: var(--space-3);
 }
 
 .column-right {
-  float: right;
-  margin-left: auto;
   border-right: none;
 }
 
@@ -370,7 +404,7 @@ code {
 
 .table {
   display: table;
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
   width: 100%;
   border-collapse: collapse;
 }
@@ -382,13 +416,13 @@ code {
 
 .table-cell {
   display: table-cell;
-  padding: 10px 0;
+  padding: var(--space-2) 0;
   vertical-align: top;
 }
 
 .table-cell:first-child {
   width: 30%;
-  padding-right: 16px;
+  padding-right: var(--space-4);
 }
 
 .table-cell:last-child {
@@ -403,7 +437,7 @@ code {
 }
 
 .table-cell:last-child label {
-  margin-right: 10px;
+  margin-right: var(--space-2);
   color: var(--on-surface-variant);
   font-size: 14px;
 }
@@ -412,22 +446,25 @@ code {
   margin: 0;
 }
 
-/* ---- Settings grid (step 2) ---- */
+/* ---- Settings grid (step 2) ----
+   2-column min-width forces a predictable 2-up (or 1-up) grid instead of
+   auto-fitting 3 columns, which paired short/tall fields at random and
+   left ragged whitespace between rows. */
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 28px 32px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-6) var(--space-7);
 }
 
 .settings-grid.table {
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .settings-grid .table-row {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .settings-grid .table-row.full-row {
@@ -454,12 +491,26 @@ code {
   width: 200px;
 }
 
+#format-caption-container {
+  /* Reserve space for the longest caption so switching output format
+     doesn't shift the fields/buttons below it. */
+  min-height: 100px;
+}
+
+#extra-settings-container {
+  /* Reserve space for the tallest combination (Adafruit GFX shows both its
+     own fields and the Arduino identifier fields) so the Generate/Copy/
+     Download buttons don't jump around when switching output format. */
+  min-height: 278px;
+  transition: min-height 0.15s ease;
+}
+
 #format-caption-container div {
   color: var(--text-muted);
   display: none;
   font-size: 14px;
   line-height: 1.5em;
-  padding: 10px 0 15px;
+  padding: var(--space-2) 0 var(--space-4);
   width: 100%;
 }
 
@@ -469,7 +520,7 @@ code {
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.5em;
-  margin: 4px 0;
+  margin: var(--space-1) 0;
 }
 
 #glyph-name-note {
@@ -482,7 +533,7 @@ code {
 
 #continue-note {
   display: none;
-  margin-top: 30px;
+  margin-top: var(--space-7);
 }
 
 .msg {
@@ -545,7 +596,7 @@ input[type="radio"] {
 #text-input-error {
   color: var(--error);
   font-size: 14px;
-  margin-top: 8px;
+  margin-top: var(--space-2);
   display: none;
 }
 
@@ -554,7 +605,7 @@ input[type="radio"] {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-lg);
   /* background: var(--primary-container); */
-  margin: 10px 0;
+  margin: var(--space-2) 0;
   /* padding: 4px; */
   max-width: 100%;
 }
@@ -564,7 +615,7 @@ input[type="radio"] {
 }
 
 .text-input-size {
-  margin: 8px 0;
+  margin: var(--space-2) 0;
   color: var(--on-surface-variant);
   font-size: 14px;
 }
@@ -576,8 +627,8 @@ input[type="radio"] {
 .sub-field {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .sub-field:first-child {
@@ -590,7 +641,7 @@ input[type="radio"] {
 
 .glyph-input {
   width: 300px;
-  margin-left: 10px;
+  margin-left: var(--space-2);
 }
 
 .text-input {
@@ -608,7 +659,7 @@ button {
   border: none;
   border-radius: var(--radius-lg);
   padding: 8px 16px;
-  margin: 10px 8px 0 0;
+  margin: var(--space-2) var(--space-2) 0 0;
   cursor: pointer;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
@@ -628,7 +679,7 @@ input[type="file"] {
   border-radius: var(--radius-lg);
   font-size: 14px;
   padding: 16px 20px;
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
   cursor: pointer;
   width: 100%;
   max-width: 360px;
@@ -646,14 +697,13 @@ input[type="file"]::file-selector-button {
   border: none;
   border-radius: var(--radius-lg);
   padding: 6px 12px;
-  margin-right: 12px;
+  margin-right: var(--space-3);
   cursor: pointer;
 }
 
 .generate-button {
   background: var(--primary);
   color: var(--on-primary);
-  margin: 32px 8px 20px 0;
   padding: 10px 20px;
 }
 
@@ -661,26 +711,34 @@ input[type="file"]::file-selector-button {
 #download-button {
   background: var(--secondary);
   color: var(--on-secondary);
-  margin-top: 32px;
+}
+
+/* Same margin rhythm across all three action buttons so the gap above
+   them and before the code output box is consistent regardless of which
+   buttons happen to be in view. */
+.generate-button,
+#copy-button,
+#download-button {
+  margin: var(--space-7) var(--space-2) var(--space-6) 0;
 }
 
 .remove-button {
-  margin: 0 0 0 10px;
+  margin: 0 0 0 var(--space-2);
   padding: 2px 8px;
   /* background: var(--surface-container-high); */
   /* color: var(--on-surface-variant); */
 }
 
 #no-images-error {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2);
 }
 /* ---- File info / size list ---- */
 
 .file-input-entry {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 10px 0;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
 }
 
 .file-input-entry span {
@@ -691,7 +749,7 @@ input[type="file"]::file-selector-button {
 .file-info {
   color: var(--text-muted);
   font-size: 12px;
-  margin-left: 20px;
+  margin-left: var(--space-5);
   max-width: 320px;
   white-space: pre;
 }
@@ -699,7 +757,7 @@ input[type="file"]::file-selector-button {
 .file-name {
   display: block;
   margin-left: 0;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   font-weight: 500;
   color: var(--on-surface-variant);
 }
@@ -716,11 +774,11 @@ input[type="file"]::file-selector-button {
 #image-size-settings li {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  margin: 6px 0;
+  gap: var(--space-3);
+  margin: var(--space-2) 0;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
 }
 
 .image-size-thumb {
@@ -752,13 +810,20 @@ input[type="file"]::file-selector-button {
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-lg);
   /* background: var(--primary-container); */
-  margin: 10px 15px 10px 0;
-  /* padding: 4px; */
+  margin: var(--space-2) var(--space-4) var(--space-2) 0;
+  max-width: 100%;
+  /* Small (e.g. 16x16/32x32) glyphs were rendering at native size, i.e. as
+     an illegible postage stamp. Enforce a minimum on-screen size and keep
+     pixel edges crisp when the browser scales the canvas up. */
+  min-width: 96px;
+  min-height: 96px;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 .inlineImg {
   border-radius: var(--radius-lg);
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 /* ---- Code output (dark editor look) ---- */
@@ -798,7 +863,7 @@ input[type="file"]::file-selector-button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .sp-block img {
@@ -831,6 +896,16 @@ input[type="file"]::file-selector-button {
   .sidebar-link.active {
     border-right: none;
   }
+
+  .settings-preview-row {
+    flex-direction: column;
+  }
+
+  .settings-preview-row #step-3 {
+    position: static;
+    width: 100%;
+    flex: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -844,7 +919,7 @@ input[type="file"]::file-selector-button {
 
   .step-num {
     position: static;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
   }
 
   .step::before {
@@ -857,7 +932,6 @@ input[type="file"]::file-selector-button {
 
   .column-left,
   .column-right {
-    float: none;
     width: 100%;
     margin-left: 0;
   }

@@ -41,7 +41,7 @@
     </aside>
 
     <main class="wrapper">
-    <section class="section step" id="step-0">
+    <section class="section step first-step" id="step-0">
       <h1>image2cpp</h1>
       <p><strong>image2cpp</strong> is a simple tool to convert images into byte arrays (and vice versa) for use with (monochrome) displays such as OLEDs on your Arduino or Raspberry Pi.<br>
         It was originally made to work with the Adafruit OLED library (for which your can find an example Arduino sketch <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>) but
@@ -84,6 +84,7 @@
       </section>
     </section>
 
+    <div class="settings-preview-row">
     <section class="section step bottom-divider" id="step-2">
       <div class="step-num">2</div>
       <h2>Image Settings</h2>
@@ -208,6 +209,7 @@
         <div id="images-canvas-container"></div>
       </section>
     </section>
+    </div>
 
     <section class="section step" id="step-4">
       <div class="step-num">4</div>
@@ -364,10 +366,22 @@
       // Sidebar scrollspy
       var links = Array.prototype.slice.call(document.querySelectorAll('.sidebar-link'));
       var steps = links.map(function (l) { return document.getElementById(l.dataset.step); });
+      // Preview (step 3) is pinned beside Settings as a sticky side panel, not
+      // an independent scroll region - and Chrome updates a sticky element's
+      // offsetTop to its stuck position once scrolled past, which would
+      // otherwise make it permanently outrank Settings here. Skip it.
+      var previewIndex = links.findIndex(function (l) { return l.dataset.step === 'step-3'; });
       function onScroll() {
         var pos = window.scrollY + 120;
         var active = 0;
-        steps.forEach(function (s, i) { if (s && s.offsetTop <= pos) active = i; });
+        var bestTop = -Infinity;
+        steps.forEach(function (s, i) {
+          if (i === previewIndex) return;
+          if (s && s.offsetTop <= pos && s.offsetTop > bestTop) {
+            bestTop = s.offsetTop;
+            active = i;
+          }
+        });
         links.forEach(function (l, i) { l.classList.toggle('active', i === active); });
         steps.forEach(function (s, i) { if (s) s.classList.toggle('active', i === active); });
       }
