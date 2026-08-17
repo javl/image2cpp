@@ -137,7 +137,7 @@ body {
   margin: 0;
 }
 
-/* ---- Layout: sidebar + main ---- */
+/* ---- Layout: main ---- */
 
 .layout {
   display: flex;
@@ -146,65 +146,6 @@ body {
   margin: auto;
   padding: var(--space-7) var(--space-6) var(--space-9);
   align-items: flex-start;
-}
-
-.sidebar {
-  position: sticky;
-  top: 96px;
-  flex: 0 0 220px;
-  width: 220px;
-  background: var(--surface-container-low);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  /* padding: 24px 0; */
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-6);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--secondary);
-  border-right: 3px solid transparent;
-}
-
-.sidebar-link:hover {
-  background: var(--surface-container-high);
-  text-decoration: none;
-}
-
-.sidebar-link.active {
-  color: var(--primary);
-  font-weight: 700;
-  background: rgba(26, 188, 156, 0.1);
-  border-right-color: var(--primary);
-}
-
-.sidebar-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  background: var(--surface-container-high);
-  color: var(--secondary);
-  font-size: 12px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.sidebar-link.active .sidebar-num {
-  background: var(--primary);
-  color: var(--on-primary);
 }
 
 .wrapper {
@@ -877,26 +818,6 @@ input[type="file"]::file-selector-button {
     flex-direction: column;
   }
 
-  .sidebar {
-    position: static;
-    width: 100%;
-    flex: none;
-  }
-
-  .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .sidebar-link {
-    border-right: none;
-    border-radius: var(--radius-lg);
-  }
-
-  .sidebar-link.active {
-    border-right: none;
-  }
-
   .settings-preview-row {
     flex-direction: column;
   }
@@ -981,8 +902,4 @@ input[type="file"]::file-selector-button {
 
 :root[data-theme="dark"] .theme-icon-light {
   display: inline;
-}
-
-:root[data-theme="dark"] .sidebar-link.active {
-  background: rgba(26, 188, 156, 0.18);
 }

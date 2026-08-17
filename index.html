@@ -30,15 +30,7 @@
   </header>
 
   <div class="layout">
-    <aside class="sidebar">
-      <nav class="sidebar-nav">
-        <a href="#step-0" class="sidebar-link" data-step="step-0">About and support</a>
-        <a href="#step-1" class="sidebar-link" data-step="step-1"><span class="sidebar-num">1</span>Select Image</a>
-        <a href="#step-2" class="sidebar-link" data-step="step-2"><span class="sidebar-num">2</span>Settings</a>
-        <a href="#step-3" class="sidebar-link" data-step="step-3"><span class="sidebar-num">3</span>Preview</a>
-        <a href="#step-4" class="sidebar-link" data-step="step-4"><span class="sidebar-num">4</span>Output</a>
-      </nav>
-    </aside>
+
 
     <main class="wrapper">
     <section class="section step first-step" id="step-0">
@@ -59,14 +51,16 @@
       <div class="step-num">1</div>
       <section class="sub-section input-methods-row">
         <div class="column-left" id="file-input-column">
-          <h2 class="sub-section-title">Select image</h2>
+          <!-- // <h2 class="sub-section-title">Select image</h2> // -->
+          <h2>Select image</h2>
           <div class="note upload-note">You can import multiple images at once.<br>All processing is done locally in your browser: your images are not uploaded or stored anywhere online.</div>
           <input type="file" id="file-input" name="file-input" multiple/><br />
           <div id="file-input-column-items"></div>
           <div class="note" id="continue-note">Add more images or <a href="#step-2">continue to step 2</a></div>
         </div>
         <div class="column-right">
-          <h2 class="sub-section-title">or paste existing byte array</h2>
+          <!-- // <h2 class="sub-section-title">or paste existing byte array</h2> // -->
+          <h2>Or paste existing byte array</h2>
           <textarea id="byte-input" class="byte-input" placeholder="i.e. 0xff, 0x81, 0x0d, 0x8d, 0xb1, 0xb1, 0x80, 0xfc"></textarea><br />
           <div class="text-input-size">
             <input type="number" min="1" id="text-input-width" class="size-input" value="128" /> x
