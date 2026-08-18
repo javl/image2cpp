@@ -813,20 +813,16 @@ function handleImageSelection(evt) {
 
         const canvas = document.createElement('canvas');
 
-        const imageEntry = document.createElement('li');
+        const entryTemplate = document.getElementById('image-size-entry-template');
+        const entryFragment = entryTemplate.content.cloneNode(true);
+        const imageEntry = entryFragment.querySelector('li');
         imageEntry.setAttribute('data-img', file.name);
 
-        const thumb = document.createElement('img');
-        thumb.className = 'image-size-thumb';
+        const thumb = imageEntry.querySelector('.image-size-thumb');
         thumb.src = img.src;
         thumb.alt = file.name;
 
-        const w = document.createElement('input');
-        w.type = 'number';
-        w.name = 'width';
-        w.id = 'screenWidth';
-        w.min = 1;
-        w.className = 'size-input';
+        const w = imageEntry.querySelector('.js-width');
         w.value = img.width;
         w.oninput = () => {
           const image = images.get(img);
@@ -834,12 +830,7 @@ function handleImageSelection(evt) {
           placeImage(image);
         };
 
-        const h = document.createElement('input');
-        h.type = 'number';
-        h.name = 'height';
-        h.id = 'screenHeight';
-        h.min = 1;
-        h.className = 'size-input';
+        const h = imageEntry.querySelector('.js-height');
         h.value = img.height;
         h.oninput = () => {
           const image = images.get(img);
@@ -847,14 +838,7 @@ function handleImageSelection(evt) {
           placeImage(image);
         };
 
-        const gil = document.createElement('span');
-        gil.innerHTML = 'glyph name';
-        gil.className = 'file-info';
-
-        const gi = document.createElement('input');
-        gi.type = 'text';
-        gi.name = 'glyph';
-        gi.className = 'glyph-input';
+        const gi = imageEntry.querySelector('.js-glyph');
         const [fileName] = file.name.split('.');
         gi.value = fileName;
         gi.onchange = () => {
@@ -887,16 +871,8 @@ function handleImageSelection(evt) {
           checkImagesAvailable();
         };
 
-        const rb = document.createElement('button');
-        rb.className = 'remove-button';
-        rb.innerHTML = 'remove image';
-        rb.onclick = removeButtonOnClick;
-
-        const fn = document.createElement('span');
-        fn.className = 'file-info file-name';
-        fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
-
-        fn.appendChild(rb);
+        imageEntry.querySelector('.js-file-name').textContent = `${file.name} (file resolution: ${img.width} x ${img.height})`;
+        imageEntry.querySelector('.js-remove').onclick = removeButtonOnClick;
 
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
 
@@ -904,18 +880,6 @@ function handleImageSelection(evt) {
         fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
         fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
         fileInputColumn.appendChild(fileInputColumnEntry);
-
-        const imageEntryDetails = document.createElement('div');
-        imageEntryDetails.className = 'image-size-details';
-        imageEntryDetails.appendChild(fn);
-        imageEntryDetails.appendChild(w);
-        imageEntryDetails.appendChild(document.createTextNode(' x '));
-        imageEntryDetails.appendChild(h);
-        imageEntryDetails.appendChild(gil);
-        imageEntryDetails.appendChild(gi);
-
-        imageEntry.appendChild(thumb);
-        imageEntry.appendChild(imageEntryDetails);
 
         imageSizeSettings.appendChild(imageEntry);
 

@@ -469,6 +469,7 @@ code {
   font-size: var(--font-size);
   line-height: 1.5em;
   margin: var(--space-1) 0;
+  font-style: italic;
 }
 
 #glyph-name-note {
@@ -686,6 +687,8 @@ input[type="file"]::file-selector-button {
 /* ---- File info / size list ---- */
 
 .file-input-entry {
+  border: 1px solid var(--border-subtle);
+  padding: var(--space-1);
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -700,17 +703,17 @@ input[type="file"]::file-selector-button {
 .file-info {
   color: var(--text-muted);
   font-size: 12px;
-  margin-left: var(--space-5);
-  max-width: 320px;
-  white-space: pre;
 }
 
 .file-name {
-  display: block;
-  margin-left: 0;
-  margin-bottom: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  margin: 0;
   font-weight: 500;
   color: var(--on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Tighten gap between a row and the explanatory note row that follows */
@@ -724,19 +727,25 @@ input[type="file"]::file-selector-button {
 
 #image-size-settings li {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
+  flex-direction: column;
+  gap: var(--space-2);
   margin: var(--space-2) 0;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-2) var(--space-3);
 }
 
+.image-size-thumb-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .image-size-thumb {
   width: auto;
   height: auto;
-  max-width: 100px;
-  max-height: 100px;
+  max-width: 48px;
+  max-height: 48px;
   border: 1px solid var(--outline-variant);
   border-radius: var(--radius-md, 4px);
   background: var(--surface-variant, #fff);
@@ -744,9 +753,14 @@ input[type="file"]::file-selector-button {
   vertical-align: middle;
 }
 
-.image-size-details {
-  flex: 1;
-  min-width: 0;
+.image-size-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.image-size-header {
+  justify-content: space-between;
 }
 
 /* ---- Preview canvases ---- */
