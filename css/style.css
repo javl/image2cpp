@@ -364,7 +364,7 @@ code {
 }
 
 .table-cell:first-child {
-  width: 30%;
+  width: 20%;
   padding-right: var(--space-4);
 }
 
@@ -417,7 +417,7 @@ code {
 }
 
 .settings-grid .table-cell:first-child {
-  width: 34%;
+  width: 250px;
   flex-shrink: 0;
 }
 
@@ -439,11 +439,11 @@ code {
   /* width: 200px; */
 }
 
-#format-caption-container {
+/* #format-caption-container { */
   /* Reserve space for the longest caption so switching output format
      doesn't shift the fields/buttons below it. */
-  min-height: 100px;
-}
+  /* min-height: 100px; */
+/* } */
 
 #extra-settings-container {
   /* Reserve space for the tallest combination (Adafruit GFX shows both its
