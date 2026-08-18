@@ -19,6 +19,7 @@
   --on-background: #000000;
   --text-muted: #64748b;
   --border-subtle: #e2e8f0;
+  --border-hard: #1abc9c;
   --outline-variant: #bbcac3;
   --editor-bg: #ffffff;
   --error: #ba1a1a;
@@ -183,7 +184,7 @@ body {
   font-weight: 700;
   background: var(--surface-container-high);
   color: var(--secondary);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-hard);
   z-index: 2;
 }
 
@@ -200,7 +201,7 @@ body {
   top: 40px;
   bottom: -24px;
   width: 2px;
-  background: var(--border-subtle);
+  background: var(--border-hard);
   z-index: 1;
 }
 
@@ -275,7 +276,7 @@ code {
 
 .section {
   background: var(--surface-container-lowest);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-hard);
   border-radius: var(--radius-xl);
   padding: var(--space-2);
 }
@@ -299,10 +300,10 @@ code {
 }
 
 /* Legacy divider no longer needed; cards separate content */
-.bottom-divider {
-  border-bottom: none;
-  padding-bottom: var(--space-7);
-}
+/* .bottom-divider { */
+  /* border-bottom: none; */
+  /* padding-bottom: var(--space-7); */
+/* } */
 
 .sub-section {
   clear: both;
