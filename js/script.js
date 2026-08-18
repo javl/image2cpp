@@ -796,20 +796,17 @@ function handleImageSelection(evt) {
       const img = new Image();
 
       img.onload = () => {
-        const fileInputColumnEntry = document.createElement('div');
-        fileInputColumnEntry.className = 'file-input-entry';
+        const fileInputEntryTemplate = document.getElementById('file-input-entry-template');
+        const fileInputEntryFragment = fileInputEntryTemplate.content.cloneNode(true);
+        const fileInputColumnEntry = fileInputEntryFragment.querySelector('.file-input-entry');
 
-        const fileInputColumnEntryThumb = document.createElement('img');
-        fileInputColumnEntryThumb.className = 'image-size-thumb';
+        const fileInputColumnEntryThumb = fileInputColumnEntry.querySelector('.image-size-thumb');
         fileInputColumnEntryThumb.src = img.src;
         fileInputColumnEntryThumb.alt = file.name;
 
-        const fileInputColumnEntryLabel = document.createElement('span');
-        fileInputColumnEntryLabel.textContent = file.name;
+        fileInputColumnEntry.querySelector('.js-label').textContent = file.name;
 
-        const fileInputColumnEntryRemoveButton = document.createElement('button');
-        fileInputColumnEntryRemoveButton.className = 'remove-button';
-        fileInputColumnEntryRemoveButton.innerHTML = 'remove image';
+        const fileInputColumnEntryRemoveButton = fileInputColumnEntry.querySelector('.js-remove');
 
         const canvas = document.createElement('canvas');
 
@@ -876,9 +873,6 @@ function handleImageSelection(evt) {
 
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
 
-        fileInputColumnEntry.appendChild(fileInputColumnEntryThumb);
-        fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
-        fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
         fileInputColumn.appendChild(fileInputColumnEntry);
 
         imageSizeSettings.appendChild(imageEntry);
