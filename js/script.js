@@ -14,12 +14,18 @@ const settings = {
   backgroundColor: 'white',
   scale: 1,
   drawMode: 'horizontal',
-  removeZeroesCommas: false,
+  prefix: '0x',
   ditheringThreshold: 128,
   ditheringMode: 0,
   outputFormat: 'plain',
+  separator: ', ',
+  outputComments: true,
   invertColors: false,
   rotation: 0,
+  esp32Format: false,
+  fullExample: false,
+  bytesPerRow: 16,
+  showAsciiPreview: false,
 };
 
 function bitswap(b) {
@@ -34,60 +40,103 @@ function bitswap(b) {
   return b;
 }
 
+// settings.bytesPerRow of 0 means "wrap using the image's width instead",
+// so a 8px-wide image gets a newline every 8 bytes.
+function resolveWrapWidth(canvasWidth) {
+  return settings.bytesPerRow > 0 ? settings.bytesPerRow : canvasWidth;
+}
+
+// Accumulates formatted bytes (prefix/value/separator, wrapped every
+// wrapWidth bytes) so our ConversionFunctions can use this formatting.
+// horizontal888 always wraps once per image row (canvasWidth) regardless
+// of settings.bytesPerRow. When settings.showAsciiPreview is on, wrapWidth
+// is ignored in favor of explicit endRow() calls (see makeAsciiRowTracker).
+function makeByteWriter(wrapWidth) {
+  let out = '';
+  let count = 0;
+  return {
+    push(value, hexWidth) {
+      const byteSet = bitswap(value).toString(16).padStart(hexWidth, '0');
+      out += `${settings.prefix}${byteSet}${settings.separator}`;
+      count++;
+      if (!settings.showAsciiPreview && count >= wrapWidth) {
+        out += '\n';
+        count = 0;
+      }
+    },
+    // Ends the current line early with a dot/hash ascii-art comment for the
+    // row of pixels just written. Only called when settings.showAsciiPreview
+    // is on, so it always wins over wrapWidth-based wrapping.
+    endRow(asciiRow) {
+      out += `// ${asciiRow.split('').join(' ')}\n`;
+      count = 0;
+    },
+    result() { return out; },
+  };
+}
+
+// Builds a per-image-row ascii-art tracker (. for off, # for on) used
+// when settings.showAsciiPreview is on. Call once per pixel with the same
+// `index` used to read that pixel's channel data; flushes to the writer as
+// a comment at the end of each image row, mirroring the row-boundary math
+// packBitsHorizontal uses to flush partial bytes.
+function makeAsciiRowTracker(canvasWidth, dataLength) {
+  let row = '';
+  return (index, isOn, writer) => {
+    if (!settings.showAsciiPreview) return;
+    row += isOn ? '#' : '.';
+    const pixelIndex = index / 4;
+    const isRowEnd = pixelIndex !== 0 && ((pixelIndex + 1) % canvasWidth) === 0;
+    const isImageEnd = index === dataLength - 4;
+    if (isRowEnd || isImageEnd) {
+      writer.endRow(row);
+      row = '';
+    }
+  };
+}
+
+// Shared by horizontal1bit/horizontalAlpha: pack 8 samples (one per pixel,
+// MSB first) into a byte, resetting early at the end of a row or the image
+// so a partial final byte is still zero-padded instead of dropped.
+function packBitsHorizontal(data, canvasWidth, writer, sampleAt) {
+  let byteIndex = 7;
+  let number = 0;
+  const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
+  for (let index = 0; index < data.length; index += 4) {
+    const isOn = sampleAt(data, index) > settings.ditheringThreshold;
+    if (isOn) {
+      number += 2 ** byteIndex;
+    }
+    byteIndex--;
+
+    const isRowEnd = index !== 0 && (((index / 4) + 1) % canvasWidth) === 0;
+    const isImageEnd = index === data.length - 4;
+    if (isRowEnd || isImageEnd) {
+      byteIndex = -1;
+    }
+
+    if (byteIndex < 0) {
+      writer.push(number, 2);
+      number = 0;
+      byteIndex = 7;
+    }
+
+    trackAscii(index, isOn, writer);
+  }
+}
+
 const ConversionFunctions = {
   // Output the image as a string for horizontally drawing displays
   horizontal1bit(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-    let byteIndex = 7;
-    let number = 0;
-
-    // format is RGBA, so move 4 steps per pixel
-    for (let index = 0; index < data.length; index += 4) {
-      // Get the average of the RGB (we ignore A)
-      const avg = (data[index] + data[index + 1] + data[index + 2]) / 3;
-      if (avg > settings.ditheringThreshold) {
-        number += 2 ** byteIndex;
-      }
-      byteIndex--;
-
-      // if this was the last pixel of a row or the last pixel of the
-      // image, fill up the rest of our byte with zeros so it always contains 8 bits
-      if ((index !== 0 && (((index / 4) + 1) % (canvasWidth)) === 0) || (index === data.length - 4)) {
-        // for(var i=byteIndex;i>-1;i--){
-        // number += Math.pow(2, i);
-        // }
-        byteIndex = -1;
-      }
-
-      // When we have the complete 8 bits, combine them into a hex value
-      if (byteIndex < 0) {
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet}, `;
-        } else {
-          stringFromBytes += byteSet;
-        }
-        outputIndex++;
-        if (outputIndex >= 16) {
-          if (!settings.removeZeroesCommas) {
-            stringFromBytes += '\n';
-          }
-          outputIndex = 0;
-        }
-        number = 0;
-        byteIndex = 7;
-      }
-    }
-    return stringFromBytes;
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
+    const avgRgb = (d, i) => (d[i] + d[i + 1] + d[i + 2]) / 3;
+    packBitsHorizontal(data, canvasWidth, writer, avgRgb);
+    return writer.result();
   },
 
   // Output the image as a string for vertically drawing displays
-  // eslint-disable-next-line no-unused-vars
   vertical1bit(data, canvasWidth, canvasHeight) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
     for (let p = 0; p < Math.ceil(canvasHeight / 8); p++) {
       for (let x = 0; x < canvasWidth; x++) {
         let byteIndex = 7;
@@ -101,142 +150,77 @@ const ConversionFunctions = {
           }
           byteIndex--;
         }
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet.toString(16)}, `;
-        } else {
-          stringFromBytes += byteSet.toString(16);
-        }
-        outputIndex++;
-        if (outputIndex >= 16) {
-          stringFromBytes += '\n';
-          outputIndex = 0;
-        }
+        writer.push(number, 2);
       }
     }
-    return stringFromBytes;
+    return writer.result();
   },
 
   // Output the image as a string for 565 displays (horizontally)
   // eslint-disable-next-line no-unused-vars
   horizontal565(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
+    const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
-      // Get the RGB values
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
-      // calculate the 565 color value
+      // Calculate the 565 color value
       // eslint-disable-next-line no-bitwise
       const rgb = ((r & 0b11111000) << 8) | ((g & 0b11111100) << 3) | ((b & 0b11111000) >> 3);
-      // Split up the color value in two bytes
-      // const firstByte = (rgb >> 8) & 0xff;
-      // const secondByte = rgb & 0xff;
-
-      let byteSet = bitswap(rgb).toString(16);
-      while (byteSet.length < 4) { byteSet = `0${byteSet}`; }
-      if (!settings.removeZeroesCommas) {
-        stringFromBytes += `0x${byteSet}, `;
-      } else {
-        stringFromBytes += byteSet;
-      }
-      // add newlines every 16 bytes
-      outputIndex++;
-      if (outputIndex >= 16) {
-        stringFromBytes += '\n';
-        outputIndex = 0;
-      }
+      writer.push(rgb, 4);
+      trackAscii(index, (r + g + b) / 3 > settings.ditheringThreshold, writer);
     }
-    return stringFromBytes;
+    return writer.result();
   },
-  // Output the image as a string for rgb888 displays (horizontally)
+  // Output the image as a string for rgb888 displays (horizontally), one
+  // image row per output line
   horizontal888(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-
+    const writer = makeByteWriter(canvasWidth);
+    const trackAscii = makeAsciiRowTracker(canvasWidth, data.length);
     // format is RGBA, so move 4 steps per pixel
     for (let index = 0; index < data.length; index += 4) {
-      // Get the RGB values
+      // Split into RGB and pack into a single 24-bit value (MSB first)
       const r = data[index];
       const g = data[index + 1];
       const b = data[index + 2];
-      // calculate the 565 color value
       // eslint-disable-next-line no-bitwise
       const rgb = (r << 16) | (g << 8) | (b);
-      // Split up the color value in two bytes
-      // const firstByte = (rgb >> 8) & 0xff;
-      // const secondByte = rgb & 0xff;
-
-      let byteSet = bitswap(rgb).toString(16);
-      while (byteSet.length < 8) { byteSet = `0${byteSet}`; }
-      if (!settings.removeZeroesCommas) {
-        stringFromBytes += `0x${byteSet}, `;
-      } else {
-        stringFromBytes += byteSet;
-      }
-
-      // add newlines every 16 bytes
-      outputIndex++;
-      if (outputIndex >= canvasWidth) {
-        stringFromBytes += '\n';
-        outputIndex = 0;
-      }
+      writer.push(rgb, 8);
+      trackAscii(index, (r + g + b) / 3 > settings.ditheringThreshold, writer);
     }
-    return stringFromBytes;
+    return writer.result();
   },
   // Output the alpha mask as a string for horizontally drawing displays
   horizontalAlpha(data, canvasWidth) {
-    let stringFromBytes = '';
-    let outputIndex = 0;
-    let byteIndex = 7;
-    let number = 0;
-
-    // format is RGBA, so move 4 steps per pixel
-    for (let index = 0; index < data.length; index += 4) {
-      // Get alpha part of the image data
-      const alpha = data[index + 3];
-      if (alpha > settings.ditheringThreshold) {
-        number += 2 ** byteIndex;
-      }
-      byteIndex--;
-
-      // if this was the last pixel of a row or the last pixel of the
-      // image, fill up the rest of our byte with zeros so it always contains 8 bits
-      if ((index !== 0 && (((index / 4) + 1) % (canvasWidth)) === 0) || (index === data.length - 4)) {
-        byteIndex = -1;
-      }
-
-      // When we have the complete 8 bits, combine them into a hex value
-      if (byteIndex < 0) {
-        let byteSet = bitswap(number).toString(16);
-        if (byteSet.length === 1) { byteSet = `0${byteSet}`; }
-        if (!settings.removeZeroesCommas) {
-          stringFromBytes += `0x${byteSet}, `;
-        } else {
-          stringFromBytes += byteSet;
-        }
-        outputIndex++;
-        if (outputIndex >= 16) {
-          stringFromBytes += '\n';
-          outputIndex = 0;
-        }
-        number = 0;
-        byteIndex = 7;
-      }
-    }
-    return stringFromBytes;
+    const writer = makeByteWriter(resolveWrapWidth(canvasWidth));
+    packBitsHorizontal(data, canvasWidth, writer, (d, i) => d[i + 3]);
+    return writer.result();
   },
 };
 settings.conversionFunction = ConversionFunctions.horizontal1bit;
 
+// Bytes per output value for each conversion function, matching the
+// hexWidth passed to writer.push() in that function (hexWidth / 2).
+// Needed by downloadBinFile() to reconstruct the true byte stream instead
+// of truncating multi-byte values (565/888) down to a single byte.
+const CONVERSION_BYTES_PER_VALUE = new Map([
+  [ConversionFunctions.horizontal1bit, 1],
+  [ConversionFunctions.vertical1bit, 1],
+  [ConversionFunctions.horizontal565, 2],
+  [ConversionFunctions.horizontal888, 4],
+  [ConversionFunctions.horizontalAlpha, 1],
+]);
+
 // An images collection with helper methods
 function Images() {
   const collection = [];
-  this.push = (img, canvas, glyph) => { collection.push({ img, canvas, glyph }); };
+  this.push = (img, canvas, glyph, width, height) => {
+    collection.push({
+      img, canvas, glyph, width, height,
+    });
+  };
   this.remove = (image) => {
     const i = collection.indexOf(image);
     if (i !== -1) collection.splice(i, 1);
@@ -263,8 +247,6 @@ function Images() {
 const images = new Images();
 // Filetypes accepted by the file picker
 // const fileTypes = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'svg'];
-// Variable name, when "arduino code" is required
-const identifier = 'myBitmap';
 
 // Invert the colors of the canvas
 function invert(canvas, ctx) {
@@ -278,15 +260,45 @@ function invert(canvas, ctx) {
   ctx.putImageData(imageData, 0, 0);
 }
 
+// Open the canvas' current contents as a full-size image in a new tab,
+// like a right-click "open image in new tab" on a regular <img>.
+function openCanvasInNewTab(canvas) {
+  canvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Give the new tab time to load the image before freeing the blob.
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  });
+}
+
+// Size the on-screen canvas, preserving aspect ratio: shown at its actual
+// pixel size up to 128px on its largest side, scaled down to fit within
+// 128px otherwise. Never scaled up. Wires up click-to-open-in-new-tab
+// (the "click to open at actual size" hint lives once in the Preview
+// header, not per canvas).
+function setCanvasDisplaySize(canvas) {
+  const maxPreviewSize = 128;
+  const largestSide = Math.max(canvas.width, canvas.height);
+  const scale = largestSide > maxPreviewSize ? maxPreviewSize / largestSide : 1;
+  // eslint-disable-next-line no-param-reassign
+  canvas.style.width = `${Math.round(canvas.width * scale)}px`;
+  // eslint-disable-next-line no-param-reassign
+  canvas.style.height = `${Math.round(canvas.height * scale)}px`;
+  // eslint-disable-next-line no-param-reassign
+  canvas.onclick = () => openCanvasInNewTab(canvas);
+}
+
 // Draw the image onto the canvas, taking into account color and scaling
 function placeImage(_image) {
   const { img } = _image;
   const { canvas } = _image;
   const ctx = canvas.getContext('2d');
 
-  // reset canvas size
-  canvas.width = Number.isFinite(settings.screenWidth) && settings.screenWidth > 0 ? settings.screenWidth : 1;
-  canvas.height = Number.isFinite(settings.screenHeight) && settings.screenHeight > 0 ? settings.screenHeight : 1;
+  // reset canvas size (falls back to the canvas' current size for images,
+  // like a re-imported byte array, that aren't tracked in the image list
+  // with their own width/height)
+  canvas.width = Number.isFinite(_image.width) && _image.width > 0 ? _image.width : canvas.width;
+  canvas.height = Number.isFinite(_image.height) && _image.height > 0 ? _image.height : canvas.height;
   // eslint-disable-next-line no-param-reassign
   _image.ctx = ctx;
   ctx.save();
@@ -425,8 +437,8 @@ function placeImage(_image) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (settings.rotation === 90) {
-      canvas.width = settings.screenHeight;
-      canvas.height = settings.screenWidth;
+      canvas.width = clone.height;
+      canvas.height = clone.width;
       ctx.setTransform(1, 0, 0, 1, canvas.width, 0);
       ctx.rotate(Math.PI / 2);
       ctx.drawImage(clone, 0, 0);
@@ -435,8 +447,8 @@ function placeImage(_image) {
       ctx.rotate(Math.PI);
       ctx.drawImage(clone, 0, 0);
     } else if (settings.rotation === 270) {
-      canvas.width = settings.screenHeight;
-      canvas.height = settings.screenWidth;
+      canvas.width = clone.height;
+      canvas.height = clone.width;
       ctx.setTransform(1, 0, 0, 1, 0, canvas.height);
       ctx.rotate(Math.PI * 1.5);
       ctx.drawImage(clone, 0, 0);
@@ -456,6 +468,8 @@ function placeImage(_image) {
     ctx.drawImage(clone, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
+
+  setCanvasDisplaySize(canvas);
 }
 
 // Handle drawing each of our images
@@ -466,6 +480,7 @@ function updateAllImages() {
 }
 
 // Easy way to update settings controlled by a textfield
+// eslint-disable-next-line no-unused-vars
 function updateInteger(fieldName) {
   settings[fieldName] = parseInt(document.getElementById(fieldName).value);
   updateAllImages();
@@ -478,44 +493,31 @@ function updateBoolean(fieldName) {
   updateAllImages();
 }
 
+// Easy way to update settings controlled by a text input
+// eslint-disable-next-line no-unused-vars
+function updateString(fieldName) {
+  settings[fieldName] = document.getElementById(fieldName).value;
+  updateAllImages();
+}
+
 // Convert hex to binary
 function hexToBinary(s) {
-  let i;
   let ret = '';
-  // lookup table for easier conversion. "0" characters are padded for "1" to "7"
-  const lookupTable = {
-    0: '0000',
-    1: '0001',
-    2: '0010',
-    3: '0011',
-    4: '0100',
-    5: '0101',
-    6: '0110',
-    7: '0111',
-    8: '1000',
-    9: '1001',
-    a: '1010',
-    b: '1011',
-    c: '1100',
-    d: '1101',
-    e: '1110',
-    f: '1111',
-    A: '1010',
-    B: '1011',
-    C: '1100',
-    D: '1101',
-    E: '1110',
-    F: '1111',
-  };
-  for (i = 0; i < s.length; i += 1) {
-    // eslint-disable-next-line no-prototype-builtins
-    if (lookupTable.hasOwnProperty(s[i])) {
-      ret += lookupTable[s[i]];
-    } else {
+  for (let i = 0; i < s.length; i += 1) {
+    const nibble = parseInt(s[i], 16);
+    if (Number.isNaN(nibble)) {
       return { valid: false, s };
     }
+    ret += nibble.toString(2).padStart(4, '0');
   }
   return { valid: true, result: ret };
+}
+
+// The plain byte type, independent of drawMode (used by output formats,
+// like adafruit_gfx, that are always byte-packed regardless of the current
+// conversion function).
+function getByteType() {
+  return settings.esp32Format ? 'uint8_t' : 'unsigned char';
 }
 
 // get the type (in arduino code) of the output image
@@ -526,13 +528,61 @@ function getImageType() {
   } if (settings.conversionFunction === ConversionFunctions.horizontal888) {
     return 'unsigned long';
   }
-  return 'unsigned char';
+  return getByteType();
+}
+
+// PROGMEM is an AVR-ism: it's a no-op on ESP32 (flash is memory-mapped
+// there), so the ESP32 output toggle drops it instead of emitting a keyword
+// that does nothing.
+function progmemKeyword() {
+  return settings.esp32Format ? '' : ' PROGMEM';
+}
+
+// Use the horizontally oriented list to draw the image
+// Validates and decodes a comma-split list of pasted hex byte strings into
+// one contiguous bit string (MSB first, each entry padded to a full byte).
+// Returns { valid: true, bits } or { valid: false, s } naming the bad entry.
+function hexListToBits(list) {
+  let bits = '';
+  for (let i = 0; i < list.length; i++) {
+    const binString = hexToBinary(list[i]);
+    if (!binString.valid) {
+      return binString;
+    }
+    bits += binString.result.length === 4 ? `${binString.result}0000` : binString.result;
+  }
+  return { valid: true, bits };
+}
+
+function reportInvalidByteArray(s) {
+  const errorEl = document.getElementById('text-input-error');
+  errorEl.textContent = 'Something went wrong converting the string. Make sure there are no comments in your input.';
+  errorEl.style.display = 'block';
+  // eslint-disable-next-line no-console
+  console.error('invalid hexToBinary: ', s);
+}
+
+// Save the canvas contents inside the (first) image object so it can be
+// reused when scaling/inverting/etc.
+function commitCanvasToFirstImage(canvas) {
+  const img = new Image();
+  img.onload = () => {
+    images.first().img = img;
+  };
+  img.src = canvas.toDataURL('image/png');
 }
 
 // Use the horizontally oriented list to draw the image
 function listToImageHorizontal(list, canvas) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const decoded = hexListToBits(list);
+  if (!decoded.valid) {
+    reportInvalidByteArray(decoded.s);
+    return false;
+  }
+
   const imgData = ctx.createImageData(canvas.width, canvas.height);
   let index = 0;
 
@@ -541,51 +591,25 @@ function listToImageHorizontal(list, canvas) {
   let widthCounter = 0;
 
   // Move the list into the imageData object
-  for (let i = 0; i < list.length; i++) {
-    let binString = hexToBinary(list[i]);
-    if (!binString.valid) {
-      // eslint-disable-next-line no-alert
-      alert('Something went wrong converting the string. Make sure there are no comments in your input?');
-      // eslint-disable-next-line no-console
-      console.error('invalid hexToBinary: ', binString.s);
-      return;
+  for (let k = 0; k < decoded.bits.length; k++, widthCounter++) {
+    // if we've counted enough bits, reset counter for next line
+    if (widthCounter >= widthRoundedUp) {
+      widthCounter = 0;
     }
-    binString = binString.result;
-    if (binString.length === 4) {
-      binString += '0000';
-    }
-
-    // Check if pixel is white or black
-    for (let k = 0; k < binString.length; k++, widthCounter++) {
-      // if we've counted enough bits, reset counter for next line
-      if (widthCounter >= widthRoundedUp) {
-        widthCounter = 0;
-      }
-      // skip 'artifact' pixels due to rounding up to a byte
-      if (widthCounter < canvas.width) {
-        let color = 0;
-        if (binString.charAt(k) === '1') {
-          color = 255;
-        }
-        imgData.data[index] = color;
-        imgData.data[index + 1] = color;
-        imgData.data[index + 2] = color;
-        imgData.data[index + 3] = 255;
-
-        index += 4;
-      }
+    // skip 'artifact' pixels due to rounding up to a byte
+    if (widthCounter < canvas.width) {
+      const color = decoded.bits.charAt(k) === '1' ? 255 : 0;
+      imgData.data[index] = color;
+      imgData.data[index + 1] = color;
+      imgData.data[index + 2] = color;
+      imgData.data[index + 3] = 255;
+      index += 4;
     }
   }
 
-  // Draw the image onto the canvas, then save the canvas contents
-  // inside the img object. This way we can reuse the img object when
-  // we want to scale / invert, etc.
   ctx.putImageData(imgData, 0, 0);
-  const img = new Image();
-  img.onload = () => {
-    images.first().img = img;
-  };
-  img.src = canvas.toDataURL('image/png');
+  commitCanvasToFirstImage(canvas);
+  return true;
 }
 
 // Quick and effective way to draw single pixels onto the canvas
@@ -606,55 +630,84 @@ function listToImageVertical(list, canvas) {
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  const decoded = hexListToBits(list);
+  if (!decoded.valid) {
+    reportInvalidByteArray(decoded.s);
+    return false;
+  }
+
   let page = 0;
   let x = 0;
   let y = 7;
 
   // Move the list into the imageData object
-  for (let i = 0; i < list.length; i++) {
-    let binString = hexToBinary(list[i]);
-    if (!binString.valid) {
-      // eslint-disable-next-line no-alert
-      alert('Something went wrong converting the string. Did you forget to remove any comments from the input?');
-      // eslint-disable-next-line no-console
-      console.error('invalid hexToBinary: ', binString.s);
-      return;
-    }
-    binString = binString.result;
-    if (binString.length === 4) {
-      binString += '0000';
-    }
-
-    // Check if pixel is white or black
-    for (let k = 0; k < binString.length; k++) {
-      let color = 0;
-      if (binString.charAt(k) === '1') {
-        color = 255;
-      }
-      drawPixel(ctx, x, (page * 8) + y, color);
-      y--;
-      if (y < 0) {
-        y = 7;
-        x++;
-        if (x >= settings.screenWidth) {
-          x = 0;
-          page++;
-        }
+  for (let k = 0; k < decoded.bits.length; k++) {
+    const color = decoded.bits.charAt(k) === '1' ? 255 : 0;
+    drawPixel(ctx, x, (page * 8) + y, color);
+    y--;
+    if (y < 0) {
+      y = 7;
+      x++;
+      if (x >= settings.screenWidth) {
+        x = 0;
+        page++;
       }
     }
   }
-  // Save the canvas contents inside the img object. This way we can
-  // reuse the img object when we want to scale / invert, etc.
-  const img = new Image();
-  img.onload = () => {
-    images.first().img = img;
-  };
-  img.src = canvas.toDataURL('image/png');
+
+  commitCanvasToFirstImage(canvas);
+  return true;
+}
+
+// Set width/height preset for byte array text input
+// eslint-disable-next-line no-unused-vars
+function setTextInputSize(width, height) {
+  document.getElementById('text-input-width').value = width;
+  document.getElementById('text-input-height').value = height;
+}
+
+// Show/hide the "no images" error and report whether images are available
+function checkImagesAvailable() {
+  const error = document.getElementById('no-images-error');
+  const glyphNameNote = document.getElementById('glyph-name-note');
+  const previewNote = document.getElementById('preview-note');
+  const hasImages = images.length() > 0;
+  error.style.display = hasImages ? 'none' : 'block';
+  glyphNameNote.style.display = hasImages ? 'block' : 'none';
+  previewNote.style.display = hasImages ? 'block' : 'none';
+  return hasImages;
 }
 
 // Handle inserting an image by pasting code
 // eslint-disable-next-line no-unused-vars
 function handleTextInput(drawMode) {
+  let input = document.getElementById('byte-input').value;
+
+  // Remove Arduino code
+  input = input.replace(/const\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, '');
+  input = input.replace(/\};|\{/g, '');
+
+  // Remove comments (while newlines are still newlines, so the whole
+  // comment is dropped even if it contains a comma, e.g. "// 'name', 8x8px")
+  input = input.replace(/\/\/.*$/gm, '');
+  // Convert newlines to comma
+  input = input.replace(/\r\n|\r|\n/g, ',');
+  // Convert multiple commas in a row into a single one
+  input = input.replace(/,{2,}/g, ',');
+  // Remove whitespace
+  input = input.replace(/\s/g, '');
+  // Remove "0x"
+  input = input.replace(/0[xX]/g, '');
+  // Split into list
+  const list = input.split(',');
+
+  if (list.length === 1 && list[0] === '') {
+    const errorEl = document.getElementById('text-input-error');
+    errorEl.textContent = 'Byte array is empty or invalid. Make sure there are no comments in your input.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
   const canvasContainer = document.getElementById('images-canvas-container');
   const canvas = document.createElement('canvas');
 
@@ -671,29 +724,29 @@ function handleTextInput(drawMode) {
   const image = new Image();
   images.setByIndex(0, { img: image, canvas, ctx: canvas.getContext('2d') });
 
-  let input = document.getElementById('byte-input').value;
+  const success = drawMode === 'horizontal'
+    ? listToImageHorizontal(list, canvas)
+    : listToImageVertical(list, canvas);
 
-  // Remove Arduino code
-  input = input.replace(/const\s+(unsigned\s+char|uint8_t)\s+[a-zA-Z0-9]+\s*\[\]\s*(PROGMEM\s*)?=\s*/g, '');
-  input = input.replace(/\};|\{/g, '');
+  if (success) {
+    setCanvasDisplaySize(canvas);
+    document.getElementById('text-input-error').style.display = 'none';
+    document.querySelectorAll('.no-file-selected').forEach((el) => {
+      // eslint-disable-next-line no-param-reassign
+      el.style.display = 'none';
+    });
+    checkImagesAvailable();
 
-  // Convert newlines to comma (helps to remove comments later)
-  input = input.replace(/\r\n|\r|\n/g, ',');
-  // Convert multiple commas in a row into a single one
-  input = input.replace(/,{2,}/g, ',');
-  // Remove whitespace
-  input = input.replace(/\s/g, '');
-  // Remove comments
-  input = input.replace(/\/\/(.+?),/g, '');
-  // Remove "0x"
-  input = input.replace(/0[xX]/g, '');
-  // Split into list
-  const list = input.split(',');
+    // Mirror the result onto a small preview canvas right below the
+    // buttons, so the pasted array is visible without scrolling to step 3.
+    const previewCanvas = document.getElementById('text-input-preview-canvas');
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+    previewCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    previewCanvas.style.display = 'block';
 
-  if (drawMode === 'horizontal') {
-    listToImageHorizontal(list, canvas);
-  } else {
-    listToImageVertical(list, canvas);
+    const readImagesNoteEl = document.getElementById('read-images-note');
+    readImagesNoteEl.style.display = 'block';
   }
 }
 
@@ -738,6 +791,12 @@ function handleImageSelection(evt) {
     });
   }
 
+  if (files.length > 0) {
+    document.getElementById('continue-note').style.display = 'block';
+  } else {
+    document.getElementById('continue-note').style.display = 'none';
+  }
+
   for (let i = 0; files[i]; i++) {
     // Only process image files.
     if (!files[i].type.match('image.*')) {
@@ -755,72 +814,54 @@ function handleImageSelection(evt) {
       const img = new Image();
 
       img.onload = () => {
-        const fileInputColumnEntry = document.createElement('div');
-        fileInputColumnEntry.className = 'file-input-entry';
+        const fileInputEntryTemplate = document.getElementById('file-input-entry-template');
+        const fileInputEntryFragment = fileInputEntryTemplate.content.cloneNode(true);
+        const fileInputColumnEntry = fileInputEntryFragment.querySelector('.file-input-entry');
 
-        const fileInputColumnEntryLabel = document.createElement('span');
-        fileInputColumnEntryLabel.textContent = file.name;
+        const fileInputColumnEntryThumb = fileInputColumnEntry.querySelector('.image-size-thumb');
+        fileInputColumnEntryThumb.src = img.src;
+        fileInputColumnEntryThumb.alt = file.name;
 
-        const fileInputColumnEntryRemoveButton = document.createElement('button');
-        fileInputColumnEntryRemoveButton.className = 'remove-button';
-        fileInputColumnEntryRemoveButton.innerHTML = 'remove';
+        fileInputColumnEntry.querySelector('.js-label').textContent = file.name;
+
+        const fileInputColumnEntryRemoveButton = fileInputColumnEntry.querySelector('.js-remove');
 
         const canvas = document.createElement('canvas');
 
-        const imageEntry = document.createElement('li');
+        const entryTemplate = document.getElementById('image-size-entry-template');
+        const entryFragment = entryTemplate.content.cloneNode(true);
+        const imageEntry = entryFragment.querySelector('li');
         imageEntry.setAttribute('data-img', file.name);
 
-        const w = document.createElement('input');
-        w.type = 'number';
-        w.name = 'width';
-        w.id = 'screenWidth';
-        w.min = 0;
-        w.className = 'size-input';
+        const thumb = imageEntry.querySelector('.image-size-thumb');
+        thumb.src = img.src;
+        thumb.alt = file.name;
+
+        const w = imageEntry.querySelector('.js-width');
         w.value = img.width;
-        settings.screenWidth = img.width;
         w.oninput = () => {
-          canvas.width = this.value;
-          updateAllImages();
-          updateInteger('screenWidth');
+          const image = images.get(img);
+          image.width = parseInt(w.value, 10);
+          placeImage(image);
         };
 
-        const h = document.createElement('input');
-        h.type = 'number';
-        h.name = 'height';
-        h.id = 'screenHeight';
-        h.min = 0;
-        h.className = 'size-input';
+        const h = imageEntry.querySelector('.js-height');
         h.value = img.height;
-        settings.screenHeight = img.height;
         h.oninput = () => {
-          canvas.height = this.value;
-          updateAllImages();
-          updateInteger('screenHeight');
+          const image = images.get(img);
+          image.height = parseInt(h.value, 10);
+          placeImage(image);
         };
 
-        const gil = document.createElement('span');
-        gil.innerHTML = 'glyph';
-        gil.className = 'file-info';
-
-        const gi = document.createElement('input');
-        gi.type = 'text';
-        gi.name = 'glyph';
-        gi.className = 'glyph-input';
+        const gi = imageEntry.querySelector('.js-glyph');
+        const [fileName] = file.name.split('.');
+        gi.value = fileName;
         gi.onchange = () => {
           const image = images.get(img);
           image.glyph = gi.value;
         };
 
-        const fn = document.createElement('span');
-        fn.className = 'file-info';
-        fn.innerHTML = `${file.name} (file resolution: ${img.width} x ${img.height})`;
-        fn.innerHTML += '<br />';
-
-        const rb = document.createElement('button');
-        rb.className = 'remove-button';
-        rb.innerHTML = 'remove';
-
-        const fileInputColumn = document.getElementById('file-input-column');
+        const fileInputColumn = document.getElementById('file-input-column-items');
         const imageSizeSettings = document.getElementById('image-size-settings');
         const canvasContainer = document.getElementById('images-canvas-container');
 
@@ -835,28 +876,22 @@ function handleImageSelection(evt) {
             document.getElementById('all-same-size').style.display = 'none';
           }
           if (images.length() === 0) {
+            document.getElementById('file-input').value = '';
             noFileSelected.forEach((el) => {
               // eslint-disable-next-line no-param-reassign
               el.style.display = 'block';
             });
           }
           updateAllImages();
+          checkImagesAvailable();
         };
 
-        rb.onclick = removeButtonOnClick;
+        imageEntry.querySelector('.js-file-name').textContent = `${file.name} (image size: ${img.width} x ${img.height} px)`;
+        imageEntry.querySelector('.js-remove').onclick = removeButtonOnClick;
+
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;
 
-        fileInputColumnEntry.appendChild(fileInputColumnEntryLabel);
-        fileInputColumnEntry.appendChild(fileInputColumnEntryRemoveButton);
         fileInputColumn.appendChild(fileInputColumnEntry);
-
-        imageEntry.appendChild(fn);
-        imageEntry.appendChild(w);
-        imageEntry.appendChild(document.createTextNode(' x '));
-        imageEntry.appendChild(h);
-        imageEntry.appendChild(gil);
-        imageEntry.appendChild(gi);
-        imageEntry.appendChild(rb);
 
         imageSizeSettings.appendChild(imageEntry);
 
@@ -864,11 +899,12 @@ function handleImageSelection(evt) {
         canvas.height = img.height;
         canvasContainer.appendChild(canvas);
 
-        images.push(img, canvas, file.name.split('.')[0]);
+        images.push(img, canvas, file.name.split('.')[0], img.width, img.height);
         if (images.length() > 1) {
           document.getElementById('all-same-size').style.display = 'block';
         }
         placeImage(images.last());
+        checkImagesAvailable();
       };
       img.src = file.target.result;
     };
@@ -890,12 +926,70 @@ function imageToString(image) {
 // Get the custom arduino output variable name, if any
 function getIdentifier() {
   const vn = document.getElementById('identifier');
-  return (vn && vn.value.length) ? vn.value : identifier;
+  return (vn && vn.value.length) ? vn.value : '';
+}
+
+// Builds the "// 'glyph', WxHpx" comment line placed before each image's
+// byte array, or '' when comments are disabled. Indent is prefixed when given.
+function glyphComment(image, indent = '') {
+  if (!settings.outputComments) return '';
+  return `${indent}// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
+}
+
+// Wraps generated bitmap array code in a full Arduino sketch, based on
+// oled_example/oled_example.ino, that compiles against the Adafruit
+// SSD1306/GFX libraries and draws the first bitmap on the display.
+function wrapFullExample(arrayCode, varName, width, height) {
+  return `#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+// Initialize display with standard I2C reset pin config (-1)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+${arrayCode}
+void setup()   {
+  Serial.begin(9600);
+
+  // Initialize with I2C address 0x3C. You might have to change this to 0x3D for your display.
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed. Check your wiring or I2C address!"));
+    for(;;);
+  }
+
+  display.clearDisplay(); // Make sure the display is cleared
+
+  // drawBitmap(x_coordinate, y_coordinate, array_name, width, height, color)
+  display.drawBitmap(0, 0, ${varName}, ${width}, ${height}, SSD1306_WHITE);
+
+  // Push the memory buffer out to the physical display
+  display.display();
+}
+
+void loop() {
+
+}`;
+}
+
+// Removes the trailing separator comma left after the last byte value.
+// When settings.showAsciiPreview is on, the string always ends with a
+// dot/hash ascii-art comment line instead (see makeAsciiRowTracker), so the
+// comma sits just before that comment rather than at the true end.
+function stripTrailingComma(str) {
+  return settings.showAsciiPreview
+    ? str.replace(/,(\s*\/\/[^\n]*)\n?\s*$/, '$1')
+    : str.replace(/,\s*$/, '');
 }
 
 // Output the image string to the textfield
 // eslint-disable-next-line no-unused-vars
 function generateOutputString() {
+  if (!checkImagesAvailable()) return;
+
   let outputString = '';
   let code = '';
 
@@ -908,23 +1002,35 @@ function generateOutputString() {
         code = imageToString(image);
 
         // Trim whitespace from end and remove trailing comma
-        code = code.replace(/,\s*$/, '');
+        code = stripTrailingComma(code);
 
         code = `\t${code.split('\n').join('\n\t')}\n`;
         // const variableCount = images.length() > 1 ? count++ : '';
-        const comment = `// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
-        bytesUsed += code.split('\n').length * 16; // 16 bytes per line.
+        const comment = glyphComment(image);
+        bytesUsed += code.split('\n').length * resolveWrapWidth(image.canvas.width);
 
-        const varname = getIdentifier() + (image.glyph ? image.glyph.replace(/[^a-zA-Z0-9]/g, '_') : '');
+        const varname = getIdentifier() + (image.glyph ? `${image.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
         varQuickArray.push(varname);
-        code = `${comment}const ${getImageType()} ${varname} [] PROGMEM = {\n${code}};\n`;
+        code = `${comment}const ${getImageType()} ${varname} []${progmemKeyword()} = {\n${code}};\n`;
         outputString += code;
       });
 
       varQuickArray.sort();
-      outputString += `\n// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = ${bytesUsed})\n`;
-      outputString += `const int ${getIdentifier()}_allArray_LEN = ${varQuickArray.length};\n`;
-      outputString += `const ${getImageType()}* ${getIdentifier()}_allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+      if (outputString.length > 0) {
+        outputString += '\n';
+      }
+      if (settings.outputComments) {
+        const storageNote = settings.esp32Format ? '' : ' in PROGMEM';
+        outputString += `// Array of all bitmaps for convenience. (Total bytes used to store images${storageNote} = ${bytesUsed})\n`;
+      }
+      outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
+      outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+
+      if (settings.fullExample) {
+        const first = images.first();
+        const firstVarName = getIdentifier() + (first.glyph ? `${first.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
+        outputString = wrapFullExample(outputString, firstVarName, first.canvas.width, first.canvas.height);
+      }
       break;
     }
 
@@ -933,16 +1039,21 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = `\t// '${image.glyph}, ${image.canvas.width}x${image.canvas.height}px\n`;
+        comment = glyphComment(image, '\t');
         outputString += comment + code;
       });
 
-      outputString = outputString.replace(/,\s*$/, '');
+      outputString = stripTrailingComma(outputString);
 
       outputString = `const ${getImageType()} ${
         getIdentifier()
-      } [] PROGMEM = {`
+      } []${progmemKeyword()} = {`
             + `\n${outputString}\n};`;
+
+      if (settings.fullExample) {
+        const first = images.first();
+        outputString = wrapFullExample(outputString, getIdentifier(), first.canvas.width, first.canvas.height);
+      }
       break;
     }
 
@@ -952,22 +1063,22 @@ function generateOutputString() {
       images.each((image) => {
         code = imageToString(image);
         code = `\t${code.split('\n').join('\n\t')}\n`;
-        comment = `\t// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
+        comment = glyphComment(image, '\t');
         outputString += comment + code;
         if (image.glyph.length === 1) {
           useGlyphs++;
         }
       });
 
-      outputString = outputString.replace(/,\s*$/, '');
-      outputString = `const unsigned char ${
+      outputString = stripTrailingComma(outputString);
+      outputString = `const ${getByteType()} ${
         getIdentifier()
       }Bitmap`
-            + ' [] PROGMEM = {'
+            + ` []${progmemKeyword()} = {`
             + `\n${outputString}\n};\n\n`
             + `const GFXbitmapGlyph ${
               getIdentifier()
-            }Glyphs [] PROGMEM = {\n`;
+            }Glyphs []${progmemKeyword()} = {\n`;
 
       let firstAschiiChar = document.getElementById('first-ascii-char').value;
       const xAdvance = parseInt(document.getElementById('x-advance').value);
@@ -988,7 +1099,7 @@ function generateOutputString() {
         if (image !== images.last()) {
           code += ',';
         }
-        code += `// '${image.glyph}'\n`;
+        code += settings.outputComments ? `// '${image.glyph}'\n` : '\n';
         offset += image.canvas.width;
       });
       code += '};\n';
@@ -997,7 +1108,7 @@ function generateOutputString() {
       // GFXbitmapFont
       outputString += `\nconst GFXbitmapFont ${
         getIdentifier()
-      }Font PROGMEM = {\n`
+      }Font${progmemKeyword()} = {\n`
             + `\t(uint8_t *)${
               getIdentifier()}Bitmap,\n`
             + `\t(GFXbitmapGlyph *)${
@@ -1010,10 +1121,7 @@ function generateOutputString() {
     default: { // plain
       images.each((image) => {
         code = imageToString(image);
-        let comment = '';
-        if (image.glyph) {
-          comment = (`// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`);
-        }
+        let comment = image.glyph ? glyphComment(image) : '';
         if (image.img !== images.first().img) {
           comment = `\n${comment}`;
         }
@@ -1021,32 +1129,56 @@ function generateOutputString() {
         outputString += code;
       });
       // Trim whitespace from end and remove trailing comma
-      outputString = outputString.replace(/,\s*$/g, '');
+      outputString = stripTrailingComma(outputString);
     }
   }
 
   document.getElementById('code-output').value = outputString;
-  document.getElementById('copy-button').disabled = false;
 }
 
 // Copy the final output to the clipboard
 // eslint-disable-next-line no-unused-vars
 function copyOutput() {
-  navigator.clipboard.writeText(document.getElementById('code-output').value);
+  if (!checkImagesAvailable()) return;
+
+  const output = document.getElementById('code-output');
+  if (!output.value) {
+    generateOutputString();
+  }
+  navigator.clipboard.writeText(output.value);
+}
+
+// Rebuilds the true byte stream for the current images/conversion mode by
+// re-splitting each formatted output value (which may be 1, 2 or 4 bytes
+// wide, depending on drawMode) back into its individual bytes, most-
+// significant first. Exposed standalone so it can be exercised directly in
+// tests without going through a real browser file download.
+function computeBinData() {
+  const bytesPerValue = CONVERSION_BYTES_PER_VALUE.get(settings.conversionFunction) || 1;
+  const raw = [];
+  images.each((image) => {
+    const values = imageToString(image)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((token) => parseInt(token, 16));
+    values.forEach((value) => {
+      // Split back into individual bytes, most-significant first, matching
+      // the left-to-right digit order produced by toString(16).padStart().
+      for (let shift = (bytesPerValue - 1) * 8; shift >= 0; shift -= 8) {
+        // eslint-disable-next-line no-bitwise
+        raw.push((value >> shift) & 0xff);
+      }
+    });
+  });
+  return new Uint8Array(raw);
 }
 
 // eslint-disable-next-line no-unused-vars
 function downloadBinFile() {
-  let raw = [];
-  images.each((image) => {
-    const data = imageToString(image)
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((byte) => parseInt(byte, 16));
-    raw = raw.concat(data);
-  });
-  const data = new Uint8Array(raw);
+  if (!checkImagesAvailable()) return;
+
+  const data = computeBinData();
   const a = document.createElement('a');
   a.style = 'display: none';
   document.body.appendChild(a);
@@ -1073,7 +1205,6 @@ function updateOutputFormat(elm) {
   let caption = document.getElementById('format-caption-container');
   const adafruitGfx = document.getElementById('adafruit-gfx-settings');
   const arduino = document.getElementById('arduino-identifier');
-  const removeZeroesCommasContainer = document.getElementById('remove-zeroes-commas-container');
   document.getElementById('code-output').value = '';
 
   for (let i = 0; i < caption.children.length; i++) {
@@ -1082,15 +1213,13 @@ function updateOutputFormat(elm) {
   caption = document.querySelector(`div[data-caption='${elm.value}']`);
   if (caption) caption.style.display = 'block';
 
-  if (elm.value !== 'plain') {
-    arduino.style.display = 'block';
-    removeZeroesCommasContainer.style.display = 'none';
-    settings.removeZeroesCommas = false;
-    document.getElementById('removeZeroesCommas').checked = false;
-  } else {
-    arduino.style.display = 'none';
-    removeZeroesCommasContainer.style.display = 'table-row';
-  }
+  arduino.style.display = elm.value !== 'plain' ? 'block' : 'none';
+
+  settings.prefix = '0x';
+  document.getElementById('prefix').value = '0x';
+  settings.separator = ', ';
+  document.getElementById('separator').value = ', ';
+
   if (elm.value === 'adafruit_gfx') {
     adafruitGfx.style.display = 'block';
   } else {
@@ -1113,12 +1242,11 @@ function updateRadio(fieldName) {
 }
 
 window.onload = () => {
-  document.getElementById('copy-button').disabled = true;
-
   // Add events to the file input button
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
-  document.getElementById('outputFormat').value = 'arduino';
-  document.getElementById('outputFormat').onchange();
+  const outputFormat = document.getElementById('outputFormat');
+  outputFormat.value = 'arduino';
+  updateOutputFormat(outputFormat);
 };

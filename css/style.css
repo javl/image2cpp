@@ -1,178 +1,743 @@
+:root {
+  /* Colors (from restyle design tokens) */
+  --primary: #006b58;
+  --primary-container: #1abc9c;
+  --on-primary: #ffffff;
+  --on-primary-container: #e5fff7;
+  --secondary: #4e6073;
+  --on-secondary: #ffffff;
+  --background: #f7f9fb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f2f4f6;
+  --surface-container: #eceef0;
+  --surface-container-high: #e6e8ea;
+  /* --on-surface: #191c1e; */
+  --on-surface: #000000;
+  /* --on-surface-variant: #3c4a45; */
+  --on-surface-variant: #000000;
+  /* --on-background: #191c1e; */
+  --on-background: #000000;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --border-hard: #1abc9c;
+  --outline-variant: #bbcac3;
+  --editor-bg: #ffffff;
+  --error: #ba1a1a;
+  --focus-ring: rgba(0, 107, 88, 0.25);
+
+  /* Radii */
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+
+  /* Spacing scale (use these for margin/padding/gap instead of magic numbers) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+  --space-9: 64px;
+
+  /* Fonts */
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-size: 14px;
+}
+
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-  font-family: arial;
+body {
+  font-family: var(--font-body);
+  font-size: var(--font-size);
+  line-height: 24px;
+  color: var(--on-background);
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+/* ---- Top nav bar ---- */
+
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface-container-lowest);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.topnav-inner {
+  max-width: 1200px;
+  margin: auto;
+  height: 64px;
+  padding: 0 var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topnav-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-7);
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.topnav-links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.topnav-links a {
+  color: var(--secondary);
+  font-weight: 500;
+  font-size: var(--font-size);
+  text-decoration: underline;
+}
+
+.topnav-links a:hover {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.topnav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.icon-btn {
+  background: transparent;
+  color: var(--secondary);
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  padding: 6px;
+  margin: 0;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  color: var(--primary);
+  background: var(--surface-container);
+  opacity: 1;
+}
+
+.theme-icon-light {
+  display: none;
+}
+
+.btn-reset {
+  margin: 0;
+}
+
+/* ---- Layout: main ---- */
+
+.layout {
+  display: flex;
+  gap: var(--space-7);
+  max-width: 1200px;
+  margin: auto;
+  padding: var(--space-7) var(--space-6) var(--space-9);
+  align-items: flex-start;
 }
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  margin: auto;
-  width: 900px;
+  gap: var(--space-6);
+  flex: 1;
+  min-width: 0;
 }
 
-.section {
-  margin: 10px 0;
+/* ---- Step number rail ---- */
+
+.section.step {
+  position: relative;
+  /* padding-left: 72px; */
+  padding: var(--space-4);
+  scroll-margin-top: 88px;
 }
 
-.bottom-divider {
-  border-bottom: 2px solid #000000;
-  padding-bottom: 20px;
+
+.step-num {
+  position: absolute;
+  left: 16px;
+  top: var(--space-4);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: var(--surface-container-high);
+  color: var(--secondary);
+  border: 1px solid var(--border-hard);
+  z-index: 2;
 }
 
-.sub-section {
-  clear: both;
-  margin-bottom: 1px;
+.active .step-num {
+  background: var(--primary);
+  color: var(--on-primary);
+  border-color: var(--primary);
 }
 
-.section,
-.sub-section {
-  width: 100%;
+/* .step::before {
+  content: "";
+  position: absolute;
+  left: 35px;
+  top: 40px;
+  bottom: -24px;
+  width: 2px;
+  background: var(--border-hard);
+  z-index: 1;
+} */
+
+/* #step-0.step::before, #step-4.step::before {
+  display: none;
+} */
+
+/* step-3 (Preview) lives as a pinned side panel next to Settings, not
+   inline in the vertical step flow, so it doesn't carry a connecting rail */
+/* #step-3.step::before {
+  display: none;
+} */
+
+/* ---- Typography ---- */
+
+h1 {
+  font-size: 30px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--space-2);
 }
 
-.column {
-  float: left;
+.v2 {
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--secondary);
 }
 
-.column-center {
-  min-width: 160px;
-  text-align: center;
-}
-
-.column-right {
-  float: right;
+h2 {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--on-surface);
 }
 
 .sub-section-title {
-  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--primary);
+  margin: 0 0 var(--space-3);
 }
 
 p {
-  margin: 20px 0;
+  margin: var(--space-4) 0;
+  color: var(--on-surface-variant);
 }
+
+a {
+  color: var(--primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--surface-container);
+  padding: 1px 5px;
+  border-radius: var(--radius-lg);
+}
+
+/* ---- Section cards ---- */
+
+.section {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--border-hard);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2);
+}
+
+/* First (intro) section: keep it flush/light */
+.section.first-step {
+  background: transparent;
+  border: none;
+  /* padding: var(--space-5) 0 0; */
+  /* border: 10px solid red; */
+  padding: 0;
+}
+
+.section.first-step p {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.section h2 {
+  margin-bottom: var(--space-1);
+}
+
+/* Legacy divider no longer needed; cards separate content */
+/* .bottom-divider { */
+  /* border-bottom: none; */
+  /* padding-bottom: var(--space-7); */
+/* } */
+
+.sub-section {
+  clear: both;
+  width: 100%;
+}
+
+.section {
+  width: 100%;
+}
+
+/* ---- Settings + live preview layout (step 2 + step 3) ----
+   Preview sits pinned next to Settings so the effect of dithering /
+   threshold / invert etc is visible without scrolling away from the
+   controls that change it. */
+
+.settings-preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.settings-preview-row #step-2 {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-preview-row #step-3 {
+  flex: 0 0 300px;
+  width: 300px;
+  position: sticky;
+  top: 96px;
+}
+
+/* ---- Multi-column (select image row) ---- */
+
+.input-methods-row {
+  display: flex;
+  align-items: space-between;
+  gap: var(--space-5);
+}
+
+.input-methods-row .column-left {
+  width: 50%;
+}
+.input-methods-row .column-right {
+  width: 50%;
+}
+
+.column-left {
+  border-right: 1px solid var(--border-subtle);
+  padding-right: var(--space-3);
+}
+
+.column-right {
+  border-right: none;
+}
+
+/* ---- Table layout for settings ---- */
 
 .table {
   display: table;
-  margin: 10px 0 0;
+  /* margin: var(--space-2) 0 0; */
   width: 100%;
+  border-collapse: collapse;
 }
 
 .table-row {
   display: table-row;
   width: 100%;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .table-cell {
   display: table-cell;
-  padding: 5px 0;
+  padding: var(--space-2) 0;
+  vertical-align: top;
 }
 
 .table-cell:first-child {
-  width: 30%;
+  width: 20%;
+  padding-right: var(--space-4);
 }
 
 .table-cell:last-child {
   width: 70%;
 }
 
-.table-cell:first-child label {
-  font-weight: bold;
+.table-cell:first-child > label {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  /* font-weight: 500; */
+  color: var(--primary);
 }
 
-.table-cell:last-child label {
-  margin-right: 10px;
+.table-cell:last-child > label {
+  margin-right: var(--space-2);
+  color: var(--on-surface-variant);
+  font-size: var(--font-size);
 }
 
 .nested-table {
   margin: 0;
 }
 
+/* ---- Settings rows (step 2) ----
+   Single-column label-left / value-right rows, hairline-divided. Denser
+   than the old 2-up grid, and keeps each setting's note attached under
+   its label instead of floating below the control in the value column. */
+
+.settings-grid {
+  display: block;
+  margin: var(--space-2) 0 0;
+}
+
+.settings-grid .table-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  padding: var(--space-1) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.settings-grid .table-row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.settings-grid .table-cell {
+  padding: 0;
+}
+
+.settings-grid .table-cell:first-child {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.settings-grid .table-cell:last-child {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-grid .table-cell:first-child .note {
+  font-size: 13px;
+  line-height: 1.45em;
+  margin: var(--space-1) 0 0;
+}
+
 .nested-table .table-cell {
-  color: #666;
-  font-size: .9em;
-  width: 200px;
+  color: var(--text-muted);
+  font-size: 0.9em;
+  /* width: 200px; */
+}
+
+/* #format-caption-container { */
+  /* Reserve space for the longest caption so switching output format
+     doesn't shift the fields/buttons below it. */
+  /* min-height: 100px; */
+/* } */
+
+#extra-settings-container {
+  /* Reserve space for the tallest combination (Adafruit GFX shows both its
+     own fields and the Arduino identifier fields) so the Generate/Copy/
+     Download buttons don't jump around when switching output format. */
+  /* min-height: 278px; */
+  transition: min-height 0.15s ease;
 }
 
 #format-caption-container div {
-  color: #505050;
+  color: var(--text-muted);
   display: none;
-  font-size: .9em;
-  line-height: 1.4em;
-  padding: 10px 0 15px;
+  font-size: var(--font-size);
+  line-height: 1.5em;
+  padding: var(--space-2) 0 var(--space-4);
   width: 100%;
 }
 
-.upload-note {
-  max-width: 300px;
+/* ---- Notes / messages ---- */
+
+.note {
+  color: var(--text-muted);
+  font-size: var(--font-size);
+  line-height: 1.5em;
+  margin: var(--space-1) 0;
+  font-style: italic;
+}
+
+#glyph-name-note {
+  display: none;
+}
+
+/* .upload-note {
+  max-width: 320px;
+} */
+
+#continue-note {
+  display: none;
+  margin-top: var(--space-7);
+}
+
+.msg {
+  font-size: 16px;
+  color: var(--text-muted);
+}
+
+.error-msg {
+  color: var(--error);
+  display: none;
+}
+
+/* ---- Form controls ---- */
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: var(--font-size);
+  color: var(--on-surface-variant);
+  background: var(--surface-container);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  padding: 4px 4px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+select {
+  cursor: pointer;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  cursor: pointer;
 }
 
 .byte-input {
   min-height: 160px;
   min-width: 360px;
-}
-
-.code-output {
-  height: 200px;
   width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+  line-height: 22px;
+  resize: vertical;
+}
+#text-input-error {
+  color: var(--error);
+  font-size: var(--font-size);
+  margin-top: var(--space-2);
+  display: none;
 }
 
-.note {
-  color: #666666;
-  font-size: .9em;
-  line-height: 1.4em;
-  margin: 3px 0;
+.text-input-preview-canvas {
+  display: none;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  /* background: var(--primary-container); */
+  margin: var(--space-2) 0;
+  /* padding: 4px; */
+  max-width: 100%;
 }
 
-.file-input-entry {
+#read-images-note {
+  display: none;
+}
+
+.text-input-size {
+  margin: var(--space-2) 0;
+  color: var(--on-surface-variant);
+  font-size: var(--font-size);
+}
+
+.size-input {
+  width: 72px;
+}
+
+.sub-field {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
-button,
-input[type="file"] {
-  background: #00CB99;
-  border-radius: 3px;
-  border: none;
-  color: #fff;
-  font-size: .9em;
-  font-weight: bold;
-  margin: 10px 0 0 0;
-  padding: 4px 8px;
+.sub-field:first-child {
+  margin-top: 0;
 }
 
-input[type="file"] {
-  font-size: 1.0em;
-  padding: 6px 20px;
-}
-
-.generate-button {
-  margin: 40px 0 20px;
-}
-
-.remove-button {
-  margin: 0 0 0 10px;
-  padding: 1px 4px;
-}
-
-.file-info {
-  color: #505050;
-  font-size: .7em;
-  margin-left: 20px;
-  max-width: 300px;
-  white-space: pre;
-}
-
-.size-input{
-  width: 45px;
+.sub-field-label {
+  min-width: 200px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--primary);
 }
 
 .glyph-input {
-  width: 80px;
-  margin-left: 10px;
+  width: 300px;
+  margin-left: var(--space-2);
+}
+
+.text-input {
+  font-family: var(--font-mono);
+}
+
+/* ---- Buttons ---- */
+
+button {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  margin: var(--space-2) var(--space-2) 0 0;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:active {
+  opacity: 0.8;
+}
+
+input[type="file"] {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+  /* border: 2px dashed var(--outline-variant); */
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size);
+  padding: 4px 4px;
+  margin: var(--space-2) 0 0;
+  cursor: pointer;
+  width: 100%;
+  max-width: 360px;
+}
+
+input[type="file"]:hover {
+  background: var(--surface-container-high);
+}
+
+input[type="file"]::file-selector-button {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 6px 12px;
+  margin-right: var(--space-3);
+  cursor: pointer;
+}
+
+.generate-button {
+  background: var(--primary);
+  color: var(--on-primary);
+  padding: 10px 20px;
+}
+
+#copy-button,
+#download-button {
+  background: var(--secondary);
+  color: var(--on-secondary);
+}
+
+/* Same margin rhythm across all three action buttons so the gap above
+   them and before the code output box is consistent regardless of which
+   buttons happen to be in view. */
+.generate-button,
+#copy-button,
+#download-button {
+  margin: var(--space-7) var(--space-2) var(--space-6) 0;
+}
+
+.remove-button {
+  margin: 0 0 0 var(--space-2);
+  padding: 2px 8px;
+  /* background: var(--surface-container-high); */
+  /* color: var(--on-surface-variant); */
+}
+
+#no-images-error {
+  margin-bottom: var(--space-2);
+}
+/* ---- File info / size list ---- */
+
+.file-input-entry {
+  border: 1px solid var(--border-subtle);
+  padding: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.file-input-entry span {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-info {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.file-name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-weight: 500;
+  color: var(--on-surface-variant);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Tighten gap between a row and the explanatory note row that follows */
+.note-row .table-cell {
+  padding-top: 0;
 }
 
 #image-size-settings {
@@ -180,13 +745,44 @@ input[type="file"] {
 }
 
 #image-size-settings li {
-  margin: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-3);
 }
 
-#images-canvas-container canvas {
-  border: 3px solid #88DAC5;
-  margin: 10px 15px;
+.image-size-thumb-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
+
+.image-size-thumb {
+  width: auto;
+  height: auto;
+  max-width: 48px;
+  max-height: 48px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-md, 4px);
+  background: var(--surface-variant, #fff);
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.image-size-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.image-size-header {
+  justify-content: space-between;
+}
+
+/* ---- Preview canvases ---- */
 
 #images-canvas-container {
   align-items: flex-start;
@@ -194,33 +790,167 @@ input[type="file"] {
   flex-wrap: wrap;
 }
 
+#images-canvas-container canvas {
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-lg);
+  /* background: var(--primary-container); */
+  margin: var(--space-2) var(--space-4) var(--space-2) 0;
+  max-width: 100%;
+  cursor: pointer;
+  /* Display width/height are set in JS (setCanvasDisplaySize), capped to
+     128px on the largest side while preserving aspect ratio, and never
+     scaled up beyond the canvas' actual pixel size. */
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+#preview-note {
+  display: none;
+}
+
+.inlineImg {
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-2);
+}
+
+/* ---- Code output (dark editor look) ---- */
+
+.code-output {
+  height: 400px;
+  width: 100%;
+  /* margin-top: 16px; */
+  background: var(--editor-bg);
+  color: var(--on-surface);
+  border: 1px solid var(--on-surface-variant);
+  border-radius: var(--radius-xl);
+  font-family: var(--font-mono);
+  font-size: var(--font-size);
+  line-height: 22px;
+  padding: 20px;
+  resize: vertical;
+}
+
+.code-output:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+
+/* ---- Hidden by default (toggled via JS) ---- */
+
 #arduino-identifier,
 #adafruit-gfx-settings,
 #all-same-size {
   display: none;
 }
 
-.msg {
-  font-size: 1.2em;
+/* ---- Sponsor block ---- */
+
+.sp-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
 }
 
-.error-msg {
-  color: #ff0000;
+.sp-block img {
+  vertical-align: middle;
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .settings-preview-row {
+    flex-direction: column;
+  }
+
+  .settings-preview-row #step-3 {
+    position: static;
+    width: 100%;
+    flex: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .topnav-links {
+    display: none;
+  }
+
+  /* .section.step {
+    padding-left: 32px;
+  } */
+
+  .step-num {
+    position: static;
+    margin-bottom: var(--space-4);
+  }
+
+  /* .step::before {
+    display: none;
+  } */
+
+  .input-methods-row {
+    flex-direction: column;
+  }
+
+  .column-left,
+  .column-right {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .byte-input {
+    min-width: 0;
+  }
+
+  .table-cell:first-child,
+  .table-cell:last-child {
+    display: block;
+    width: 100%;
+  }
+
+  .table-cell:first-child {
+    padding-bottom: 0;
+  }
+
+  .settings-grid .table-row {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+}
+
+/* ---- Dark theme ---- */
+
+:root[data-theme="dark"] {
+  --primary: #4eddbb;
+  --primary-container: #1abc9c;
+  --on-primary: #003a2e;
+  --on-primary-container: #e5fff7;
+  --secondary: #b5c8df;
+  --on-secondary: #17293b;
+  --background: #0f1416;
+  --surface-container-lowest: #171d1f;
+  --surface-container-low: #1a2124;
+  --surface-container: #22282b;
+  --surface-container-high: #2a3033;
+  --on-surface: #e0e3e5;
+  --on-surface-variant: #c3d0c9;
+  --on-background: #e0e3e5;
+  --text-muted: #8a9a94;
+  --border-subtle: #2d3133;
+  --outline-variant: #414a47;
+  --editor-bg: #0b0e0f;
+  --focus-ring: rgba(78, 221, 187, 0.35);
+}
+
+:root[data-theme="dark"] .theme-icon-dark {
   display: none;
 }
 
-h1{
-  padding: 10px;
-  color: white;
-  background-color: #00cb99;
+:root[data-theme="dark"] .theme-icon-light {
+  display: inline;
 }
-
-/*.sp-block {
-  border: 1px solid rgb(65, 65, 65);
-  padding: .5rem;
-  border-radius: 1rem;
-}
-.sp-btn {
-  display: block;
-  margin-top: .5rem;
-}*/
