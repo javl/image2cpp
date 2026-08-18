@@ -166,15 +166,14 @@
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label for="invertColors">Invert image colors</label></div>
+            <div class="table-cell"><label for="invertColors">Invert image colors:</label></div>
             <div class="table-cell">
               <input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" /> <label for="invertColors">Invert</label>
             </div>
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label for="ditheringMode">Dithering: </label>
-            <div class="note">Different dithering algorithms produce different results.</div>
+            <div class="table-cell"><label for="ditheringMode">Dithering mode: </label>
             </div>
             <div class="table-cell">
               <select id="ditheringMode" onchange="updateInteger('ditheringMode')">
@@ -189,7 +188,7 @@
           <div class="table-row">
             <div class="table-cell">
               <label for="ditheringThreshold">Brightness / alpha threshold: </label>
-              <div class="note">0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead. Default is 128.</div>
+              <div class="note">Pixels with brightness above threshold turn white, below turn black (opaque/transparent for alpha mode).</div>
             </div>
             <div class="table-cell">
               <input id="ditheringThreshold" class="size-input" type="number" min="0" max="255" name="ditheringThreshold" oninput="updateInteger('ditheringThreshold')" value="128"/>
