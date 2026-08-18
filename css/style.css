@@ -763,11 +763,9 @@ input[type="file"]::file-selector-button {
   /* background: var(--primary-container); */
   margin: var(--space-2) var(--space-4) var(--space-2) 0;
   max-width: 100%;
-  /* Small (e.g. 16x16/32x32) glyphs were rendering at native size, i.e. as
-     an illegible postage stamp. Enforce a minimum on-screen size and keep
-     pixel edges crisp when the browser scales the canvas up. */
-  min-width: 96px;
-  min-height: 96px;
+  /* Display width/height/aspect-ratio are set in JS (setCanvasDisplaySize)
+     so small glyphs get enlarged without distorting their aspect ratio;
+     independent min-width/min-height here would stretch non-square canvases. */
   image-rendering: crisp-edges;
   image-rendering: pixelated;
 }

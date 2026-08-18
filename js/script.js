@@ -259,6 +259,19 @@ function invert(canvas, ctx) {
   ctx.putImageData(imageData, 0, 0);
 }
 
+// Size the on-screen canvas so tiny glyphs stay legible without distorting
+// their aspect ratio (independent min-width/min-height would stretch them).
+function setCanvasDisplaySize(canvas) {
+  const minVisibleSize = 96;
+  const scale = Math.max(1, minVisibleSize / Math.min(canvas.width, canvas.height));
+  // eslint-disable-next-line no-param-reassign
+  canvas.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
+  // eslint-disable-next-line no-param-reassign
+  canvas.style.width = `${Math.round(canvas.width * scale)}px`;
+  // eslint-disable-next-line no-param-reassign
+  canvas.style.height = 'auto';
+}
+
 // Draw the image onto the canvas, taking into account color and scaling
 function placeImage(_image) {
   const { img } = _image;
@@ -439,6 +452,8 @@ function placeImage(_image) {
     ctx.drawImage(clone, 0, 0);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
   }
+
+  setCanvasDisplaySize(canvas);
 }
 
 // Handle drawing each of our images
