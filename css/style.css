@@ -149,8 +149,7 @@ body {
   gap: var(--space-7);
   max-width: 1200px;
   margin: auto;
-  /* padding: var(--space-7) var(--space-6) var(--space-9); */
-  padding: 0 var(--space-6) var(--space-9);
+  padding: var(--space-7) var(--space-6) var(--space-9);
   align-items: flex-start;
 }
 
