@@ -936,7 +936,9 @@ Adafruit_SSD1306 display(OLED_RESET);
 
 ${arrayCode}
 void setup()   {
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
+  // initialize with the I2C addr 0x3D for the 128x64
+  // replace with 0x3C for the 128x32
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
 
   display.clearDisplay(); // Make sure the display is cleared
   // Draw the bitmap:
