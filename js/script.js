@@ -868,7 +868,7 @@ function handleImageSelection(evt) {
           checkImagesAvailable();
         };
 
-        imageEntry.querySelector('.js-file-name').textContent = `${file.name} (file resolution: ${img.width} x ${img.height})`;
+        imageEntry.querySelector('.js-file-name').textContent = `${file.name} (image size: ${img.width} x ${img.height} px)`;
         imageEntry.querySelector('.js-remove').onclick = removeButtonOnClick;
 
         fileInputColumnEntryRemoveButton.onclick = removeButtonOnClick;

@@ -11,9 +11,12 @@
   --surface-container-low: #f2f4f6;
   --surface-container: #eceef0;
   --surface-container-high: #e6e8ea;
-  --on-surface: #191c1e;
-  --on-surface-variant: #3c4a45;
-  --on-background: #191c1e;
+  /* --on-surface: #191c1e; */
+  --on-surface: #000000;
+  /* --on-surface-variant: #3c4a45; */
+  --on-surface-variant: #000000;
+  /* --on-background: #191c1e; */
+  --on-background: #000000;
   --text-muted: #64748b;
   --border-subtle: #e2e8f0;
   --outline-variant: #bbcac3;
@@ -145,7 +148,8 @@ body {
   gap: var(--space-7);
   max-width: 1200px;
   margin: auto;
-  padding: var(--space-7) var(--space-6) var(--space-9);
+  /* padding: var(--space-7) var(--space-6) var(--space-9); */
+  padding: 0 var(--space-6) var(--space-9);
   align-items: flex-start;
 }
 
@@ -221,6 +225,13 @@ h1 {
   margin-bottom: var(--space-2);
 }
 
+.v2 {
+  font-size: 18px;
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--secondary);
+}
+
 h2 {
   font-size: 20px;
   line-height: 28px;
@@ -244,12 +255,12 @@ p {
 
 a {
   color: var(--primary);
-  text-decoration: none;
+  text-decoration: underline;
   font-weight: 500;
 }
 
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 code {
@@ -266,18 +277,25 @@ code {
   background: var(--surface-container-lowest);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: var(--space-4);
+  padding: var(--space-2);
 }
 
 /* First (intro) section: keep it flush/light */
 .section.first-step {
   background: transparent;
   border: none;
-  padding: var(--space-2) 0 0;
+  /* padding: var(--space-5) 0 0; */
+  /* border: 10px solid red; */
+  padding: 0;
+}
+
+.section.first-step p {
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .section h2 {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-1);
 }
 
 /* Legacy divider no longer needed; cards separate content */
@@ -346,7 +364,7 @@ code {
 
 .table {
   display: table;
-  margin: var(--space-2) 0 0;
+  /* margin: var(--space-2) 0 0; */
   width: 100%;
   border-collapse: collapse;
 }
@@ -507,7 +525,7 @@ select {
   background: var(--surface-container);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
-  padding: 8px 10px;
+  padding: 4px 4px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -630,7 +648,7 @@ input[type="file"] {
   /* border: 2px dashed var(--outline-variant); */
   border-radius: var(--radius-lg);
   font-size: var(--font-size);
-  padding: 16px 20px;
+  padding: 4px 4px;
   margin: var(--space-2) 0 0;
   cursor: pointer;
   width: 100%;

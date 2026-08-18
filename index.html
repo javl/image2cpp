@@ -14,7 +14,7 @@
   <header class="topnav">
     <div class="topnav-inner">
       <div class="topnav-left">
-        <span class="brand">image2cpp</span>
+        <span class="brand">image2cpp <span class="v2">v2</span></span>
         <nav class="topnav-links">
           <a href="https://github.com/javl/image2cpp" target="_blank">view GitHub Repository</a>
         </nav>
@@ -34,7 +34,6 @@
 
     <main class="wrapper">
     <section class="section step first-step" id="step-0">
-      <h1>image2cpp</h1>
       <p><strong>image2cpp</strong> is a simple tool to convert images into byte arrays (and vice versa) for use with (monochrome) displays such as OLEDs on your Arduino or Raspberry Pi.<br>
         It was originally made to work with the Adafruit OLED library (for which your can find an example Arduino sketch <a href="https://github.com/javl/image2cpp/blob/master/oled_example/oled_example.ino" target="_blank">here</a>) but
         has been expanded by the community to be useful in all kind of (embedded) projects.</p>
@@ -95,7 +94,7 @@
           <div class="table-row">
             <div class="table-cell"><label>Canvas size(s): </label>
               <div class="note" id="glyph-name-note">
-                Glyph name is used to identify the image in the code.
+                Glyph name is used to identify the image in the output code.
               </div>
             </div>
             <div class="table-cell">
@@ -107,13 +106,13 @@
                     <span class="file-info file-name js-file-name"></span>
                     <button type="button" class="remove-button js-remove">remove image</button>
                   </div>
-                  <div class="image-size-row">
+                  <div class="image-size-row"><span class="file-info">Canvas size:</span>
                     <input type="number" min="1" class="size-input js-width" name="width" />
                     <span>x</span>
                     <input type="number" min="1" class="size-input js-height" name="height" />
                   </div>
                   <div class="image-size-row">
-                    <span class="file-info">glyph name</span>
+                    <span class="file-info">glyph name:</span>
                     <input type="text" class="glyph-input js-glyph" name="glyph" />
                   </div>
                 </li>
@@ -274,7 +273,7 @@
                 </div>
                 <div data-caption="arduino">
                   <i>Adds some extra Arduino code around the output.
-                  If multiple images are loaded, generates a byte array for each and appends a counter to the identifier.</i>
+                  If multiple images are loaded, generates a byte array for each and appends its glyph name (from step 2 above) to the identifier.</i>
                 </div>
                 <div data-caption="arduino_single">
                   <i>Adds some extra Arduino code around the output.
@@ -313,14 +312,14 @@
                     <div class="table-cell"><label for="fullExample">Full example code:</label></div>
                     <div class="table-cell">
                       <input id="fullExample" type="checkbox" onchange="updateBoolean('fullExample')" />
-                      <span class="note">Include a full example displaying the first image.</span>
+                      <label for="fullExample" class="note">Include a full example displaying the first image.</label>
                     </div>
                   </div>
                   <div class="table-row">
                     <div class="table-cell"><label for="esp32Format">ESP32 formatting:</label></div>
                     <div class="table-cell">
                       <input id="esp32Format" type="checkbox" onchange="updateBoolean('esp32Format')" />
-                      <span class="note">Use <code>uint8_t</code> instead of <code>unsigned char</code> and <code>PROGMEM</code>.</span>
+                      <label for="esp32Format" class="note">Use <code>uint8_t</code> instead of <code>unsigned char</code> and <code>PROGMEM</code>.</label>
                     </div>
                   </div>
                 </div>
