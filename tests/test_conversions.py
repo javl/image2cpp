@@ -48,13 +48,8 @@ BASE_SETTINGS = {
     "esp32Format": False,
     "bytesPerRow": 16,
     "showAsciiPreview": False,
-}
-
-OUTPUT_FORMAT_IDS = {
-    "plain": "outputFormatPlain",
-    "arduino": "outputFormatArduino",
-    "arduino_single": "outputFormatArduinoSingle",
-    "adafruit_gfx": "outputFormatAdafruitGfx",
+    "outputComments": True,
+    "fullExample": False,
 }
 
 # (scenario name, overrides on top of BASE_SETTINGS, optional canvas resize)
@@ -206,9 +201,11 @@ def expected_bin_bytes(output, draw_mode):
 
 
 def reset_canvas_size(page, width, height):
-    """Set canvas size through the real width/height text inputs."""
-    page.fill("#screenWidth", str(width))
-    page.fill("#screenHeight", str(height))
+    """Set canvas size through the first image's per-image width/height
+    inputs in the "Canvas size(s)" list (each image has its own size in the
+    current layout; there's no single global canvas size control anymore)."""
+    page.fill("#image-size-settings li:nth-child(1) input[name='width']", str(width))
+    page.fill("#image-size-settings li:nth-child(1) input[name='height']", str(height))
 
 
 def apply_settings(page, settings):
@@ -216,7 +213,7 @@ def apply_settings(page, settings):
     # Selecting an output format resets prefix/separator to their defaults
     # (updateOutputFormat() in script.js), so this must run before those two
     # fields are filled in below.
-    page.check(f"#{OUTPUT_FORMAT_IDS[settings['outputFormat']]}")
+    page.select_option("#outputFormat", settings["outputFormat"])
     page.check(f"#backgroundColor{settings['backgroundColor'].capitalize()}")
     set_checkbox(page, "#invertColors", settings["invertColors"])
     page.select_option("#ditheringMode", str(settings["ditheringMode"]))
@@ -232,10 +229,13 @@ def apply_settings(page, settings):
     page.fill("#separator", settings["separator"])
     page.fill("#bytesPerRow", str(settings["bytesPerRow"]))
     set_checkbox(page, "#showAsciiPreview", settings["showAsciiPreview"])
-    # esp32Format checkbox only exists in the DOM (visible) for non-plain
-    # output formats; plain output has no type/PROGMEM declarations to affect.
+    set_checkbox(page, "#outputComments", settings["outputComments"])
+    # esp32Format/fullExample checkboxes only exist in the DOM (visible) for
+    # non-plain output formats; plain output has no type/PROGMEM/example code
+    # for them to affect.
     if settings["outputFormat"] != "plain":
         set_checkbox(page, "#esp32Format", settings["esp32Format"])
+        set_checkbox(page, "#fullExample", settings["fullExample"])
 
 
 def set_checkbox(page, selector, checked):
@@ -285,7 +285,7 @@ def run_roundtrip(page, output, draw_mode, width, height):
     page.goto(INDEX_HTML.as_uri())
     # window.onload defaults outputFormat to "arduino"; force it back to plain
     # to match the format the scenario was exported in.
-    page.check(f"#{OUTPUT_FORMAT_IDS['plain']}")
+    page.select_option("#outputFormat", "plain")
     page.fill("#byte-input", output)
     page.fill("#text-input-width", str(width))
     page.fill("#text-input-height", str(height))
