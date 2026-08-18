@@ -23,6 +23,7 @@ const settings = {
   invertColors: false,
   rotation: 0,
   esp32Format: false,
+  fullExample: false,
   bytesPerRow: 16,
   showAsciiPreview: false,
 };
@@ -959,6 +960,41 @@ function glyphComment(image, indent = '') {
   return `${indent}// '${image.glyph}', ${image.canvas.width}x${image.canvas.height}px\n`;
 }
 
+// Wraps generated bitmap array code in a full Arduino sketch, based on
+// oled_example/oled_example.ino, that compiles against the Adafruit
+// SSD1306/GFX libraries and draws the first bitmap on the display.
+function wrapFullExample(arrayCode, varName, width, height) {
+  return `#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+
+#if (SSD1306_LCDHEIGHT != ${settings.screenHeight})
+#error("Height incorrect, please fix Adafruit_SSD1306.h!");
+#endif
+
+${arrayCode}
+void setup()   {
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3D (for the 128x64)
+
+  display.clearDisplay(); // Make sure the display is cleared
+  // Draw the bitmap:
+  // drawBitmap(x position, y position, bitmap data, bitmap width, bitmap height, color)
+  display.drawBitmap(0, 0, ${varName}, ${width}, ${height}, WHITE);
+
+  // Update the display
+  display.display();
+}
+
+void loop() {
+
+}
+`;
+}
+
 // Removes the trailing separator comma left after the last byte value.
 // When settings.showAsciiPreview is on, the string always ends with a
 // dot/hash ascii-art comment line instead (see makeAsciiRowTracker), so the
@@ -1009,6 +1045,12 @@ function generateOutputString() {
       }
       outputString += `const int ${getIdentifier()}allArray_LEN = ${varQuickArray.length};\n`;
       outputString += `const ${getImageType()}* ${getIdentifier()}allArray[${varQuickArray.length}] = {\n\t${varQuickArray.join(',\n\t')}\n};\n`;
+
+      if (settings.fullExample) {
+        const first = images.first();
+        const firstVarName = getIdentifier() + (first.glyph ? `${first.glyph.replace(/[^a-zA-Z0-9]/g, '_')}` : '');
+        outputString = wrapFullExample(outputString, firstVarName, first.canvas.width, first.canvas.height);
+      }
       break;
     }
 
@@ -1027,6 +1069,11 @@ function generateOutputString() {
         getIdentifier()
       } []${progmemKeyword()} = {`
             + `\n${outputString}\n};`;
+
+      if (settings.fullExample) {
+        const first = images.first();
+        outputString = wrapFullExample(outputString, getIdentifier(), first.canvas.width, first.canvas.height);
+      }
       break;
     }
 
@@ -1219,7 +1266,7 @@ window.onload = () => {
   const fileInput = document.getElementById('file-input');
   fileInput.addEventListener('click', () => { this.value = null; }, false);
   fileInput.addEventListener('change', handleImageSelection, false);
-  const outputFormatArduino = document.getElementById('outputFormatArduino');
-  outputFormatArduino.checked = true;
-  outputFormatArduino.onchange();
+  const outputFormat = document.getElementById('outputFormat');
+  outputFormat.value = 'arduino';
+  updateOutputFormat(outputFormat);
 };
