@@ -165,7 +165,8 @@ body {
 
 .section.step {
   position: relative;
-  padding-left: 72px;
+  /* padding-left: 72px; */
+  padding: var(--space-4);
   scroll-margin-top: 88px;
 }
 
@@ -193,7 +194,7 @@ body {
   border-color: var(--primary);
 }
 
-.step::before {
+/* .step::before {
   content: "";
   position: absolute;
   left: 35px;
@@ -202,17 +203,17 @@ body {
   width: 2px;
   background: var(--border-hard);
   z-index: 1;
-}
+} */
 
-#step-0.step::before, #step-4.step::before {
+/* #step-0.step::before, #step-4.step::before {
   display: none;
-}
+} */
 
 /* step-3 (Preview) lives as a pinned side panel next to Settings, not
    inline in the vertical step flow, so it doesn't carry a connecting rail */
-#step-3.step::before {
+/* #step-3.step::before {
   display: none;
-}
+} */
 
 /* ---- Typography ---- */
 
@@ -874,18 +875,18 @@ input[type="file"]::file-selector-button {
     display: none;
   }
 
-  .section.step {
+  /* .section.step {
     padding-left: 32px;
-  }
+  } */
 
   .step-num {
     position: static;
     margin-bottom: var(--space-4);
   }
 
-  .step::before {
+  /* .step::before {
     display: none;
-  }
+  } */
 
   .input-methods-row {
     flex-direction: column;
