@@ -796,11 +796,16 @@ input[type="file"]::file-selector-button {
   /* background: var(--primary-container); */
   margin: var(--space-2) var(--space-4) var(--space-2) 0;
   max-width: 100%;
-  /* Display width/height/aspect-ratio are set in JS (setCanvasDisplaySize)
-     so small glyphs get enlarged without distorting their aspect ratio;
-     independent min-width/min-height here would stretch non-square canvases. */
+  cursor: pointer;
+  /* Display width/height are set in JS (setCanvasDisplaySize), capped to
+     128px on the largest side while preserving aspect ratio, and never
+     scaled up beyond the canvas' actual pixel size. */
   image-rendering: crisp-edges;
   image-rendering: pixelated;
+}
+
+#preview-note {
+  display: none;
 }
 
 .inlineImg {

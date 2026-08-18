@@ -260,17 +260,32 @@ function invert(canvas, ctx) {
   ctx.putImageData(imageData, 0, 0);
 }
 
-// Size the on-screen canvas so tiny glyphs stay legible without distorting
-// their aspect ratio (independent min-width/min-height would stretch them).
+// Open the canvas' current contents as a full-size image in a new tab,
+// like a right-click "open image in new tab" on a regular <img>.
+function openCanvasInNewTab(canvas) {
+  canvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Give the new tab time to load the image before freeing the blob.
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  });
+}
+
+// Size the on-screen canvas, preserving aspect ratio: shown at its actual
+// pixel size up to 128px on its largest side, scaled down to fit within
+// 128px otherwise. Never scaled up. Wires up click-to-open-in-new-tab
+// (the "click to open at actual size" hint lives once in the Preview
+// header, not per canvas).
 function setCanvasDisplaySize(canvas) {
-  const minVisibleSize = 96;
-  const scale = Math.max(1, minVisibleSize / Math.min(canvas.width, canvas.height));
-  // eslint-disable-next-line no-param-reassign
-  canvas.style.aspectRatio = `${canvas.width} / ${canvas.height}`;
+  const maxPreviewSize = 128;
+  const largestSide = Math.max(canvas.width, canvas.height);
+  const scale = largestSide > maxPreviewSize ? maxPreviewSize / largestSide : 1;
   // eslint-disable-next-line no-param-reassign
   canvas.style.width = `${Math.round(canvas.width * scale)}px`;
   // eslint-disable-next-line no-param-reassign
-  canvas.style.height = 'auto';
+  canvas.style.height = `${Math.round(canvas.height * scale)}px`;
+  // eslint-disable-next-line no-param-reassign
+  canvas.onclick = () => openCanvasInNewTab(canvas);
 }
 
 // Draw the image onto the canvas, taking into account color and scaling
@@ -655,9 +670,11 @@ function setTextInputSize(width, height) {
 function checkImagesAvailable() {
   const error = document.getElementById('no-images-error');
   const glyphNameNote = document.getElementById('glyph-name-note');
+  const previewNote = document.getElementById('preview-note');
   const hasImages = images.length() > 0;
   error.style.display = hasImages ? 'none' : 'block';
   glyphNameNote.style.display = hasImages ? 'block' : 'none';
+  previewNote.style.display = hasImages ? 'block' : 'none';
   return hasImages;
 }
 
@@ -712,6 +729,7 @@ function handleTextInput(drawMode) {
     : listToImageVertical(list, canvas);
 
   if (success) {
+    setCanvasDisplaySize(canvas);
     document.getElementById('text-input-error').style.display = 'none';
     document.querySelectorAll('.no-file-selected').forEach((el) => {
       // eslint-disable-next-line no-param-reassign
@@ -927,32 +945,34 @@ function wrapFullExample(arrayCode, varName, width, height) {
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#define OLED_RESET 4
-Adafruit_SSD1306 display(OLED_RESET);
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 
-#if (SSD1306_LCDHEIGHT != ${settings.screenHeight})
-#error("Height incorrect, please fix Adafruit_SSD1306.h!");
-#endif
+// Initialize display with standard I2C reset pin config (-1)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 ${arrayCode}
 void setup()   {
-  // initialize with the I2C addr 0x3D for the 128x64
-  // replace with 0x3C for the 128x32
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
+  Serial.begin(9600);
+
+  // Initialize with I2C address 0x3C. You might have to change this to 0x3D for your display.
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed. Check your wiring or I2C address!"));
+    for(;;);
+  }
 
   display.clearDisplay(); // Make sure the display is cleared
-  // Draw the bitmap:
-  // drawBitmap(x position, y position, bitmap data, bitmap width, bitmap height, color)
-  display.drawBitmap(0, 0, ${varName}, ${width}, ${height}, WHITE);
 
-  // Update the display
+  // drawBitmap(x_coordinate, y_coordinate, array_name, width, height, color)
+  display.drawBitmap(0, 0, ${varName}, ${width}, ${height}, SSD1306_WHITE);
+
+  // Push the memory buffer out to the physical display
   display.display();
 }
 
 void loop() {
 
-}
-`;
+}`;
 }
 
 // Removes the trailing separator comma left after the last byte value.

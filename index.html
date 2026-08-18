@@ -59,6 +59,7 @@
           <h2>1. Select image</h2>
           <div class="note upload-note">You can import multiple images at once.<br>All processing is done locally in your browser: your images are not uploaded or stored anywhere online.</div>
           <input type="file" id="file-input" name="file-input" multiple/><br />
+          <div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
           <div id="file-input-column-items"></div>
           <template id="file-input-entry-template">
             <div class="file-input-entry">
@@ -122,7 +123,6 @@
                   </div>
                 </li>
               </template>
-              <div id="only-images-file-error" class="msg error-msg">Only images file type are allowed</div>
               <div class="no-file-selected msg">Select one or more images at <a href="#step-1">step 1</a> first.</div>
               <button id="all-same-size" onclick="allSameSize()">Apply first image size to all images</button>
             </div>
@@ -230,6 +230,7 @@
     <section class="section step bottom-divider" id="step-3">
       <!-- <div class="step-num">3</div> -->
       <h2>Preview</h2>
+      <div id="preview-note" class="note">Click image to view at actual size</div>
       <section class="sub-section">
         <div class="no-file-selected msg">No files selected</div>
         <div id="images-canvas-container"></div>
