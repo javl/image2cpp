@@ -85,7 +85,7 @@
       <section class="sub-section">
         <div class="table settings-grid">
 
-          <div class="table-row full-row">
+          <div class="table-row">
             <div class="table-cell"><label>Canvas size(s): </label></div>
             <div class="table-cell">
               <ul id="image-size-settings"></ul>
@@ -99,7 +99,10 @@
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label>Canvas background color:</label></div>
+            <div class="table-cell">
+              <label>Canvas background color:</label>
+              <div class="note">Used for parts of the canvas that are not covered by your image.</div>
+            </div>
             <div class="table-cell">
               <input id="backgroundColorWhite" type="radio" name="backgroundColor" value="white" checked="checked" onchange="updateRadio('backgroundColor')"/>
               <label for="backgroundColorWhite" class="smallLabel">White</label>
@@ -107,43 +110,11 @@
               <label for="backgroundColorBlack" class="smallLabel">Black</label>
               <input id="backgroundColorTransparent" type="radio" name="backgroundColor" value="transparent" onchange="updateRadio('backgroundColor')"/>
               <label for="backgroundColorTransparent" class="smallLabel">Transparent</label>
-              <div class="note">
-                <i>Used for parts of the canvas that are not covered by your image.</i>
-              </div>
             </div>
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label for="invertColors">Invert image colors</label></div>
-            <div class="table-cell">
-              <input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" />
-            </div>
-          </div>
-
-          <div class="table-row">
-            <div class="table-cell"><label for="ditheringMode">Dithering: </label></div>
-            <div class="table-cell">
-              <select id="ditheringMode" onchange="updateInteger('ditheringMode')">
-                  <option value="2">Floyd-Steinberg</option>
-                  <option value="0">Binary</option>
-                  <option value="1">Bayer</option>
-                  <option value="3">Atkinson</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="table-row">
-            <div class="table-cell"><label for="ditheringThreshold">Brightness / alpha threshold: </label></div>
-            <div class="table-cell">
-              <input id="ditheringThreshold" class="size-input" type="number" min="0" max="255" name="ditheringThreshold" oninput="updateInteger('ditheringThreshold')" value="128"/>
-              <div class="note">
-                <i>0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead. Default is 128.</i>
-              </div>
-            </div>
-          </div>
-
-          <div class="table-row">
-            <div class="table-cell"><label for="scale">Scaling:</label></div>
+            <div class="table-cell"><label for="scale">Image Scaling:</label></div>
             <div class="table-cell">
               <select id="scale" name="scale" onchange="updateInteger('scale')">
                 <option value="1">original size</option>
@@ -156,15 +127,46 @@
           </div>
 
           <div class="table-row">
-            <div class="table-cell"><label>Center image:</label></div>
+            <div class="table-cell"><label for="invertColors">Invert image colors</label></div>
+            <div class="table-cell">
+              <input id="invertColors" type="checkbox" onchange="updateBoolean('invertColors')" /> <label for="invertColors">Invert</label>
+            </div>
+          </div>
+
+          <div class="table-row">
+            <div class="table-cell"><label for="ditheringMode">Dithering: </label>
+            <div class="note">Different dithering algorithms produce different results.</div>
+            </div>
+            <div class="table-cell">
+              <select id="ditheringMode" onchange="updateInteger('ditheringMode')">
+                  <option value="0">Binary</option>
+                  <option value="1">Bayer</option>
+                  <option value="2">Floyd-Steinberg</option>
+                  <option value="3">Atkinson</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-row">
+            <div class="table-cell">
+              <label for="ditheringThreshold">Brightness / alpha threshold: </label>
+              <div class="note">0 - 255; if the brightness of a pixel is above the given level the pixel becomes white, otherwise they become black. When using alpha, opaque and transparent are used instead. Default is 128.</div>
+            </div>
+            <div class="table-cell">
+              <input id="ditheringThreshold" class="size-input" type="number" min="0" max="255" name="ditheringThreshold" oninput="updateInteger('ditheringThreshold')" value="128"/>
+            </div>
+          </div>
+
+          <div class="table-row">
+            <div class="table-cell">
+              <label>Center image:</label>
+              <div class="note">Centering the image only works when using a canvas larger than the original image.</div>
+            </div>
             <div class="table-cell">
               <input id="centerHorizontally" type="checkbox" onchange="updateBoolean('centerHorizontally')" />
               <label for="centerHorizontally">horizontally</label>
               <input id="centerVertically" type="checkbox" onchange="updateBoolean('centerVertically')" />
               <label for="centerVertically">vertically</label>
-              <div class="note">
-                <i>Centering the image only works when using a canvas larger than the original image.</i>
-              </div>
             </div>
           </div>
 
@@ -288,7 +290,7 @@
                     <div class="table-cell"><label for="esp32Format">ESP32 formatting:</label></div>
                     <div class="table-cell">
                       <input id="esp32Format" type="checkbox" onchange="updateBoolean('esp32Format')" />
-                      <i class="note">Uses <code>uint8_t</code> instead of <code>unsigned char</code> and drops <code>PROGMEM</code>, which is a no-op on ESP32.</i>
+                      <i class="note">Use <code>uint8_t</code> instead of <code>unsigned char</code> and drops <code>PROGMEM</code>, which is a no-op on ESP32.</i>
                     </div>
                   </div>
                 </div>
@@ -323,10 +325,11 @@
                 <i class="note">Set to 0 to wrap using the image's width instead, e.g. an 8px wide image adds a newline every 8th byte.</i>
               </div>
               <div class="sub-field">
+                <label for="showAsciiPreview" class="sub-field-label">Ascii preview:</label>
                 <input id="showAsciiPreview" type="checkbox" onchange="updateBoolean('showAsciiPreview')">
-                <label for="showAsciiPreview">Show ascii preview behind output</label>
-                <i class="note">Adds a dot/hash ascii-art comment after each row of bytes. Forces one image row per output line, regardless of "Bytes per row".</i>
+                <i class="note">Add an ascii-art comment after each row of bytes. Forces one image row per output line, regardless of "Bytes per row".</i>
               </div>
+
             </div>
           </div>
         </div>

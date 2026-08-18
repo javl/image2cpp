@@ -16,7 +16,7 @@ const settings = {
   drawMode: 'horizontal',
   prefix: '0x',
   ditheringThreshold: 128,
-  ditheringMode: 2,
+  ditheringMode: 0,
   outputFormat: 'plain',
   separator: ', ',
   outputComments: true,
